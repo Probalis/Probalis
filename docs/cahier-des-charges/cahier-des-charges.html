@@ -127,7 +127,7 @@ tr:nth-child(even) td { background: #FAFBFC; }
     <tr><td>Forme et face-à-face</td><td><span class="tag ok">En ligne</span></td><td>Dans chaque fiche de match, gratuit (en ligne le 21/11/2026)</td></tr>
     <tr><td>Vitrine : vraies captures</td><td><span class="tag ok">En ligne</span></td><td>10 captures prises le 21/11/2026 avec de vrais matchs (grand match : Arsenal – Manchester City)</td></tr>
     <tr><td>Connexion Google, Premium, Office (admin)</td><td><span class="tag ok">Fait</span></td><td>Premium activé à la main après paiement WhatsApp</td></tr>
-    <tr><td>Mise à jour automatique toutes les 2 h</td><td><span class="tag todo">Presque prête</span></td><td>Dépôt déplacé dans l'organisation <code>Probalis</code> : GitHub Actions marche (tests réussis le 21/11/2026). Copie complète chiffrée en ligne depuis le 21/11/2026 (19 h 30, heure de Paris). Manque : le secret <code>PROBALIS_HISTORY_KEY</code>, puis un premier lancement à la main</td></tr>
+    <tr><td>Mise à jour automatique toutes les 2 h</td><td><span class="tag ok">En marche</span></td><td>Depuis le 21/11/2026 : GitHub Actions dans l'organisation <code>Probalis</code> calcule et met le site en ligne tout seul (premier passage réussi, historique intact)</td></tr>
     <tr><td>Paiement en ligne (Stripe, Flutterwave)</td><td><span class="tag todo">À faire</span></td><td>Prêt en mode démo, pas branché</td></tr>
     <tr><td>Nom de domaine, e-mails professionnels</td><td><span class="tag todo">À faire</span></td><td>E-mails envoyés par Gmail en attendant</td></tr>
   </table>
@@ -529,7 +529,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <li>Pages publiques en 200 (/, /welcome/, /fr/, /en/, paris, ticket, historique, premium, /data/history.json, /data/history-full.bin, /sw.js), vraie page 404, un logo sous /logos/.</li>
     <li>Probalis Office : manifeste, icône, ancienne adresse admin en 404.</li>
   </ul>
-  <h3>7.5 Mise à jour automatique (presque prête)</h3>
+  <h3>7.5 Mise à jour automatique (en marche depuis le 21/11/2026)</h3>
   <p><code>.github/workflows/build.yml</code> relance le calcul toutes les 2 heures (8 h 17 → 22 h 17 UTC, plus 0 h 17) et met le site en ligne.
     Il lance d'abord les <strong>tests automatiques</strong> : si un test échoue, rien n'est calculé ni mis en ligne. <code>.github/workflows/tests.yml</code>
     lance aussi les tests à chaque envoi de code (intégration continue).</p>
@@ -541,8 +541,10 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       chiffrée de l'historique. Sans elle, le premier calcul automatique s'arrête (voulu). <strong>Fait le 21/11/2026</strong> (commit <code>6a53dbd</code>, copie en ligne vérifiée).</li>
     <li>Les secrets GitHub <code>PROBALIS_HISTORY_KEY</code> (même valeur que dans <code>historique.env</code>), <code>CLOUDFLARE_API_TOKEN</code>
       (jeton Cloudflare avec la permission « Cloudflare Pages : Edit ») et <code>CLOUDFLARE_ACCOUNT_ID</code>, plus les 5 variables
-      <code>PROBALIS_*</code>.</li>
-    <li>Lancer une fois à la main (onglet Actions → « Analyses et site » → Run workflow) et vérifier le site.</li>
+      <code>PROBALIS_*</code>. <strong>Tous posés le 21/11/2026.</strong></li>
+    <li>Lancer une fois à la main (onglet Actions → « Analyses et site » → Run workflow) et vérifier le site. <strong>Fait le 21/11/2026</strong> :
+      premier passage réussi en 55 min (cache vide : tout est téléchargé ; les suivants reprennent les données gardées), 290 matchs,
+      jours figés identiques à ceux du PC, un pari de plus réglé.</li>
   </ol>
   <p>Une fois l'automatique en marche, éviter de construire depuis le PC au même moment (deux versions de l'historique). Une construction depuis le PC
     reste possible entre deux passages : elle relit la copie complète en ligne. Tant que l'automatique est bloqué, l'historique n'avance que lors
@@ -600,6 +602,10 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       les secrets Cloudflare étaient déjà posés : l'ancien code aurait republié un historique amputé. Puis dépôt déplacé vers
       <code>Probalis/Probalis</code> (variables et secrets suivis), PC rebranché (<code>git remote</code>), tests lancés à la main dans GitHub : réussis. Site reconstruit et remis en ligne depuis le PC avec la clé :
       294 matchs, 50 résultats ajoutés à l'historique, copie chiffrée en ligne identique à la copie du PC (144 paris et 368 analyses, contre 18 et 74 dans la version publique).</td></tr>
+    <tr><td>21/11/2026</td><td><strong>Mise à jour automatique en marche.</strong> Secret <code>PROBALIS_HISTORY_KEY</code> posé par le porteur du projet,
+      premier « Analyses et site » lancé à la main : tests, calcul (290 matchs), mise en ligne, tout réussi en 55 min. Vérifié ensuite : jours figés
+      identiques à ceux du PC, aucune analyse perdue, site et logos en ligne. Messages du calcul désormais affichés en direct dans l'onglet Actions.
+      Règle : ne plus construire depuis le PC pendant un passage automatique (toutes les 2 h, à la 17e minute, heure UTC).</td></tr>
   </table>
 </section>
 
@@ -614,7 +620,6 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       (dépôt de test <code>Probalis/test-actions</code>, puis les tests du vrai dépôt). Si un jour le compte personnel doit être débloqué :
       photo de profil → Settings → Billing &amp; Licensing → Payment information (Edit avec une carte qui passe, ou Remove puis demande au
       support, support.github.com, d'une « review of the billing lock »). Pas de second compte personnel gratuit : interdit par GitHub.</td></tr>
-    <tr><td>Clé de l'historique dans GitHub</td><td>Après une mise en ligne faite depuis le PC avec la clé (voir 7.5) : dans le dépôt <code>Probalis/Probalis</code>, Settings → Secrets and variables → Actions → New repository secret, nom <code>PROBALIS_HISTORY_KEY</code>, valeur recopiée depuis <code>historique.env</code>. Tant qu'il manque, chaque calcul automatique s'arrête sans rien publier (voulu).</td></tr>
     <tr><td>Secrets e-mails dans GitHub</td><td><code>GMAIL_SCRIPT_URL</code> et <code>GMAIL_SCRIPT_SECRET</code> sont posés. Manquent
       <code>SUPABASE_URL</code> et <code>SUPABASE_SERVICE_ROLE_KEY</code> (voir <code>docs/07</code>, parties 3 à 5) : sans eux, la tâche
       « E-mails du jour » s'arrête proprement chaque matin sans rien envoyer.</td></tr>
