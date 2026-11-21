@@ -17,11 +17,12 @@ from datetime import date
 
 from .data import MatchRow, load_extra, load_history
 from .fixtures import match_names, next_event, round_events, score
-from .leagues import League, season_codes
+from .leagues import LEAGUES, League, season_codes
 from .model import Game, LinkedModel, fit_linked
 
 CUP_ROUNDS = (1, 2, 3, 4, 5, 6, 7, 8, 32, 16, 125, 150, 200, 400)  # numérotation TheSportsDB des tours
 FINAL_ROUND = "200"
+_CODE_OF_TSDB = {str(lg.tsdb_id): lg.code for lg in LEAGUES}  # numéro de ligue TheSportsDB -> notre code
 MAX_ROUNDS = 40
 WOMEN_MAX_DAYS = 2 * 365
 WORLD_MAX_DAYS = 2 * 365
@@ -107,7 +108,8 @@ def _games_from_events(events: list[dict], node_of, kind: str) -> list[Game]:
         if not h or not a or h == a:
             continue
         seen.add(eid)
-        out.append(Game(d, h, a, sc[0], sc[1], kind, neutral=str(e.get("intRound")) == FINAL_ROUND))
+        out.append(Game(d, h, a, sc[0], sc[1], kind, neutral=str(e.get("intRound")) == FINAL_ROUND,
+                        comp=_CODE_OF_TSDB.get(str(e.get("idLeague") or ""), "")))
     return out
 
 
@@ -118,6 +120,7 @@ class Linked:
     node_of_id: dict[str, str]
     names: dict[str, str] = field(default_factory=dict)  # équipe du modèle -> nom affiché
     report: dict = field(default_factory=dict)
+    games: list[Game] = field(default_factory=list)  # matchs joués (forme récente et face-à-face)
 
     def node(self, tsdb_id: str | None) -> str | None:
         n = self.node_of_id.get(str(tsdb_id)) if tsdb_id else None
@@ -182,7 +185,7 @@ def men_cups_data(cups: list[League], today: date) -> LinkedData:
         recent = [m for m in rows if (today - m.date).days <= 3 * 365]
         fd_names = sorted({m.home for m in recent} | {m.away for m in recent})
         for m in recent:
-            games.append(Game(m.date, f"{c}|{m.home}", f"{c}|{m.away}", m.fthg, m.ftag, "dom"))
+            games.append(Game(m.date, f"{c}|{m.home}", f"{c}|{m.away}", m.fthg, m.ftag, "dom", comp=m.league))
         for t in fd_names:
             group_of[f"{c}|{t}"] = c
         ids = by_country.get(c, [])
@@ -217,7 +220,7 @@ def men_cups(cups: list[League], today: date, verbose: bool = True) -> Linked | 
         print(f"  Coupes d'Europe : {n_cup} matchs européens + {len(d.games) - n_cup} matchs de championnat, "
               f"{len(model.teams)} équipes")
     return Linked(model, d.node_of_id, d.names, {"unmatched_teams": d.unmatched,
-                                                  "countries": _group_table(model)})
+                                                  "countries": _group_table(model)}, d.games)
 
 
 def _first_half_share(start_year: int) -> float:
@@ -280,7 +283,7 @@ def women(leagues: list[League], today: date, verbose: bool = True) -> Linked | 
         n_cup = sum(g.kind == "cup" for g in d.games)
         print(f"  Football féminin : {len(d.games) - n_cup} matchs de championnat + {n_cup} matchs européens, "
               f"{len(model.teams)} équipes")
-    return Linked(model, d.node_of_id, d.names, {"countries": _group_table(model)})
+    return Linked(model, d.node_of_id, d.names, {"countries": _group_table(model)}, d.games)
 
 
 def world(leagues: list[League], today: date, verbose: bool = True) -> Linked | None:
@@ -293,4 +296,4 @@ def world(leagues: list[League], today: date, verbose: bool = True) -> Linked | 
                        first_half_share=_first_half_share(_season_start(current)))
     if verbose:
         print(f"  Autres championnats (TheSportsDB) : {len(d.games)} matchs, {len(model.teams)} équipes")
-    return Linked(model, d.node_of_id, d.names, {"countries": _group_table(model)})
+    return Linked(model, d.node_of_id, d.names, {"countries": _group_table(model)}, d.games)

@@ -9,6 +9,7 @@ from datetime import date, datetime, timedelta, timezone
 from ..core.value import Outcome
 from .engine import LeagueModels, add_counts, analyse, factors as engine_factors, fit_league, load_params
 from .data import load_history, load_upcoming_odds, MatchRow
+from . import form
 from .fixtures import Fixture, finished, league_badge, league_rounds, match_names, upcoming_fixtures
 from .leagues import LEAGUES, League, current_season_start, season_codes
 from .linked import DOMESTIC_SOURCES, FINAL_ROUND, Linked, men_cups, women, world
@@ -192,7 +193,8 @@ def _linked_matches(lg: League, linked: Linked, today: date, report: dict,
 
 
 def _run_linked(name: str, builder, lgs: list[League], today: date, matches: list, report: dict,
-                league_info: dict, verbose: bool, league_models: dict | None = None) -> None:
+                league_info: dict, verbose: bool, league_models: dict | None = None,
+                book: form.Book | None = None) -> None:
     if not lgs:
         return
     try:
@@ -204,6 +206,11 @@ def _run_linked(name: str, builder, lgs: list[League], today: date, matches: lis
             print(f"  {name} : indisponible ({e})")
         return
     report[name] = linked.report
+    if book is not None:
+        book.add_games(linked.games)
+        for node, shown in linked.names.items():
+            if shown:
+                book.names.setdefault(node, shown)
     for lg in lgs:
         ms, league_info[lg.code] = _linked_matches(lg, linked, today, report, league_models)
         matches += ms
@@ -219,6 +226,7 @@ def run(today: date | None = None, leagues: tuple[League, ...] = LEAGUES, verbos
     matches, report = [], {"unmatched": [], "leagues": {}}
     league_info: dict[str, dict] = {}
     league_models: dict[str, LeagueModels] = {}
+    book = form.Book()  # tous les matchs joués : forme récente et face-à-face affichés dans les fiches
     for lg in (lg for lg in leagues if lg.category == "domestic"):
         hist = load_history(lg.code, seasons)
         if len(hist) < 100:
@@ -233,6 +241,10 @@ def run(today: date | None = None, leagues: tuple[League, ...] = LEAGUES, verbos
         fresh = _fresh_results(lg, events, hist, names)
         if fresh:
             hist = sorted(hist + fresh, key=lambda m: m.date)
+        country = form.league_country(lg.code)
+        book.add_rows(country, hist)
+        for shown, fd in names.items():
+            book.names.setdefault(f"{country}|{fd}", shown)
         params = load_params()
         lm = fit_league(hist, today, params, include_ref_day=True, season_teams=_season_teams(hist, start))
         league_models[lg.code] = lm
@@ -268,11 +280,14 @@ def run(today: date | None = None, leagues: tuple[League, ...] = LEAGUES, verbos
             print(f"  {lg.code:>3} {lg.name_fr:<15} {n_ok}/{len(fixtures)} matchs analysés "
                   f"({model.n_matches} matchs d'entraînement{extra})")
     _run_linked("europe", men_cups, [lg for lg in leagues if lg.category == "europe"], today, matches, report,
-                league_info, verbose, league_models)
+                league_info, verbose, league_models, book)
     _run_linked("world", world, [lg for lg in leagues if lg.category == "world"], today, matches, report,
-                league_info, verbose)
+                league_info, verbose, book=book)
     _run_linked("women", women, [lg for lg in leagues if lg.category == "women"], today, matches, report,
-                league_info, verbose)
+                league_info, verbose, book=book)
+    report["form"] = form.attach(matches, book)
+    if verbose:
+        print(f"  Forme et face-à-face : {report['form']}/{len(matches)} matchs")
     matches.sort(key=lambda m: m["kickoff"])
     return {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "leagues": league_info, "matches": matches, "report": report}

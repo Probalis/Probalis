@@ -59,13 +59,15 @@ SITE = {
         "res_won": "Gagné", "res_lost": "Perdu", "res_void": "Remboursé", "res_wait": "En attente",
 
         "tour_h2": "Tout ce qu'il faut savoir avant de remplir un coupon.",
-        "tour_note": "Écrans d'exemple : les clubs sont fictifs. Les chiffres des vrais matchs restent dans l'appli.",
+        "tour_note": "Vraies captures de l'appli, prises le {day} : de vrais matchs et leurs vraies analyses.",
+        "tour_note_plain": "Vraies captures de l'appli : de vrais matchs et leurs vraies analyses.",
         "tour": [
             {"tab": "Onglet Matchs", "shot": "match",
              "h3": "Chaque match, décortiqué",
              "p": "Des verdicts clairs (« Plus de 2,5 buts ? OUI, 64 % »), le plus sûr mis en avant, et les raisons chiffrées "
                   "du calcul. Plus de 90 paris par match, corners et cartons compris quand les chiffres existent, chacun avec "
-                  "sa chance en mots simples et sa cote juste."},
+                  "sa chance en mots simples et sa cote juste. Et pour tout le monde : la forme des deux équipes et leurs "
+                  "derniers face-à-face."},
             {"tab": "Onglet Paris", "shot": "bets",
              "h3": "Les plus sûrs du jour, en trois niveaux",
              "p": "Prudent, Équilibré ou Audacieux : chaque jour, les 5 paris les plus probables de chaque niveau, sur des marchés "
@@ -119,7 +121,8 @@ SITE = {
         "price_cur_label": "Monnaie",
         "free_name": "Gratuit", "free_price": "0", "free_unit": "avec un compte Google",
         "free_items": ["1 analyse complète par jour, sur le match de ton choix", "Le n° 1 de chaque liste du jour",
-                       "Ton coupon analysé jusqu'à 3 matchs", "Tout l'historique",
+                       "Ton coupon analysé jusqu'à 3 matchs", "La forme et les face-à-face de chaque match",
+                       "Tout l'historique",
                        "Des analyses en plus quand tu invites tes amis", "Quelques pubs"],
         "free_cta": "Créer mon compte gratuit",
         "prem_name": "Premium", "prem_from": "Dès", "prem_from_unit": "pour 7 jours",
@@ -259,13 +262,15 @@ SITE = {
         "res_won": "Won", "res_lost": "Lost", "res_void": "Void", "res_wait": "Pending",
 
         "tour_h2": "Everything you need to know before filling in a slip.",
-        "tour_note": "Example screens: the clubs are fictional. Numbers for real matches stay inside the app.",
+        "tour_note": "Real screenshots of the app, taken on {day}: real matches and their real analyses.",
+        "tour_note_plain": "Real screenshots of the app: real matches and their real analyses.",
         "tour": [
             {"tab": "Matches tab", "shot": "match",
              "h3": "Every match, broken down",
              "p": "Clear verdicts (“Over 2.5 goals? YES, 64%”), the most reliable one up front, and the reasons behind the "
                   "numbers. More than 90 bets per match, corners and cards included when the figures exist, each with its "
-                  "chance in plain words and its fair odds."},
+                  "chance in plain words and its fair odds. And for everyone: both teams' form and their latest "
+                  "head-to-heads."},
             {"tab": "Bets tab", "shot": "bets",
              "h3": "Today's safest bets, in three levels",
              "p": "Safe, Balanced or Bold: every day, the 5 most likely bets of each level, on markets every bookmaker offers. "
@@ -316,7 +321,8 @@ SITE = {
         "price_cur_label": "Currency",
         "free_name": "Free", "free_price": "0", "free_unit": "with a Google account",
         "free_items": ["1 full analysis a day, on the match of your choice", "The no. 1 of each daily list",
-                       "Your slip analysed up to 3 matches", "The full history",
+                       "Your slip analysed up to 3 matches", "Form and head-to-head for every match",
+                       "The full history",
                        "Extra analyses when you invite friends", "A few ads"],
         "free_cta": "Create my free account",
         "prem_name": "Premium", "prem_from": "From", "prem_from_unit": "for 7 days",

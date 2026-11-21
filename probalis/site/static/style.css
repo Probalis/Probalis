@@ -1355,3 +1355,54 @@ html.js .ha-h { position: absolute; width: 1px; height: 1px; overflow: hidden; c
   :root { --side: 272px; --gut: 56px; }
   .app { max-width: 1240px; }
 }
+
+/* ---------- Forme et face-à-face (fiche match, gratuit) ---------- */
+.fm-teams { display: grid; gap: 10px; margin-top: 12px; }
+.fm-team { padding: 12px 14px; border-radius: 18px; background: var(--bg); min-width: 0; }
+.fm-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.fm-id { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.fm-nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 800; }
+.fm-id small { margin-top: 1px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.fm-chips { flex: none; display: inline-flex; gap: 4px; }
+.fm-c { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 8px;
+  font-style: normal; font-family: var(--font-num); font-size: 11.5px; font-weight: 800; background: var(--line-2); color: var(--ink-2); }
+.fm-c.W { background: var(--green); color: var(--on-green, #052E16); }
+.fm-c.L { background: var(--bad-bg); color: var(--bad-ink); }
+.fm-chips .fm-c:last-child { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--muted); }
+.fm-det { margin-top: 10px; }
+.fm-det summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 8px; min-height: 34px; cursor: pointer;
+  list-style: none; font-size: 12.5px; font-weight: 700; color: var(--ink-2); }
+.fm-det summary::-webkit-details-marker { display: none; }
+.fm-see { display: inline-flex; align-items: center; gap: 3px; flex: none; color: var(--green-ink); font-weight: 800; }
+.fm-see .ic { display: block; flex: none; transition: transform .2s ease; }
+.fm-det[open] .fm-see .ic { transform: rotate(180deg); }
+.fm-list { list-style: none; margin: 4px 0 0; padding: 0; }
+.fm-list li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--divider); min-width: 0; }
+.fm-o { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fm-o small { display: block; margin-top: 2px; font-size: 11.5px; font-weight: 600; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+.fm-s { flex: none; font-family: var(--font-num); font-size: 15px; font-weight: 700; }
+.fm-none { margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.h2h-title { margin-top: 18px; font-size: 15px; font-weight: 800; }
+.h2h-lead { margin-top: 4px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.h2h-sum { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: end; gap: 10px; margin-top: 10px;
+  font-size: 12.5px; font-weight: 700; color: var(--ink-2); }
+.h2h-k b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13.5px; font-weight: 800; color: var(--ink); }
+.h2h-k.draw { text-align: center; }
+.h2h-k.away { text-align: right; }
+.h2h-bar { display: flex; gap: 3px; height: 8px; margin-top: 8px; }
+.h2h-bar i { display: block; min-width: 0; border-radius: 999px; background: var(--chip); }
+.h2h-bar i:first-child { background: var(--green); }
+.h2h-bar i:last-child { background: var(--ink); opacity: .78; }
+.h2h-bar i[style^="width: 0"] { display: none; }
+.h2h-list { list-style: none; margin: 10px 0 0; padding: 0; }
+.h2h-list li { padding: 9px 0; border-top: 1px solid var(--divider); }
+.h2h-m { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px;
+  font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
+.h2h-m > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h2h-m > span:last-child { text-align: right; }
+.h2h-m > span.win { color: var(--ink); font-weight: 800; }
+.h2h-m > b { font-family: var(--font-num); font-size: 15px; font-weight: 700; color: var(--ink); padding: 2px 8px; border-radius: 8px; background: var(--bg); }
+.h2h-list small { display: block; margin-top: 3px; text-align: center; font-size: 11.5px; font-weight: 600; color: var(--muted); }
+/* Deux équipes côte à côte seulement si la carte est assez large (pas dans la colonne étroite de l'ordinateur) */
+.fcard { container-type: inline-size; }
+@container (min-width: 560px) { .fm-teams { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

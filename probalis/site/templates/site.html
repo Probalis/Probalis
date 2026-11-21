@@ -168,7 +168,7 @@
         {% endfor %}
       </ol>
     </div>
-    <p class="tour-note">{{ s.tour_note }}</p>
+    <p class="tour-note">{% if shots_day %}{{ s.tour_note.format(day=shots_day) }}{% else %}{{ s.tour_note_plain }}{% endif %}</p>
   </div>
 </section>
 

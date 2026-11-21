@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Probalis · Cahier des charges et dossier de reprise</title>
+<!--
+  SOURCE DU CAHIER DES CHARGES DE PROBALIS.
+  À METTRE À JOUR À CHAQUE TÂCHE TERMINÉE (ce qui a été fait, comment ça marche, ce qui reste à faire),
+  puis refaire le PDF :  .venv\Scripts\python.exe docs\cahier-des-charges\pdf.py
+  Le dépôt GitHub est PUBLIC : jamais d'adresse e-mail personnelle, de clé, de jeton, de mot de passe ni
+  d'identifiant de compte dans ce document. Seulement les NOMS des réglages et l'endroit où ils sont rangés.
+-->
+<style>
+@font-face { font-family: "Jakarta"; font-weight: 400 800; src: url("../../probalis/site/static/fonts/jakarta-latin.woff2") format("woff2"); }
+@font-face { font-family: "Jakarta"; font-weight: 400 800; src: url("../../probalis/site/static/fonts/jakarta-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+1E00-1EFF, U+20A0-20C4; }
+@font-face { font-family: "Sora"; font-weight: 500 800; src: url("../../probalis/site/static/fonts/sora-latin.woff2") format("woff2"); }
+:root { --night: #0B1F3A; --green: #22C55E; --green-ink: #15803D; --ink: #0B1F3A; --ink2: #475569; --muted: #64748B;
+  --line: #E3E7EE; --bg: #F3F5F8; --warn: #FEF3C7; --warn-ink: #92400E; --bad: #FEE2E2; --bad-ink: #991B1B; }
+@page { size: A4; margin: 18mm 16mm 18mm 16mm;
+  @bottom-left { content: "Probalis · Cahier des charges"; font: 600 8pt "Jakarta", sans-serif; color: #94A3B8; }
+  @bottom-right { content: counter(page) " / " counter(pages); font: 600 8pt "Jakarta", sans-serif; color: #94A3B8; } }
+@page :first { margin: 0; @bottom-left { content: none; } @bottom-right { content: none; } }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font: 400 10pt/1.55 "Jakarta", "Segoe UI", Arial, sans-serif; color: var(--ink); background: #fff; }
+h1, h2, h3, h4 { font-family: "Sora", "Jakarta", sans-serif; color: var(--night); line-height: 1.25; break-after: avoid; }
+h2 { font-size: 17pt; margin: 0 0 10pt; padding-top: 2pt; letter-spacing: -.3px; }
+h2 .n { display: inline-block; min-width: 26pt; color: var(--green-ink); }
+h3 { font-size: 12pt; margin: 16pt 0 6pt; }
+h4 { font-size: 10.5pt; margin: 12pt 0 4pt; }
+p { margin: 0 0 7pt; }
+ul, ol { margin: 0 0 8pt; padding-left: 16pt; }
+li { margin: 0 0 3pt; }
+strong, b { font-weight: 700; }
+code { font: 500 8.6pt/1.4 Consolas, "Cascadia Mono", monospace; background: var(--bg); border: 1px solid var(--line);
+  border-radius: 4px; padding: 0 3px; word-break: break-word; }
+pre { font: 500 8.4pt/1.5 Consolas, "Cascadia Mono", monospace; background: var(--night); color: #E2E8F0; border-radius: 8px;
+  padding: 8pt 10pt; margin: 0 0 9pt; white-space: pre-wrap; word-break: break-word; break-inside: avoid; }
+table { width: 100%; border-collapse: collapse; margin: 4pt 0 10pt; font-size: 8.8pt; break-inside: auto; }
+th { background: var(--night); color: #fff; text-align: left; font-weight: 700; padding: 5pt 6pt; }
+td { padding: 4.5pt 6pt; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr { break-inside: avoid; }
+tr:nth-child(even) td { background: #FAFBFC; }
+.chapter { break-before: page; }
+.box { border-radius: 10px; padding: 9pt 12pt; margin: 6pt 0 10pt; background: var(--bg); border: 1px solid var(--line); break-inside: avoid; }
+.box.green { background: #ECFDF3; border-color: #BBF7D0; }
+.box.warn { background: var(--warn); border-color: #FDE68A; color: var(--warn-ink); }
+.box.bad { background: var(--bad); border-color: #FECACA; color: var(--bad-ink); }
+.box > :last-child { margin-bottom: 0; }
+.tag { display: inline-block; padding: 0 6pt; border-radius: 999px; font-size: 7.6pt; font-weight: 800; line-height: 15pt; white-space: nowrap; }
+.ok { background: #DCFCE7; color: #166534; }
+.todo { background: #FEF3C7; color: #92400E; }
+.block { background: #FEE2E2; color: #991B1B; }
+.prem { background: #0B1F3A; color: #FACC15; }
+.free { background: #E0F2FE; color: #075985; }
+.muted { color: var(--muted); }
+.small { font-size: 8.6pt; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; }
+
+/* Couverture */
+.cover { height: 297mm; width: 210mm; position: relative; overflow: hidden; background: var(--night); color: #fff;
+  padding: 34mm 22mm 20mm; display: flex; flex-direction: column; }
+.cover .ring { position: absolute; right: -60mm; top: -40mm; width: 190mm; height: 190mm; border-radius: 50%;
+  border: 26mm solid rgba(34, 197, 94, .14); }
+.cover .ring2 { position: absolute; left: -50mm; bottom: -70mm; width: 160mm; height: 160mm; border-radius: 50%;
+  border: 14mm solid rgba(255, 255, 255, .05); }
+.cover .logo { width: 86mm; background: #fff; border-radius: 16px; padding: 7mm 8mm; position: relative; }
+.cover .logo img { display: block; width: 100%; }
+.cover h1 { color: #fff; font-size: 31pt; margin: 22mm 0 4mm; letter-spacing: -.8px; position: relative; }
+.cover .slogan { font-family: "Sora", sans-serif; font-size: 15pt; color: #4ADE80; font-weight: 700; position: relative; }
+.cover .lead { margin-top: 10mm; max-width: 140mm; font-size: 11pt; color: #CBD5E1; position: relative; }
+.cover .meta { margin-top: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm; position: relative; }
+.cover .meta div { border-top: 1px solid rgba(255,255,255,.18); padding-top: 3mm; font-size: 9pt; color: #CBD5E1; }
+.cover .meta b { display: block; color: #fff; font-size: 10.5pt; margin-bottom: 1mm; }
+
+/* Sommaire */
+.toc ol { list-style: none; padding: 0; columns: 2; column-gap: 14pt; }
+.toc li { padding: 4pt 0; border-bottom: 1px dashed var(--line); break-inside: avoid; font-weight: 600; }
+.toc li span { color: var(--green-ink); font-weight: 800; display: inline-block; min-width: 20pt; }
+</style>
+</head>
+<body>
+
+<!-- ============================== COUVERTURE ============================== -->
+<section class="cover">
+  <span class="ring"></span><span class="ring2"></span>
+  <div class="logo"><img src="../../brand/probalis-logo-clair.svg" alt="Probalis"></div>
+  <h1>Cahier des charges<br>et dossier de reprise</h1>
+  <div class="slogan">La science du pari · The science of betting</div>
+  <p class="lead">Probalis calcule la vraie chance de chaque pari de football et la dit en mots simples. Ce document
+    décrit tout le projet : ce qu'il fait, comment il fonctionne, ce qui a été décidé et ce qui reste à faire, pour
+    que n'importe qui (une personne ou une autre intelligence artificielle) puisse reprendre le travail sans rien perdre.</p>
+  <div class="meta">
+    <div><b>Version</b>1.1 · 21 novembre 2026</div>
+    <div><b>Application</b>probalis.pages.dev</div>
+    <div><b>Dossier de travail</b>D:\Projets\Probalis</div>
+  </div>
+</section>
+
+<!-- ============================== SOMMAIRE ============================== -->
+<section class="chapter toc">
+  <h2>Sommaire</h2>
+  <ol>
+    <li><span>0</span>Comment utiliser ce document</li>
+    <li><span>1</span>Le projet en bref</li>
+    <li><span>2</span>Identité visuelle</li>
+    <li><span>3</span>Ce que fait l'application</li>
+    <li><span>4</span>Compétitions couvertes</li>
+    <li><span>5</span>Comment ça marche (technique)</li>
+    <li><span>6</span>Fiabilité : les chiffres vérifiés</li>
+    <li><span>7</span>Mise en ligne et exploitation</li>
+    <li><span>8</span>Comptes, services et réglages</li>
+    <li><span>9</span>Journal des décisions</li>
+    <li><span>10</span>Ce qui reste à faire</li>
+    <li><span>11</span>Reprendre le travail (guide pour une autre IA)</li>
+    <li><span>A</span>Petit lexique</li>
+  </ol>
+
+  <h3>État en un coup d'œil (21 novembre 2026)</h3>
+  <table>
+    <tr><th style="width:34%">Élément</th><th style="width:14%">État</th><th>Détail</th></tr>
+    <tr><td>Application en ligne</td><td><span class="tag ok">En ligne</span></td><td>https://probalis.pages.dev (français sous /fr/, anglais sous /en/)</td></tr>
+    <tr><td>Site vitrine</td><td><span class="tag ok">En ligne</span></td><td>/ (français) et /welcome/ (anglais)</td></tr>
+    <tr><td>25 compétitions, moteur v2</td><td><span class="tag ok">Fait</span></td><td>Moteur appris sur 2024/25, vérifié sur 2025/26</td></tr>
+    <tr><td>Verdicts OUI / NON, historique des analyses</td><td><span class="tag ok">Fait</span></td><td>Verdicts en Premium ; analyses passées publiques</td></tr>
+    <tr><td>Forme et face-à-face</td><td><span class="tag ok">En ligne</span></td><td>Dans chaque fiche de match, gratuit (en ligne le 21/11/2026)</td></tr>
+    <tr><td>Vitrine : vraies captures</td><td><span class="tag ok">En ligne</span></td><td>10 captures prises le 21/11/2026 avec de vrais matchs (grand match : Arsenal – Manchester City)</td></tr>
+    <tr><td>Connexion Google, Premium, Office (admin)</td><td><span class="tag ok">Fait</span></td><td>Premium activé à la main après paiement WhatsApp</td></tr>
+    <tr><td>Mise à jour automatique toutes les 2 h</td><td><span class="tag block">Bloquée</span></td><td>Compte GitHub verrouillé (facturation) + clé Cloudflare à ajouter</td></tr>
+    <tr><td>Paiement en ligne (Stripe, Flutterwave)</td><td><span class="tag todo">À faire</span></td><td>Prêt en mode démo, pas branché</td></tr>
+    <tr><td>Nom de domaine, e-mails professionnels</td><td><span class="tag todo">À faire</span></td><td>E-mails envoyés par Gmail en attendant</td></tr>
+  </table>
+</section>
+
+<!-- ============================== 0 ============================== -->
+<section class="chapter">
+  <h2><span class="n">0</span>Comment utiliser ce document</h2>
+  <p>Ce cahier des charges est la <strong>mémoire du projet</strong>. Il est tenu à jour à chaque tâche terminée : ce qui
+    a été fait, comment ça fonctionne, ce qui reste à faire. Il permet de reprendre le projet avec une autre
+    personne ou une autre intelligence artificielle.</p>
+  <div class="box green">
+    <p><strong>Où le trouver et comment le refaire</strong></p>
+    <ul>
+      <li>Source modifiable : <code>docs/cahier-des-charges/cahier-des-charges.html</code> (HTML simple, à éditer avec n'importe quel éditeur).</li>
+      <li>PDF : <code>docs/cahier-des-charges/Probalis-cahier-des-charges.pdf</code>.</li>
+      <li>Refaire le PDF après une modification : <code>.venv\Scripts\python.exe docs\cahier-des-charges\pdf.py</code> (utilise Google Chrome ou Edge).</li>
+    </ul>
+  </div>
+  <div class="box warn">
+    <p><strong>Règle de sécurité :</strong> le dépôt GitHub du projet est <strong>public</strong>. Ce document ne contient
+      donc jamais d'adresse e-mail personnelle, de mot de passe, de clé secrète, de jeton ni d'identifiant de compte.
+      Il donne seulement le <em>nom</em> des réglages et l'endroit où ils sont rangés. Les valeurs privées restent dans le
+      dossier <code>D:\Projets\Probalis-secrets</code> (hors du dépôt) et dans les « secrets » de Supabase, GitHub et Cloudflare.</p>
+  </div>
+  <h3>Documents complémentaires (dans le dépôt)</h3>
+  <table>
+    <tr><th style="width:38%">Fichier</th><th>Contenu</th></tr>
+    <tr><td><code>README.md</code></td><td>Démarrage, commandes, organisation des dossiers</td></tr>
+    <tr><td><code>PRODUCT.md</code></td><td>Public visé, promesse, principes du produit et de la marque</td></tr>
+    <tr><td><code>docs/01-catalogue-marches.md</code></td><td>Tous les types de paris couverts, comparés à betPawa et 1xBet</td></tr>
+    <tr><td><code>docs/02-budget-et-monetisation.md</code></td><td>Budget, modèle économique (gratuit + Premium + pub maison)</td></tr>
+    <tr><td><code>docs/03-sources-gratuites.md</code></td><td>Sources de données gratuites, hébergement, mise à jour automatique</td></tr>
+    <tr><td><code>docs/04-identite-visuelle.md</code></td><td>Nom, logo, couleurs, polices</td></tr>
+    <tr><td><code>docs/05-fiabilite.md</code></td><td>Tous les tests de fiabilité et leurs chiffres</td></tr>
+    <tr><td><code>docs/06-comptes-premium-emails.md</code></td><td>Supabase, Google, paiements, e-mails : mise en route pas à pas</td></tr>
+    <tr><td><code>docs/07-recompenses-admin-notifications.md</code></td><td>Récompenses, parrainage, Probalis Office, notifications, e-mails par Gmail</td></tr>
+  </table>
+</section>
+
+<!-- ============================== 1 ============================== -->
+<section class="chapter">
+  <h2><span class="n">1</span>Le projet en bref</h2>
+  <div class="two">
+    <div class="box"><p><strong>Nom</strong><br>Probalis</p><p><strong>Slogan</strong><br>« La science du pari » · « The science of betting »</p>
+      <p><strong>Type</strong><br>Application web installable (PWA) : Android, iPhone et ordinateur, sans passer par les stores.</p></div>
+    <div class="box"><p><strong>Langues</strong><br>Français (tutoiement) et anglais, tous pays.</p>
+      <p><strong>Sport</strong><br>Football seul pour l'instant (moteurs basket, hockey, tennis prévus plus tard).</p>
+      <p><strong>Budget de départ</strong><br>0 $ : sources gratuites, hébergement gratuit.</p></div>
+  </div>
+  <h3>À quoi sert Probalis</h3>
+  <p>Pour chaque match, Probalis calcule la <strong>vraie chance</strong> de chaque pari (plus de 100 marchés par match :
+    résultat, double chance, nombre de buts, les deux équipes marquent, score exact, mi-temps, handicaps, corners, cartons…)
+    et la traduit en mots simples (« ≈ 8 fois sur 10 ») et en <strong>cote juste</strong>. Le parieur compare cette cote
+    juste avec la cote de son bookmaker avant de remplir son coupon.</p>
+  <h3>Pour qui</h3>
+  <p>D'abord les parieurs de football d'<strong>Afrique francophone</strong> (Cameroun, Côte d'Ivoire, Sénégal…), surtout
+    sur téléphone Android, souvent avec une connexion lente, qui paient en FCFA (mobile money). L'anglais sert aux autres
+    pays (Nigeria, Ghana, Kenya…).</p>
+  <h3>Les principes qui ne changent jamais</h3>
+  <ul>
+    <li><strong>L'honnêteté d'abord.</strong> Chaque chiffre affiché doit pouvoir être vérifié. Les listes du jour et les analyses
+      sont enregistrées <em>avant</em> les matchs et jugées avec le score final, gagnées comme perdues. Rien n'est effacé.</li>
+    <li><strong>Jamais de promesse de gain.</strong> Pas d'étiquette « Valeur », pas de « gain garanti », jamais 100 %. On dit
+      clairement que la marge du bookmaker fait perdre un peu d'argent à long terme.</li>
+    <li><strong>Calé sur les cotes.</strong> Quand des cotes existent, le moteur s'appuie sur elles : le test a montré qu'un modèle
+      seul ne bat pas le marché juste avant le match.</li>
+    <li><strong>Aucun bookmaker cité</strong> sur le site (on dit « ton bookmaker »).</li>
+    <li><strong>Jeu responsable :</strong> 18 ans et plus, ne jamais pousser à miser plus.</li>
+    <li><strong>Léger :</strong> rapide sur un petit téléphone et une connexion 2G/3G.</li>
+    <li><strong>Rien d'inventé sur la vitrine :</strong> de vrais matchs et de vraies analyses seulement.</li>
+  </ul>
+</section>
+
+<!-- ============================== 2 ============================== -->
+<section class="chapter">
+  <h2><span class="n">2</span>Identité visuelle</h2>
+  <p><strong>Logo :</strong> un « P » dont la boucle est une jauge verte remplie à 70 %. Fichiers dans <code>brand/</code>
+    (<code>probalis-logo-clair.svg</code>, <code>probalis-logo-sombre.svg</code>, <code>probalis-icone.svg</code>,
+    <code>probalis-icone-maskable.svg</code>). Ne jamais le déformer ni changer ses couleurs. Probalis Office (l'appli de
+    l'administrateur) a la même forme avec un P doré.</p>
+  <table>
+    <tr><th>Rôle</th><th>Couleur</th><th>Usage</th></tr>
+    <tr><td>Bleu nuit</td><td><code>#0B1F3A</code></td><td>Texte, en-têtes, fond du mode sombre</td></tr>
+    <tr><td>Vert Probalis</td><td><code>#22C55E</code> (texte : <code>#15803D</code>)</td><td>Actions, chances élevées, « OUI », paris gagnés</td></tr>
+    <tr><td>Blanc et gris</td><td><code>#FFFFFF</code>, <code>#F3F5F8</code>, <code>#E3E7EE</code></td><td>Fonds et séparations du mode clair (dominant)</td></tr>
+    <tr><td>Rouge</td><td><code>#FEE2E2</code> / <code>#991B1B</code></td><td>Seulement erreurs et paris perdus</td></tr>
+  </table>
+  <p><strong>Polices :</strong> Plus Jakarta Sans (texte) et Sora (chiffres et titres), hébergées sur le site
+    (<code>probalis/site/static/fonts/</code>). <strong>Modes :</strong> clair par défaut, sombre bleu nuit, au choix de l'utilisateur.</p>
+  <p><strong>Logos des équipes et des championnats :</strong> vrais logos (TheSportsDB), téléchargés une fois, réduits et servis par
+    notre site sous <code>/logos/</code> (rapide même sur connexion lente). Les logos blancs sont détectés et posés sur une
+    pastille bleu nuit. Un logo faux se corrige dans <code>probalis/site/logo_overrides.json</code>.</p>
+</section>
+
+<!-- ============================== 3 ============================== -->
+<section class="chapter">
+  <h2><span class="n">3</span>Ce que fait l'application</h2>
+  <p>Cinq onglets en bas de l'écran (barre latérale sur ordinateur, dès 1 024 px de large) :
+    <strong>Matchs</strong>, <strong>Paris</strong>, <strong>Ticket</strong>, <strong>Historique</strong>, <strong>Compte</strong>.</p>
+
+  <h3>3.1 Matchs</h3>
+  <p>La liste des matchs d'aujourd'hui à J+8, rangés par compétition, avec le pourcentage 1-N-2 (flouté pour un compte gratuit),
+    et un match « à la une ». Chaque match ouvre sa <strong>fiche</strong> :</p>
+  <table>
+    <tr><th style="width:30%">Bloc de la fiche</th><th style="width:12%">Accès</th><th>Ce qu'il montre</th></tr>
+    <tr><td>En-tête</td><td><span class="tag free">Gratuit</span></td><td>Logos, heure, barre 1-N-2 (chiffres Premium), « Calé sur les cotes » ou « Modèle seul », niveau de confiance</td></tr>
+    <tr><td>Verdicts OUI / NON</td><td><span class="tag prem">Premium</span></td><td>« Plus de 2,5 buts ? OUI · 64 % ». Le plus sûr est mis en avant avec sa preuve (« ce type de verdict s'est vérifié X fois sur Y en 2025/26 »). Sous 55 % : « serré », pas de verdict.</td></tr>
+    <tr><td>Pourquoi</td><td><span class="tag prem">Premium</span></td><td>3 à 5 raisons chiffrées du calcul (attaque, défense, occasions créées, forme, terrain, avis des cotes)</td></tr>
+    <tr><td>Forme et face-à-face</td><td><span class="tag free">Gratuit</span></td><td>5 derniers matchs de chaque équipe (toutes compétitions suivies, V/N/D, buts marqués et encaissés) et leurs 5 dernières rencontres</td></tr>
+    <tr><td>Buts attendus, scores probables, marchés clés</td><td><span class="tag prem">Premium</span></td><td>Buts attendus de chaque équipe, 3 scores les plus probables, paris principaux avec cote juste</td></tr>
+    <tr><td>Compare ta cote</td><td><span class="tag prem">Premium</span></td><td>Le parieur tape la cote de son bookmaker : l'appli dit si elle vaut le coup par rapport à la cote juste</td></tr>
+    <tr><td>Cotes du marché</td><td><span class="tag prem">Premium</span></td><td>Notre chance, la cote juste et la meilleure cote moyenne du marché (championnats avec cotes)</td></tr>
+    <tr><td>Onglets de marchés</td><td>Mixte</td><td>Principaux, Buts, Équipes, Corners &amp; cartons, Mi-temps, Handicaps, Score exact, Combinés (plus de 100 marchés)</td></tr>
+  </table>
+  <p>Un compte gratuit débloque <strong>1 analyse complète par jour</strong>, sur le match de son choix, gardée sur le compte toute la journée.</p>
+
+  <h3>3.2 Paris (les plus sûrs du jour)</h3>
+  <ul>
+    <li><strong>3 niveaux :</strong> Prudent (68–80 %), Équilibré (55–68 %), Audacieux (36–50 %). <strong>5 paris</strong> par niveau et par jour,
+      un seul par match, au plus 2 du même type, marchés classiques que tous les bookmakers proposent.</li>
+    <li>Exclus : football féminin, matchs à faible confiance, corners et cartons (tant que l'historique n'a pas prouvé leur fiabilité).</li>
+    <li><strong>3 coupons tout prêts</strong> à cote ≈ 2, ≈ 3 et ≈ 5.</li>
+    <li>En haut : le <strong>bilan d'hier</strong>. En bas : la carte de <strong>fiabilité</strong> (vrais chiffres du test 2025/26 et de l'historique).</li>
+    <li>Chaque pari affiche sa raison principale. Un compte gratuit voit le n° 1 de chaque niveau.</li>
+  </ul>
+
+  <h3>3.3 Ticket (constructeur de coupons)</h3>
+  <ul>
+    <li>Trois modes : <strong>Mon coupon</strong> (on ajoute ses paris, l'appli calcule la vraie chance du coupon et repère le match le plus risqué),
+      <strong>Cote cible</strong> et <strong>Nb de matchs</strong> (l'appli propose un coupon).</li>
+    <li>Un seul pari par match (deux paris d'un même match sont liés). Choix rangés du plus sûr au moins sûr. Corners et cartons inclus.</li>
+    <li>Cote bookmaker <em>estimée</em> = cote juste moins une marge d'environ 5 % par sélection ; jamais présentée comme une vraie cote.</li>
+    <li>Compte gratuit : analyse de « Mon coupon » jusqu'à 3 matchs. Premium : jusqu'à 10 matchs.</li>
+  </ul>
+
+  <h3>3.4 Historique</h3>
+  <ul>
+    <li><strong>Paris du jour, le bilan :</strong> chaque liste est <em>figée</em> avant les matchs puis réglée toute seule avec le score final.
+      Annoncé contre réel par niveau, coupons, et jour par jour. Rien n'est effacé.</li>
+    <li><strong>Analyses des derniers jours</strong> (Hier / Avant-hier / 7 derniers jours) : pour chaque match terminé, le score final et
+      chacun de ses verdicts juste ✓ ou faux ✗, le bilan du jour (« 41 verdicts justes sur 56 pour 72 % annoncés ») et la réussite du
+      verdict « le plus sûr ». Public une fois le match fini.</li>
+    <li>Les jours enregistrés avant le nouveau moteur restent tels quels, marqués « ancien moteur ».</li>
+    <li>Une ancienne adresse de fiche (lien WhatsApp) d'un match terminé mène à sa page « Ce que disait l'analyse ». Une adresse inconnue
+      mène à une page 404 qui renvoie vers l'historique.</li>
+  </ul>
+
+  <h3>3.5 Compte</h3>
+  <ul>
+    <li>Connexion avec Google (case « 18 ans et plus » obligatoire). Profil, langue, championnats favoris, e-mails, suppression du compte.</li>
+    <li><strong>Notifications</strong> (à activer par le membre) : paris du jour prêts (une fois par jour au plus), cadeau reçu, Premium activé.</li>
+    <li><strong>Récompenses et parrainage :</strong> lien d'invitation <code>/i/CODE</code>. Le parrain gagne des <em>analyses de match</em>
+      (jamais du Premium) : +2 à l'inscription de l'ami, +3 quand l'ami utilise Probalis 3 jours, +4 à +10 si l'ami achète un pass ;
+      au plus 10 par mois. L'ami reçoit +2 analyses en bienvenue.</li>
+  </ul>
+
+  <h3>3.6 Premium</h3>
+  <p>Pass sans abonnement (pas de renouvellement caché), 5 formules. Prix dans <code>supabase/functions/_shared/prices.json</code> :</p>
+  <table>
+    <tr><th>Formule</th><th>Durée</th><th>FCFA (XOF / XAF)</th><th>Naira (NGN)</th><th>Euro / dollar</th></tr>
+    <tr><td>Semaine</td><td>7 jours</td><td>1 000</td><td>1 500</td><td>2,99</td></tr>
+    <tr><td>Mois</td><td>30 jours</td><td>3 000</td><td>4 500</td><td>7,99</td></tr>
+    <tr><td>3 mois</td><td>90 jours</td><td>7 500</td><td>11 000</td><td>19,99</td></tr>
+    <tr><td>6 mois</td><td>180 jours</td><td>13 500</td><td>20 000</td><td>34,99</td></tr>
+    <tr><td>1 an</td><td>365 jours</td><td>24 000</td><td>36 000</td><td>59,99</td></tr>
+  </table>
+  <p><strong>Paiement aujourd'hui :</strong> le bouton « Contacter » ouvre WhatsApp (numéro public du support : +237 670375810) avec un
+    message déjà écrit. L'administrateur reçoit le paiement (mobile money) et active le Premium dans Probalis Office. Le paiement en ligne
+    (Stripe pour les cartes, Flutterwave pour le mobile money) est déjà programmé mais pas branché : il suffira de mettre la variable
+    <code>PROBALIS_PAYMENTS</code> à <code>online</code>.</p>
+
+  <h3>3.7 Gratuit ou Premium : le partage</h3>
+  <table>
+    <tr><th>Sans compte</th><th>Compte gratuit</th><th>Premium</th></tr>
+    <tr><td>Liste des matchs, forme et face-à-face, historique, vitrine. Chiffres floutés.</td>
+      <td>+ 1 analyse complète par jour, le n° 1 de chaque liste de paris, « Mon coupon » jusqu'à 3 matchs, analyses offertes (parrainage).</td>
+      <td>Tout : toutes les fiches et leurs verdicts, les 5 paris de chaque niveau, les coupons, le Ticket jusqu'à 10 matchs, sans pub.</td></tr>
+  </table>
+  <p class="small muted">Les chiffres Premium ne sont pas dans les pages publiques : ils sont servis par le serveur seulement après vérification du compte (voir 5.8).</p>
+
+  <h3>3.8 Probalis Office (administration)</h3>
+  <p>Appli séparée à l'adresse <code>/office/</code> (aucun lien public, non indexée, icône dorée). Seules les adresses listées dans le secret
+    Supabase <code>ADMIN_EMAILS</code> y entrent ; le serveur vérifie à chaque action. Tableau de bord (membres, actifs, Premium, parrainages,
+    paiements, inscriptions), fiche de chaque membre, <strong>Offrir le Premium</strong> ou des analyses, <strong>Paiement WhatsApp reçu</strong>
+    (active le Premium, envoie le reçu, crédite le parrain), récompenses, e-mails envoyés, journal, réglages du parrainage, annonce par notification.</p>
+
+  <h3>3.9 E-mails</h3>
+  <p>Envoyés par un petit programme Google Apps Script (<code>probalis/site/emails/gmail_script.js</code>) depuis un compte Gmail
+    (environ 100 par jour, gratuit) : bienvenue, cadeau, reçu, rappel de fin de Premium, e-mails du jour. Contact public du support :
+    <code>probalis-support@googlegroups.com</code>. Plus tard : nom de domaine + Resend (voir <code>docs/06</code>).</p>
+
+  <h3>3.10 Site vitrine</h3>
+  <p><code>/</code> en français, <code>/welcome/</code> en anglais. Sections : accueil avec téléphones, preuve « annoncé contre réel » de la
+    saison 2025/26, liste du jour figée, visite de l'appli (vraies captures), convertisseur de cotes, compétitions, prix, installation
+    (détecte téléphone ou ordinateur, QR code sur ordinateur, instructions iPhone), FAQ, pied de page 18+. <strong>Les captures sont de vrais
+    écrans de l'appli avec de vrais matchs</strong> : prises le 21 novembre 2026 (matchs du jour, du lendemain, et le grand match de la semaine,
+    Arsenal – Manchester City du 29 novembre, montré avec son analyse complète). La date de prise de vue est écrite dans
+    <code>probalis/site/static/shots/shots.json</code> et affichée sous les captures. Elles sont figées : inutile de les refaire à chaque mise à jour.
+    Pour les refaire : mode d'emploi en tête de <code>probalis/site/shots.py</code> (construire d'abord le site, préparer la copie dans un dossier
+    temporaire, la servir en local, photographier, puis reconstruire). Règle : à chaque changement de l'appli, la vitrine est mise à jour dans le même envoi.</p>
+
+  <h3>3.11 Appli installable et hors connexion</h3>
+  <p>Installable (manifeste, icônes, service worker <code>sw.js</code>). Hors connexion : écran « Pas de connexion » au lieu de pages
+    périmées. Liens partagés sur WhatsApp : belle image d'aperçu.</p>
+</section>
+
+<!-- ============================== 4 ============================== -->
+<section class="chapter">
+  <h2><span class="n">4</span>Compétitions couvertes (25)</h2>
+  <table>
+    <tr><th>Groupe</th><th>Compétitions</th><th>Cotes</th><th>Corners</th><th>Cartons</th></tr>
+    <tr><td>Grands championnats</td><td>Premier League, LaLiga, Serie A, Bundesliga, Ligue 1, Eredivisie, Liga Portugal, Pro League (Belgique), Süper Lig</td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
+    <tr><td>Divisions inférieures</td><td>Championship, League One, League Two, LaLiga 2, Ligue 2</td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
+    <tr><td></td><td>National League (Angleterre, 5e division)</td><td>Oui</td><td>Non</td><td>Oui</td></tr>
+    <tr><td>Coupes d'Europe</td><td>Ligue des champions, Ligue Europa, Ligue Conférence</td><td>Non</td><td colspan="2">Estimés (championnat de chaque club), « non vérifiables »</td></tr>
+    <tr><td>Autres championnats</td><td>Ligue saoudienne (Roshn Saudi League)</td><td>Non</td><td>Non</td><td>Non</td></tr>
+    <tr><td>Football féminin</td><td>Women's Super League, Frauen-Bundesliga, Arkema Première Ligue, Liga F, Serie A féminine, Ligue des champions féminine</td><td>Non</td><td>Non</td><td>Non</td></tr>
+  </table>
+  <p>Sans cotes, l'analyse vient du modèle seul et la confiance est plafonnée à « moyenne ». Le football féminin a son analyse mais n'entre
+    pas dans les paris du jour. La liste est dans <code>probalis/football/leagues.py</code> (code, numéro TheSportsDB, noms FR/EN, catégorie).</p>
+</section>
+
+<!-- ============================== 5 ============================== -->
+<section class="chapter">
+  <h2><span class="n">5</span>Comment ça marche (technique)</h2>
+  <h3>5.1 Vue d'ensemble</h3>
+  <pre>Données gratuites                 Calcul (Python)                       Site statique                 Hébergement
+football-data.co.uk  ─┐                                                                                Cloudflare Pages
+TheSportsDB          ─┼─► probalis/football (moteur) ─► probalis/site/build.py ─► public/  ─────────► probalis.pages.dev
+(cache: data/cache)  ─┘      analyses de J à J+8          pages FR/EN, vitrine,                        + fonction « gardien » /lk/
+                                                          blocs Premium chiffrés à part                  (vérifie le compte)
+Supabase : connexion Google, base de données (profils, Premium, récompenses), fonctions serveur (admin, member, notify…)</pre>
+  <p>Il n'y a pas de serveur d'application : tout le site est généré à l'avance (pages HTML) puis publié. Les seules parties « serveur »
+    sont la fonction Cloudflare qui protège les chiffres Premium et les fonctions Supabase (comptes, admin, notifications, paiements).</p>
+
+  <h3>5.2 Données</h3>
+  <ul>
+    <li><strong>football-data.co.uk</strong> : résultats, tirs, corners, cartons et cotes de 15 championnats (fichiers CSV par saison),
+      plus les résultats d'autres championnats européens (Écosse, Grèce, Autriche, Suisse, Scandinavie…) pour situer les clubs des coupes.</li>
+    <li><strong>TheSportsDB</strong> (clé publique gratuite, environ 10 appels par minute) : calendrier, résultats tout récents, logos,
+      coupes d'Europe, football féminin, Ligue saoudienne.</li>
+    <li>Tout est gardé en cache dans <code>data/cache/</code> (non versionné). Le premier calcul dure environ 30 minutes, les suivants
+      environ 20 minutes (25 compétitions).</li>
+  </ul>
+
+  <h3>5.3 Le moteur v2 « fait maison » (<code>probalis/football/engine.py</code>)</h3>
+  <p>Il raisonne comme un analyste qui pèse plusieurs indices :</p>
+  <ol>
+    <li><strong>Force de fond</strong> de chaque équipe sur 3 saisons (modèle de Dixon-Coles : attaque, défense, avantage du terrain, oubli progressif du passé).</li>
+    <li><strong>Buts « mérités »</strong> tirés des tirs et tirs cadrés (part apprise 0,185), plus parlants que les buts seuls.</li>
+    <li><strong>Forme récente</strong> à mémoire courte (part 0,457).</li>
+    <li><strong>Cotes du marché</strong> quand elles existent : marge retirée par la méthode « puissance », puis mélange appris (le test donne
+      priorité totale aux cotes juste avant le match).</li>
+  </ol>
+  <p>Le moteur produit une matrice des scores, d'où sortent tous les marchés (<code>probalis/core/markets.py</code>). Les réglages sont
+    <strong>appris sur 2024/25 et vérifiés sur 2025/26</strong> (saison jamais vue) par <code>probalis/football/tune.py</code> et rangés dans
+    <code>probalis/football/engine_params.json</code>, avec un tableau de fiabilité par famille de verdict et par tranche de 5 points.
+    Un fichier de réglages vide redonne exactement l'ancien moteur. <strong>Règle d'adoption :</strong> un nouveau réglage ne remplace l'ancien
+    que s'il est au moins aussi précis sur le 1X2 et sur plus/moins de 2,5 buts, avec et sans cotes.</p>
+  <p><strong>Corners et cartons</strong> (<code>probalis/core/counts.py</code>) : même méthode (force de chaque équipe à obtenir et à concéder),
+    loi binomiale négative, écarts réduits vers la moyenne du championnat. Coupes d'Europe : estimés à partir du championnat de chaque club.</p>
+  <p><strong>Compétitions sans fichier</strong> (coupes, féminin, saoudienne) : « modèle relié » (<code>probalis/football/linked.py</code>) qui
+    relie tous les clubs entre championnats grâce aux matchs européens.</p>
+
+  <h3>5.4 Verdicts OUI / NON (<code>probalis/core/verdicts.py</code>)</h3>
+  <p>Pour chaque match : plus de 1,5 / 2,5 / 3,5 buts, les deux équipes marquent, meilleure double chance, chaque équipe marque, résultat,
+    corners, cartons. Réponse OUI si la chance dépasse 50 %, sinon NON ; sous 55 % de certitude : « serré ». Le plus sûr = la plus grande
+    certitude. La phrase de preuve vient du tableau de fiabilité de <code>engine_params.json</code>.</p>
+
+  <h3>5.5 Paris du jour et coupons (<code>probalis/site/picks.py</code>)</h3>
+  <p>Sélection par niveau (bornes de chance), un pari par match, au plus 2 du même type, confiance suffisante, pas de féminin.
+    Coupons : combinaisons dont la cote juste approche 2, 3 ou 5.</p>
+
+  <h3>5.6 Historique (<code>probalis/site/history.py</code>)</h3>
+  <ul>
+    <li>Fichier public <code>/data/history.json</code> (relu à chaque construction) + copie complète <code>data/cache/history.json</code>.</li>
+    <li>La liste d'un jour est <strong>figée</strong> au premier calcul fait ce jour-là (heure UTC+1) et ne change plus. Un jour figé ne reçoit plus que
+      les matchs pas encore commencés.</li>
+    <li>Chaque jour garde l'analyse de <strong>chaque match</strong> (verdicts, le plus sûr, 1X2, score le plus probable, version du moteur), jugée
+      une fois le match fini. Corners et cartons : jugés quand football-data publie les chiffres (2 à 4 jours), « non vérifiables » pour les coupes.</li>
+    <li>30 jours en détail, puis seulement le bilan. La version publique ne montre que ce qui est terminé (le reste est Premium).</li>
+  </ul>
+
+  <h3>5.7 Forme et face-à-face (<code>probalis/football/form.py</code>)</h3>
+  <p>Pendant le calcul, tous les matchs joués connus (championnats, coupes d'Europe, féminin, saoudienne) sont rangés par équipe avec une clé
+    unique (« pays|nom » ou « t&lt;numéro TheSportsDB&gt; »), sans doublon. Chaque match reçoit les 5 derniers matchs de chaque équipe et leurs
+    5 dernières rencontres, joués <em>avant</em> le jour du match. Simple rappel : sans effet sur les probabilités.</p>
+
+  <h3>5.8 Protection des chiffres Premium</h3>
+  <ul>
+    <li>À la construction, <code>probalis/site/lock.py</code> retire les chiffres Premium des pages publiques et les range, compressés, dans un dossier
+      au nom tiré au hasard (<code>lk-…</code>).</li>
+    <li>La fonction Cloudflare <code>functions/lk/[[path]].js</code> (écrite par la construction) ne les envoie qu'après avoir vérifié le compte auprès de
+      Supabase : Premium = tout ; compte gratuit = son analyse du jour et le n° 1 de chaque liste ; sinon refus (401/403).</li>
+    <li>Dans la page, <code>static/app.js</code> (Lk.apply) remet les blocs à leur place.</li>
+  </ul>
+
+  <h3>5.9 Organisation du code</h3>
+  <table>
+    <tr><th style="width:36%">Dossier / fichier</th><th>Rôle</th></tr>
+    <tr><td><code>probalis/core/</code></td><td>Calculs communs : marchés, cotes justes et marge (<code>value.py</code>), corners/cartons, verdicts</td></tr>
+    <tr><td><code>probalis/football/pipeline.py</code></td><td>Chaîne complète : données → moteur → analyses de chaque match (+ forme)</td></tr>
+    <tr><td><code>probalis/football/engine.py</code>, <code>tune.py</code>, <code>signals.py</code></td><td>Moteur v2, apprentissage des réglages, buts mérités</td></tr>
+    <tr><td><code>probalis/football/model.py</code>, <code>linked.py</code>, <code>predict.py</code></td><td>Dixon-Coles, modèle relié, prédiction</td></tr>
+    <tr><td><code>probalis/football/simulation.py</code>, <code>backtest*.py</code></td><td>Tests de fiabilité sur une saison passée</td></tr>
+    <tr><td><code>probalis/site/build.py</code></td><td>Construction de tout le site (pages, vitrine, verrou, logos, historique)</td></tr>
+    <tr><td><code>probalis/site/templates/</code>, <code>static/</code></td><td>Gabarits Jinja2 des pages, styles (<code>style.css</code>), script (<code>app.js</code>)</td></tr>
+    <tr><td><code>probalis/site/i18n.py</code>, <code>site_text.py</code></td><td>Tous les textes FR/EN de l'appli et de la vitrine</td></tr>
+    <tr><td><code>probalis/site/history.py</code>, <code>picks.py</code>, <code>explain.py</code>, <code>logos.py</code></td><td>Historique, paris du jour, raisons « Pourquoi », logos</td></tr>
+    <tr><td><code>probalis/site/emails/</code></td><td>E-mails (gabarits, envoi quotidien, programme Gmail)</td></tr>
+    <tr><td><code>supabase/</code></td><td>Base de données (migrations SQL) et fonctions serveur (admin, member, notify, checkout…)</td></tr>
+    <tr><td><code>functions/lk/</code></td><td>Gardien des chiffres Premium (Cloudflare Pages Function)</td></tr>
+    <tr><td><code>probalis/football/form.py</code></td><td>Forme récente et face-à-face affichés dans les fiches</td></tr>
+    <tr><td><code>probalis/site/shots.py</code>, <code>probalis/deploy.py</code></td><td>Captures de la vitrine ; mise en ligne par petits paquets</td></tr>
+    <tr><td><code>.github/workflows/</code></td><td>Calcul automatique toutes les 2 h et e-mails du jour (bloqués, voir 10)</td></tr>
+    <tr><td><code>tests/</code></td><td>Tests automatiques (46 tests, tous réussis le 21/11/2026)</td></tr>
+  </table>
+</section>
+
+<!-- ============================== 6 ============================== -->
+<section class="chapter">
+  <h2><span class="n">6</span>Fiabilité : les chiffres vérifiés</h2>
+  <p>Méthode : saison 2025/26 rejouée semaine par semaine ; chaque semaine, le moteur ne connaît que les matchs déjà joués,
+    exactement comme en vrai. 5 484 matchs de 15 championnats. Détails : <code>docs/05-fiabilite.md</code>.</p>
+  <h3>Nouveau moteur contre ancien (log-loss, plus petit = meilleur)</h3>
+  <table>
+    <tr><th>Chemin</th><th>Marché</th><th>Ancien</th><th>Nouveau</th><th>Décision</th></tr>
+    <tr><td>Modèle seul</td><td>1X2</td><td>1,01977</td><td>1,01339</td><td>adopté</td></tr>
+    <tr><td>Modèle seul</td><td>Plus/moins 2,5</td><td>0,69088</td><td>0,68369</td><td>adopté</td></tr>
+    <tr><td>Avec cotes</td><td>1X2</td><td>1,00251</td><td>1,00144</td><td>adopté</td></tr>
+    <tr><td>Avec cotes</td><td>Plus/moins 2,5</td><td>0,67898</td><td>0,67892</td><td>adopté (égalité)</td></tr>
+  </table>
+  <h3>Verdicts : annoncé contre réussi</h3>
+  <table>
+    <tr><th>Verdict</th><th>Nombre</th><th>Réussis</th><th>Annoncés</th></tr>
+    <tr><td>« Le plus sûr » du match</td><td>5 484</td><td>82,5 %</td><td>82,3 %</td></tr>
+    <tr><td>Double chance</td><td>5 484</td><td>77,8 %</td><td>77,9 %</td></tr>
+    <tr><td>Plus de 1,5 but</td><td>5 484</td><td>75,8 %</td><td>75,6 %</td></tr>
+    <tr><td>Plus de 2,5 buts</td><td>5 484</td><td>56,1 %</td><td>56,9 %</td></tr>
+    <tr><td>Corners / cartons</td><td>4 988 / 5 484</td><td>65,7 % / 67,5 %</td><td>66,6 % / 68,8 %</td></tr>
+  </table>
+  <h3>Simulation des paris du jour (2025/26)</h3>
+  <table>
+    <tr><th>Liste</th><th>Paris</th><th>Réussite</th><th>Annoncé</th><th>À la cote estimée du bookmaker</th></tr>
+    <tr><td>Prudent</td><td>1 043</td><td>77,6 %</td><td>78,6 %</td><td>−6,0 %</td></tr>
+    <tr><td>Équilibré</td><td>1 045</td><td>65,6 %</td><td>66,3 %</td><td>−5,6 %</td></tr>
+    <tr><td>Audacieux</td><td>1 049</td><td>49,9 %</td><td>48,9 %</td><td>−2,9 %</td></tr>
+    <tr><td>Coupon cote ≈ 2 / 3 / 5</td><td>216 / 216 / 213</td><td>49,5 / 32,9 / 18,3 %</td><td>43,6 / 29,1 / 16,7 %</td><td>+3,0 / +2,4 / −4,7 %</td></tr>
+  </table>
+  <div class="box warn"><p><strong>Ce qu'on en dit au public :</strong> les chances annoncées tiennent (environ 1 point d'écart). Mais avoir raison sur la
+    chance ne veut pas dire gagner de l'argent : à la cote du bookmaker, les paris des trois niveaux auraient perdu 3 à 6 % des mises.
+    Le petit gain des coupons vient d'un petit nombre de coupons : ce n'est pas un avantage durable, on ne le présente jamais comme tel.</p></div>
+  <p>Autres tests : coupes d'Europe et football féminin (modèle relié), « les premiers matchs annoncent la tendance du jour » (faux :
+    corrélation ≈ 0 sur 14 320 matchs). Tout est dans <code>docs/05-fiabilite.md</code>.</p>
+</section>
+
+<!-- ============================== 7 ============================== -->
+<section class="chapter">
+  <h2><span class="n">7</span>Mise en ligne et exploitation</h2>
+  <h3>7.1 Installer l'environnement (Windows)</h3>
+  <pre>py -3 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+$env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
+  <h3>7.2 Commandes utiles</h3>
+  <table>
+    <tr><th style="width:50%">Commande</th><th>Effet</th></tr>
+    <tr><td><code>python -m probalis build</code></td><td>Télécharge, calcule (aujourd'hui → J+8) et génère le site dans <code>public/</code> (≈ 20 min)</td></tr>
+    <tr><td><code>python -m probalis serve</code></td><td>Aperçu local sur http://localhost:8000</td></tr>
+    <tr><td><code>python -m pytest -q</code></td><td>Tests automatiques</td></tr>
+    <tr><td><code>python -m probalis.football.tune --train 2425 --test 2526</code></td><td>Réapprendre et vérifier les réglages du moteur (<code>--write</code> pour les enregistrer)</td></tr>
+    <tr><td><code>python -m probalis.football.simulation --season 2526</code></td><td>Refaire la simulation des paris du jour</td></tr>
+    <tr><td><code>python -m probalis.site.shots …</code></td><td>Refaire les captures de la vitrine (mode d'emploi en tête du fichier)</td></tr>
+    <tr><td><code>python -m probalis.deploy</code></td><td>Mettre public/ en ligne sur Cloudflare Pages, par petits paquets (voir 7.3)</td></tr>
+    <tr><td><code>python docs\cahier-des-charges\pdf.py</code></td><td>Refaire le PDF de ce cahier des charges</td></tr>
+  </table>
+  <h3>7.3 Mettre le site en ligne à la main (procédure actuelle)</h3>
+  <p>Tant que la mise à jour automatique est bloquée, on construit sur le PC puis on envoie le dossier <code>public/</code> à Cloudflare Pages
+    avec Wrangler (l'outil de Cloudflare). L'ordinateur doit être connecté au compte Cloudflare (<code>wrangler login</code>, déjà fait une fois).</p>
+  <pre>.\.venv\Scripts\python.exe -m probalis build
+.\.venv\Scripts\python.exe -m probalis.deploy</pre>
+  <p>Variables publiques du site (adresse du site, adresse et clé publique de Supabase, contact, nom de l'éditeur) : à charger avant la construction
+    depuis le fichier privé <code>site-public.env</code> du dossier des secrets. Sans elles, le site se construit en « mode démo ».</p>
+  <p><strong>Pourquoi <code>probalis.deploy</code> et pas Wrangler tout seul :</strong> la connexion du PC (~1 Mbit/s, coupures « ECONNRESET »)
+    ne laisse jamais finir les gros paquets de Wrangler (≈ 40 Mo, trois à la fois) : le 21/11/2026, cinq essais de
+    <code>npx wrangler pages deploy</code> ont échoué. <code>probalis/deploy.py</code> fabrique une copie de Wrangler 4.165.0 (l'original n'est pas
+    modifié) qui envoie des paquets de 2 Mo, réessaie avec des attentes courtes, renouvelle le jeton d'envoi avant ses 30 minutes et enregistre chaque
+    paquet reçu ; puis il relance tout seul jusqu'à 6 fois. Environ 30 minutes pour ~2 400 fichiers changés. Sur une bonne connexion, la commande
+    <code>npx --yes wrangler@4.165.0 pages deploy public --project-name=probalis --branch=main</code> suffit.</p>
+  <h3>7.4 Contrôles après mise en ligne</h3>
+  <ul>
+    <li>Les adresses protégées <code>/lk/…</code> répondent 401 sans compte, aucune donnée Premium dans les pages publiques.</li>
+    <li>Pages publiques en 200 (/, /welcome/, /fr/, /en/, paris, ticket, historique, premium, /data/history.json, /sw.js), vraie page 404, un logo sous /logos/.</li>
+    <li>Probalis Office : manifeste, icône, ancienne adresse admin en 404.</li>
+  </ul>
+  <h3>7.5 Mise à jour automatique (prévue, bloquée)</h3>
+  <p><code>.github/workflows/build.yml</code> relance le calcul toutes les 2 heures (8 h 17 → 22 h 17 UTC, plus 0 h 17) et met le site en ligne.
+    Il faut : (1) que le compte GitHub ne soit plus verrouillé pour la facturation ; (2) les secrets GitHub <code>CLOUDFLARE_API_TOKEN</code>
+    (jeton Cloudflare avec la permission « Cloudflare Pages : Edit ») et <code>CLOUDFLARE_ACCOUNT_ID</code>. Sans cela, l'historique n'avance
+    que lors d'une mise en ligne à la main.</p>
+</section>
+
+<!-- ============================== 8 ============================== -->
+<section class="chapter">
+  <h2><span class="n">8</span>Comptes, services et réglages</h2>
+  <p class="muted">Seulement les noms. Les valeurs sont dans les tableaux de bord des services et dans <code>D:\Projets\Probalis-secrets</code>.</p>
+  <table>
+    <tr><th style="width:22%">Service</th><th style="width:30%">Usage</th><th>Réglages (noms)</th></tr>
+    <tr><td>GitHub</td><td>Dépôt <code>Le-Joker/Probalis</code> (public), calcul automatique</td><td>Variables : <code>PROBALIS_SITE_URL</code>, <code>PROBALIS_SUPABASE_URL</code>, <code>PROBALIS_SUPABASE_ANON_KEY</code>, <code>PROBALIS_CONTACT_EMAIL</code>, <code>PROBALIS_OWNER_NAME</code>. Secrets : <code>CLOUDFLARE_API_TOKEN</code>, <code>CLOUDFLARE_ACCOUNT_ID</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code> (à ajouter)</td></tr>
+    <tr><td>Cloudflare Pages</td><td>Hébergement, projet <code>probalis</code>, fonction gardien</td><td>Publication par Wrangler (connexion du PC)</td></tr>
+    <tr><td>Supabase</td><td>Connexion Google, base de données, fonctions serveur</td><td>Secrets : <code>SITE_URL</code>, <code>CONTACT_EMAIL</code>, <code>UNSUBSCRIBE_SECRET</code>, <code>ADMIN_EMAILS</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code> ; plus tard clés Stripe / Flutterwave / Resend. Outil : <code>npx supabase@3.2.0</code> (toujours <code>--yes</code> en production, jamais <code>db push</code> sans accord)</td></tr>
+    <tr><td>Google Cloud</td><td>Bouton « Continuer avec Google »</td><td>Client OAuth « Probalis site » (identifiants collés dans Supabase)</td></tr>
+    <tr><td>Google Apps Script</td><td>Envoi des e-mails depuis Gmail</td><td>Propriété <code>SECRET</code> du script ; adresse <code>/exec</code></td></tr>
+    <tr><td>Groupe Google</td><td>E-mail public du support</td><td><code>probalis-support@googlegroups.com</code></td></tr>
+    <tr><td>WhatsApp</td><td>Paiements et support</td><td>Numéro public affiché dans l'appli</td></tr>
+  </table>
+  <div class="box bad"><p><strong>Ne jamais :</strong> mettre une clé ou un mot de passe dans le code ou dans ce document ; afficher les e-mails des membres
+    (compter seulement) ; écrire dans la base de production sans l'accord explicite du porteur du projet ; tester l'administration avec de vrais membres
+    (utiliser de faux membres).</p></div>
+</section>
+
+<!-- ============================== 9 ============================== -->
+<section class="chapter">
+  <h2><span class="n">9</span>Journal des décisions</h2>
+  <table>
+    <tr><th style="width:15%">Date</th><th>Décision ou réalisation</th></tr>
+    <tr><td>19/11/2026</td><td>Nom Probalis, slogan, logo. PWA d'abord (stores plus tard), FR + EN, football d'abord, lancement à 0 $. Bookmakers de référence betPawa et 1xBet (couvrir 70 % de leurs paris).</td></tr>
+    <tr><td>19/11/2026</td><td>Test de fiabilité : le modèle seul ne bat pas les cotes → l'appli se cale sur les cotes, aucune étiquette « Valeur ».</td></tr>
+    <tr><td>19/11/2026</td><td>Ajout des coupes d'Europe et du football féminin (sans cotes, confiance « moyenne » au plus). Calcul toutes les 2 h, fenêtre aujourd'hui → J+8. « Tendance du jour » testée : n'existe pas.</td></tr>
+    <tr><td>19/11/2026</td><td>Hébergement Cloudflare Pages (Vercel écarté : usage commercial interdit en gratuit). Supabase + Google branchés.</td></tr>
+    <tr><td>20/11/2026</td><td>Onglet Paris (3 niveaux, 5 paris, coupons cote 2/3/5), Ticket, Historique figé et réglé tout seul. Paiements en ligne mis de côté.</td></tr>
+    <tr><td>20/11/2026</td><td>Site vitrine (Afrique francophone, « des chiffres honnêtes », aucun bookmaker cité), interface ordinateur, Premium protégé par le serveur, 5 formules.</td></tr>
+    <tr><td>20–21/11/2026</td><td>Récompenses, parrainage (analyses, jamais de Premium), Premium offert par l'admin seul, paiement par WhatsApp, e-mails par Gmail, notifications, Probalis Office.</td></tr>
+    <tr><td>21/11/2026</td><td>25 compétitions (6 nouvelles), moteur v2, corners et cartons partout où c'est honnête, verdicts OUI/NON <strong>tout en Premium</strong>, historique des analyses, vrais logos servis par le site. Jours déjà figés jamais réécrits.</td></tr>
+    <tr><td>21/11/2026</td><td>Rester sur le football avant le basket. Forme et face-à-face dans chaque fiche (gratuit). Vitrine : vraies captures avec de vrais matchs. Ce cahier des charges, tenu à jour à chaque tâche.</td></tr>
+    <tr><td>21/11/2026</td><td>Reprise par une nouvelle session : travail en cours terminé. Captures de la vitrine refaites (vrais matchs), textes de la vitrine
+      (forme et face-à-face dans la visite et dans la liste « Gratuit »), affichage de la forme corrigé sur ordinateur et petits téléphones, onglet
+      « 7 jours » de l'Historique raccourci en français. Historique complet rapatrié dans <code>data/cache/</code> du dossier de travail.
+      Mise en ligne par petits paquets (<code>python -m probalis.deploy</code>), la connexion coupant les gros envois de Wrangler.</td></tr>
+  </table>
+</section>
+
+<!-- ============================== 10 ============================== -->
+<section class="chapter">
+  <h2><span class="n">10</span>Ce qui reste à faire</h2>
+  <h3>Bloquant (à faire par le porteur du projet)</h3>
+  <table>
+    <tr><th style="width:34%">Tâche</th><th>Comment</th></tr>
+    <tr><td>Débloquer GitHub Actions</td><td>Compte verrouillé « billing issue » (0 $ dû). Vérifier le moyen de paiement sur github.com/settings/billing ou écrire au support GitHub (rubrique Billing).</td></tr>
+    <tr><td>Clé Cloudflare dans GitHub</td><td>Créer un jeton Cloudflare (permission « Cloudflare Pages : Edit ») puis ajouter les secrets <code>CLOUDFLARE_API_TOKEN</code> et <code>CLOUDFLARE_ACCOUNT_ID</code> au dépôt.</td></tr>
+    <tr><td>Secrets e-mails dans GitHub</td><td><code>GMAIL_SCRIPT_URL</code> et <code>GMAIL_SCRIPT_SECRET</code> (voir <code>docs/07</code>, parties 3 à 5) pour les e-mails et la notification du jour.</td></tr>
+  </table>
+  <h3>Prochaines fonctionnalités proposées (par ordre d'utilité)</h3>
+  <ol>
+    <li><strong>Carnet « Mes paris »</strong> : le membre note les coupons qu'il a vraiment joués avec la cote de son bookmaker ; Probalis les règle tout seul
+      et montre son vrai bilan (gagné, perdu, mises). Fidélise et aide à jouer raisonnablement. Demande une table Supabase (accord avant toute écriture en production).</li>
+    <li><strong>Équipes favorites et alertes</strong> : suivre ses clubs, alerte avant leur match (verdict le plus sûr en Premium) et après (résultat).</li>
+    <li><strong>Équipes nationales (CAN)</strong> : vérifier d'abord que les résultats gratuits suffisent pour un calcul honnête (pas de cotes gratuites).</li>
+    <li><strong>Vraies cotes de bookmakers</strong> (par exemple The Odds API, 500 requêtes/mois gratuites) : à tester avant tout affichage.</li>
+    <li>Corners et cartons dans les paris du jour, une fois leur fiabilité prouvée par l'historique.</li>
+  </ol>
+  <h3>Plus tard</h3>
+  <ul>
+    <li><strong>Paiement en ligne</strong> : Stripe (cartes) et Flutterwave (mobile money). Avant d'encaisser : accord écrit de leurs supports sur l'activité
+      (analyse statistique, sans prise de paris, 18+). Puis <code>PROBALIS_PAYMENTS=online</code>.</li>
+    <li><strong>Nom de domaine</strong> (probalis.app, .net ou .org étaient libres) et <strong>e-mails professionnels</strong> (Resend + Cloudflare Email Routing).</li>
+    <li>Pages légales (confidentialité, conditions, jeu responsable) à compléter et faire relire.</li>
+    <li>Basket, hockey, tennis (moteurs prévus) : seulement après avoir trouvé des données gratuites assez complètes pour prouver la fiabilité.</li>
+    <li>Stores (Google Play, App Store) quand le projet sera rentable.</li>
+  </ul>
+  <h3>À éviter (pas de données gratuites fiables)</h3>
+  <p>Paris en direct, buteurs, compositions d'équipes.</p>
+</section>
+
+<!-- ============================== 11 ============================== -->
+<section class="chapter">
+  <h2><span class="n">11</span>Reprendre le travail (guide pour une autre IA)</h2>
+  <div class="box green">
+    <p><strong>À lire d'abord :</strong> ce document, puis <code>README.md</code>, <code>PRODUCT.md</code> et le fichier de <code>docs/</code> qui touche la tâche.</p>
+  </div>
+  <h3>Le porteur du projet</h3>
+  <ul>
+    <li>Francophone, <strong>ne code pas</strong> : il teste et décide. Lui parler en français simple, phrases courtes, sans jargon ; lui donner des points
+      d'étape réguliers.</li>
+    <li>Il tape lui-même tout mot de passe, jeton ou clé : ne jamais les lui demander dans la conversation.</li>
+    <li>Demander son accord avant : un commit et un push, une écriture dans la base de production, un paiement ou une action sur un compte.</li>
+  </ul>
+  <h3>Règles de travail du projet</h3>
+  <ol>
+    <li>Travailler dans <code>D:\Projets\Probalis</code>. Les sources gratuites seulement.</li>
+    <li>Toute nouvelle « valeur » ou tout nouveau chiffre affiché passe d'abord un test de fiabilité sur une saison passée.</li>
+    <li>À chaque changement de l'appli, mettre à jour <strong>la vitrine</strong> dans le même envoi.</li>
+    <li>À chaque tâche terminée, mettre à jour <strong>ce cahier des charges</strong> (état, journal, reste à faire) et refaire le PDF.</li>
+    <li>Ne jamais réécrire un jour déjà figé de l'historique.</li>
+    <li>Lancer les tests (<code>python -m pytest -q</code>) et regarder le site dans un navigateur (téléphone et ordinateur, clair et sombre) avant la mise en ligne.</li>
+    <li>Après la mise en ligne : contrôles du point 7.4.</li>
+  </ol>
+  <h3>Pièges connus</h3>
+  <ul>
+    <li>Sur Windows, la console casse les accents : <code>$env:PYTHONIOENCODING = "utf-8"</code>.</li>
+    <li>PowerShell 5.1 (Compress-Archive) écrit des « \ » dans les zip et casse le site : publier avec Wrangler, pas par zip.</li>
+    <li>Wrangler seul échoue sur la connexion du PC (gros paquets coupés en route) : publier avec <code>python -m probalis.deploy</code> (voir 7.3).
+      Un envoi arrêté à la main laisse parfois des processus <code>node</code> qui continuent d'envoyer : les arrêter avant de relancer.</li>
+    <li>La traduction automatique de Chrome fait planter le tableau de bord Supabase : la désactiver sur cette page.</li>
+    <li>Le service worker garde d'anciennes versions en cache pendant les essais locaux : le désinscrire pour voir les changements.</li>
+    <li>TheSportsDB limite les appels (environ 10 par minute) : le premier calcul est long, ensuite le cache aide.</li>
+    <li><strong>L'historique complet n'existe que sur l'ordinateur qui construit</strong>, dans <code>data/cache/history.json</code> (listes pas encore
+      réglées, analyses enregistrées avant les matchs). La version en ligne n'en publie qu'une partie. Toujours construire dans
+      <code>D:\Projets\Probalis</code>, jamais dans une copie temporaire, et ne jamais effacer ce fichier : sinon les listes figées du jour seraient perdues.</li>
+  </ul>
+</section>
+
+<!-- ============================== LEXIQUE ============================== -->
+<section class="chapter">
+  <h2><span class="n">A</span>Petit lexique</h2>
+  <table>
+    <tr><th style="width:26%">Mot</th><th>Sens</th></tr>
+    <tr><td>Cote juste</td><td>1 ÷ chance. Une chance de 50 % donne une cote juste de 2,00. Une cote de bookmaker plus haute que la cote juste est intéressante.</td></tr>
+    <tr><td>Marge du bookmaker</td><td>Ce que le bookmaker garde : ses cotes sont plus basses que les cotes justes (environ 5 % par sélection).</td></tr>
+    <tr><td>1X2 / 1-N-2</td><td>Victoire de l'équipe qui reçoit (1), match nul (X ou N), victoire de l'équipe qui se déplace (2).</td></tr>
+    <tr><td>Double chance</td><td>Deux issues sur trois (1X, X2 ou 12).</td></tr>
+    <tr><td>Les deux équipes marquent</td><td>Chaque équipe marque au moins un but (BTTS en anglais).</td></tr>
+    <tr><td>Verdict « serré »</td><td>Moins de 55 % de certitude : pas de OUI ni de NON, et il ne compte pas dans les bilans.</td></tr>
+    <tr><td>Liste figée</td><td>Liste des paris du jour enregistrée avant les matchs et qui ne change plus.</td></tr>
+    <tr><td>Log-loss, Brier</td><td>Mesures de précision des probabilités (plus petit = meilleur), utilisées pour comparer deux moteurs.</td></tr>
+    <tr><td>PWA</td><td>Site web qui s'installe comme une application, sans passer par un store.</td></tr>
+    <tr><td>Mode démo</td><td>Site construit sans Supabase : connexion et Premium simulés sur le téléphone, pour essayer sans compte.</td></tr>
+  </table>
+  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 21 novembre 2026 (version 1.1), forme et face-à-face et vraies captures de la vitrine en ligne, mise en ligne par petits paquets.</p>
+</section>
+
+</body>
+</html>

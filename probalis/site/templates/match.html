@@ -98,6 +98,31 @@
     </ul>{% endcall %}
   </section>{% endif %}
 
+  {% if m.form %}<section class="card fcard" aria-labelledby="fm-title">
+    <div class="card-head"><h2 id="fm-title">{{ t.form_title }}</h2></div>
+    <p class="vd-lead">{{ t.form_lead }}</p>
+    <div class="fm-teams">
+    {% for s in m.form.teams %}<div class="fm-team">
+      <div class="fm-head">{{ crest(s.crest) }}<span class="fm-id"><b class="fm-nm">{{ s.name }}</b>{% if s.goals %}<small>{{ s.goals }}</small>{% endif %}</span></div>
+      {% if s.rows %}<details class="fm-det"><summary><span class="fm-chips" role="img" aria-label="{{ t.form_order }} : {{ s.aria }}" title="{{ t.form_order }}">{% for r in s.chips %}<i class="fm-c {{ r.r }}" title="{{ r.tip }}">{{ r.l }}</i>{% endfor %}</span><span class="fm-see">{{ s.see }}{{ icon('chev-down', 14, 2.4) }}</span></summary>
+        <ul class="fm-list">{% for r in s.rows %}<li><i class="fm-c {{ r.r }}" aria-label="{{ r.rl }}">{{ r.l }}</i><span class="fm-o">{{ r.o }}<small>{{ r.sub }}</small></span><b class="fm-s">{{ r.score }}</b></li>{% endfor %}</ul>
+      </details>{% else %}<p class="fm-none">{{ t.form_none }}</p>{% endif %}
+    </div>
+    {% endfor %}</div>
+    <h3 class="h2h-title">{{ t.h2h_title }}</h3>
+    {% if m.form.sum %}<p class="h2h-lead">{{ m.form.sum.lead }}</p>
+    <div class="h2h-sum">
+      <span class="h2h-k home"><b>{{ m.home.name }}</b>{{ m.form.sum.home }}</span>
+      <span class="h2h-k draw">{{ m.form.sum.draw }}</span>
+      <span class="h2h-k away"><b>{{ m.away.name }}</b>{{ m.form.sum.away }}</span>
+    </div>
+    <div class="h2h-bar" aria-hidden="true">{% for w in m.form.sum.w %}<i style="width: {{ w }}%"></i>{% endfor %}</div>
+    <ul class="h2h-list">{% for g in m.form.h2h %}<li><span class="h2h-m"><span class="{{ 'win' if g.hw }}">{{ g.home }}</span><b>{{ g.score }}</b><span class="{{ 'win' if g.aw }}">{{ g.away }}</span></span><small>{{ g.date }}{% if g.comp %} · {{ g.comp }}{% endif %}</small></li>
+    {% endfor %}</ul>
+    {% else %}<p class="fm-none">{{ t.h2h_none }}</p>{% endif %}
+    <p class="note">{{ t.form_note }}</p>
+  </section>{% endif %}
+
   <section class="card locked">
     <h2>{{ t.xg }}</h2>
     {% call lk(m=m.slug) %}<div class="xg"><b>{{ m.xg_home }}</b><span>{{ t.xg_total.format(x=m.xg_total) }}</span><b>{{ m.xg_away }}</b></div>

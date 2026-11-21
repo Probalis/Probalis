@@ -337,7 +337,74 @@ def _match_view(m: dict, lang: str, info: dict, sections: dict) -> dict:
         "key_markets": _key_markets(m, lang), "compare": _compare(m, lang, best),
         "vd": _verdicts_view(m, lang),
         "why": explain.render(m.get("factors"), lang, m["home"]["name"], m["away"]["name"]),
+        "form": _form_view(m, lang),
     }
+
+
+def _date_short(iso: str, lang: str, ref_year: int) -> str:
+    """« 7 nov. » (« 25 avr. 2025 » quand ce n'est pas l'année du match)."""
+    d = date.fromisoformat(iso)
+    s = f"{d.day} {i18n._MONTHS[lang][d.month - 1]}"  # noqa: SLF001
+    return s if d.year == ref_year else f"{s} {d.year}"
+
+
+def _comp_name(code: str, lang: str) -> str:
+    lg = BY_CODE.get(code)
+    if lg:
+        return lg.name_fr if lang == "fr" else lg.name_en
+    return i18n.UI[lang]["form_comp_other"] if code else ""
+
+
+def _plural(n: int, word: str, lang: str) -> str:
+    """« 0 victoire », « 2 victoires » (le français ne met pas de « s » à 0 ou 1) ; « 1 win », « 0 wins »."""
+    many = n > 1 if lang == "fr" else n != 1
+    return f"{n} {word}{'s' if many else ''}"
+
+
+def _form_view(m: dict, lang: str) -> dict | None:
+    """Forme récente des deux équipes et leurs dernières rencontres (rappel des résultats, gratuit)."""
+    f = m.get("form")
+    if not f:
+        return None
+    t = i18n.UI[lang]
+    year = int(m["kickoff"][:4])
+    teams = []
+    for side in ("home", "away"):
+        rows = []
+        gf = ga = 0
+        for r in f.get(side) or []:
+            home = bool(r["h"])
+            a, b = (r["s"][0], r["s"][1]) if home else (r["s"][1], r["s"][0])
+            gf, ga = gf + a, ga + b
+            sub = " · ".join(x for x in (_date_short(r["d"], lang, year), _comp_name(r.get("c", ""), lang),
+                                         t["form_home" if home else "form_away"]) if x)
+            rows.append({"r": r["r"], "l": t["form_r_" + r["r"]], "rl": t["form_rl_" + r["r"]], "o": r["o"],
+                         "sub": sub, "score": f"{a}-{b}",
+                         "tip": f"{t['form_rl_' + r['r']]} {a}-{b} · {r['o']} · {_date_short(r['d'], lang, year)}"})
+        team = m[side]
+        teams.append({"name": team["name"], "crest": _crest(team), "rows": rows,
+                      "chips": list(reversed(rows)),  # pastilles : du plus ancien au plus récent
+                      "aria": ", ".join(r["rl"] for r in reversed(rows)),
+                      "goals": t["form_goals"].format(gf=gf, ga=ga) if rows else "",
+                      "see": t["form_see"].format(n=len(rows))})
+    h2h = m.get("h2h") or []
+    meetings = []
+    wins = {"home": 0, "draw": 0, "away": 0}
+    for r in h2h:
+        hn, an = (m["home"]["name"], m["away"]["name"]) if r["x"] else (m["away"]["name"], m["home"]["name"])
+        wins[r["w"]] += 1
+        meetings.append({"date": _date_short(r["d"], lang, year), "home": hn, "away": an,
+                         "score": f"{r['s'][0]}-{r['s'][1]}", "comp": _comp_name(r.get("c", ""), lang),
+                         "w": r["w"], "hw": r["s"][0] > r["s"][1], "aw": r["s"][1] > r["s"][0]})
+    n = len(h2h)
+    win_word = "victoire" if lang == "fr" else "win"
+    summary = None
+    if n:
+        summary = {"lead": t["h2h_last1"] if n == 1 else t["h2h_last"].format(n=n),
+                   "home": _plural(wins["home"], win_word, lang), "draw": _plural(wins["draw"], t["h2h_draws"], lang),
+                   "away": _plural(wins["away"], win_word, lang),
+                   "w": [round(100 * wins[k] / n, 1) for k in ("home", "draw", "away")]}
+    return {"teams": teams, "h2h": meetings, "sum": summary}
 
 
 def _money(amount: float, cur: str, decimals: int, lang: str) -> str:
@@ -823,6 +890,21 @@ def _site_sim(sim: dict | None, lang: str) -> dict | None:
             "table": tiers + coupons, "lo": i18n.pct(losses[0], lang), "hi": i18n.pct(losses[-1], lang)}
 
 
+_MONTHS_LONG = {"fr": ("janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre",
+                        "novembre", "décembre"),
+                 "en": ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+                        "November", "December")}
+
+
+def _shots_day(lang: str) -> str | None:
+    """Jour où les captures de la vitrine ont été prises (écrit par shots.py), ex. « 21 novembre 2026 »."""
+    try:
+        d = date.fromisoformat(json.loads((HERE / "static" / "shots" / "shots.json").read_text(encoding="utf-8"))["day"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    return f"{d.day} {_MONTHS_LONG[lang][d.month - 1]} {d.year}"
+
+
 def _site_when(iso: str, lang: str) -> str:
     dt = datetime.fromisoformat(iso).astimezone(timezone.utc)
     return f"{i18n.day_med(dt.date(), lang)}, {dt.strftime('%H:%M')} UTC"
@@ -929,7 +1011,7 @@ def _site_pages(env: Environment, hist: dict, today: str, slugs: set, sim: dict 
             lang=lang, s=s, t=i18n.UI[lang], version=version, site_url=site_url, here=here, other=other,
             other_url=SITE_PAGES[other], app=f"/{lang}/", sim=_site_sim(sim, lang),
             carnet=_site_carnet(hist, today, lang, slugs), record=_site_record(hist, lang), groups=groups,
-            prices=_site_prices(cfg, lang), odds=_site_odds(lang),
+            prices=_site_prices(cfg, lang), odds=_site_odds(lang), shots_day=_shots_day(lang),
             qr=Markup(code.replace('aria-label="QR"', f'aria-label="{escape(s["qr_label"])}"')),
             contact=site.get("contact_email"), year=now.year, ld=ld, js=js, shot=_shot_fn(lang), cfg=cfg,
             ref=config.referral_view())

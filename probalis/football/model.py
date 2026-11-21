@@ -145,6 +145,7 @@ class Game:
     ag: int
     kind: str = "dom"        # "dom" : championnat ; "cup" : coupe entre pays
     neutral: bool = False    # terrain neutre (finale)
+    comp: str = ""           # code de la compétition (E0, UCL…), pour la forme affichée ; sans effet sur le calcul
 
 
 @dataclass

@@ -4,21 +4,21 @@ Prend de vraies captures de l'appli avec Google Chrome (ou Edge) sans fenêtre, 
 en local, avec un compte Premium de démonstration pour que rien ne soit sous cadenas. Les images (JPEG, 600 et
 360 px de large) vont dans probalis/site/static/shots/ et sont ensuite servies dans /assets/shots/.
 
-Les captures étant publiques, elles ne montrent jamais les vrais chiffres d'un match à venir : le site photographié
-est construit avec des données d'exemple (clubs inventés, analyses mélangées entre les matchs, pas d'historique).
+Les captures montrent de VRAIS matchs et leurs VRAIES analyses (choix de l'utilisateur, 21 novembre 2026 : rien
+d'inventé sur la vitrine). Elles sont figées au jour où elles sont prises : inutile de les refaire à chaque mise à
+jour. Le jour où elles ont été prises est écrit dans static/shots/shots.json et affiché sous les captures de la vitrine.
 
-Usage :
-  1. python -m probalis.site.shots --prepare demo-public          (site d'exemple, construit depuis public/)
-  2. le servir : python -m http.server 8766 --directory demo-public
-  3. python -m probalis.site.shots --base http://127.0.0.1:8766 --public demo-public
+Usage (depuis le dossier du dépôt, après une construction normale qui a laissé data/cache/) :
+  1. python -m probalis.site.shots --prepare shots-public       (copie du vrai site, en mode démo : rien sous cadenas)
+  2. le servir : python -m http.server 8766 --directory shots-public
+  3. python -m probalis.site.shots --base http://127.0.0.1:8766 --public shots-public
+  4. reconstruire le site pour publier les nouvelles images (elles sont copiées dans /assets/shots/).
 """
 from __future__ import annotations
 
 import argparse
-import copy
 import json
 import os
-import random
 import shutil
 import subprocess
 import tempfile
@@ -65,43 +65,9 @@ HELPER = """<!doctype html><meta charset="utf-8"><title>shot</title><script>
 </script>"""
 
 
-# Clubs d'exemple pour les captures (noms inventés)
-CLUBS = ("FC", "AS", "Sporting", "Racing", "Union", "Olympique", "Athletic", "Dynamo", "Stade", "Real")
-TOWNS = ("Aubrecourt", "Valdemar", "Kestrelburg", "Montvert", "Lindahl", "Corvallé", "Brisemont", "Ardenvale",
-         "Solmara", "Tavernay", "Quillon", "Marbeck", "Eskholm", "Pradelle", "Ostwyn", "Calvera", "Rocheval",
-         "Zennor", "Belcastel", "Norvik", "Vasselin", "Haldor", "Mirabel", "Saint-Aurèle", "Kervallon", "Durnstein",
-         "Albarra", "Fennwick", "Lorimont", "Castelmar")
-PREDICTION = ("xg", "source", "model_1x2", "confidence", "top_score", "markets", "priced")
-
-
-def demo_data(data: dict, seed: int = 20) -> dict:
-    """Données d'exemple pour les captures publiques : chaque match garde son championnat et son horaire, mais
-    ses équipes sont inventées et son analyse est celle d'un autre match, tiré au hasard. Aucun chiffre visible sur
-    la vitrine ne peut donc être rattaché à un vrai match à venir."""
-    rnd = random.Random(seed)
-    d = copy.deepcopy(data)
-    matches = d["matches"]
-    analyses = [{k: m.get(k) for k in PREDICTION} for m in matches]
-    rnd.shuffle(analyses)
-    names = [f"{c} {t}" for t in TOWNS for c in CLUBS]
-    rnd.shuffle(names)
-    teams: dict[str, str] = {}
-
-    def fake(team: dict) -> dict:
-        key = team.get("fd") or team.get("name") or str(len(teams))
-        if key not in teams:
-            teams[key] = names[len(teams) % len(names)]
-        return {"name": teams[key]}
-
-    for m, a in zip(matches, analyses):
-        m.update(a)
-        m["home"], m["away"] = fake(m["home"]), fake(m["away"])
-        m["venue"] = None
-    return d
-
-
 def prepare(src_public: Path, out: Path) -> None:
-    """Construit dans `out` le site d'exemple à photographier (mode démo, aucun historique réel)."""
+    """Construit dans `out` une copie du vrai site à photographier : mêmes matchs, mêmes analyses, même historique,
+    mais en mode démo (sans Supabase) pour qu'un compte Premium de démonstration voie tout."""
     for k in ("PROBALIS_SUPABASE_URL", "PROBALIS_SUPABASE_ANON_KEY"):
         os.environ.pop(k, None)
     from . import build, history
@@ -112,11 +78,15 @@ def prepare(src_public: Path, out: Path) -> None:
     out = out.resolve()
     build.PUBLIC = out
     build.ROOT = out.parent / f"{out.name}-root"
-    history.LOCAL = out.parent / f"{out.name}-history.json"
+    real = history.LOCAL
+    history.LOCAL = out.parent / f"{out.name}-history.json"  # copie : le vrai historique n'est jamais modifié ici
     history.LOCAL.unlink(missing_ok=True)
-    history.load = lambda site_url: history._empty()
-    build.build(demo_data(data))
-    print(f"Site d'exemple prêt dans {out}")
+    if real.exists():
+        shutil.copyfile(real, history.LOCAL)
+    load = history.load
+    history.load = lambda site_url: load("")  # copie locale seulement, sans relire le site en ligne
+    build.build(data)
+    print(f"Copie du vrai site prête dans {out}")
 
 
 def _browser() -> str:
@@ -127,7 +97,7 @@ def _browser() -> str:
 
 
 def _big_match(public: Path) -> dict:
-    data = json.loads((public / "lk" / "data" / "matches.json").read_text(encoding="utf-8"))  # site d'exemple : lk/
+    data = json.loads((public / "lk" / "data" / "matches.json").read_text(encoding="utf-8"))  # mode démo : lk/
     now = datetime.now(timezone.utc)
     soon = [m for m in data["matches"] if datetime.fromisoformat(m["kickoff"]) > now + timedelta(hours=2)
             and m["league"] in ("E0", "SP1", "I1", "D1", "F1", "UCL") and m.get("confidence") == "high"]
@@ -166,8 +136,7 @@ def main() -> None:
     public = Path(args.public)
     big = _big_match(public)
     days = sorted({m["kickoff"][:10] for m in json.loads((public / "lk" / "data" / "matches.json").read_text(encoding="utf-8"))["matches"]})
-    tomorrow = (datetime.now(timezone(timedelta(hours=1))) + timedelta(days=1)).date().isoformat()
-    day = tomorrow if tomorrow in days else days[0]
+    day = big["kickoff"][:10] if big["kickoff"][:10] in days else days[0]  # le jour du grand match photographié
     shots = {
         "matches": ("index.html", {}),
         "match": (f"match/{big['slug']}.html", {}),
@@ -197,6 +166,11 @@ def main() -> None:
                     dst = OUT / f"{lang}-{name}-{width}.jpg"
                     _jpeg(png, dst, width)
                     print(f"{dst.name} : {dst.stat().st_size // 1024} Ko ({path})")
+        if not args.only:
+            # Jour où les captures ont été prises (heure d'Afrique centrale et de l'Ouest, UTC+1) : elles montrent des
+            # matchs de plusieurs jours (aujourd'hui, demain, le grand match de la semaine), d'où la date de prise de vue.
+            taken = datetime.now(timezone(timedelta(hours=1))).date().isoformat()
+            (OUT / "shots.json").write_text(json.dumps({"day": taken, "match": big["slug"]}, indent=1), encoding="utf-8")
     finally:
         helper.unlink(missing_ok=True)
         shutil.rmtree(tmp, ignore_errors=True)
