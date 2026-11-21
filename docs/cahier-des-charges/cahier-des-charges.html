@@ -92,7 +92,7 @@ tr:nth-child(even) td { background: #FAFBFC; }
     décrit tout le projet : ce qu'il fait, comment il fonctionne, ce qui a été décidé et ce qui reste à faire, pour
     que n'importe qui (une personne ou une autre intelligence artificielle) puisse reprendre le travail sans rien perdre.</p>
   <div class="meta">
-    <div><b>Version</b>1.1 · 21 novembre 2026</div>
+    <div><b>Version</b>1.2 · 21 novembre 2026</div>
     <div><b>Application</b>probalis.pages.dev</div>
     <div><b>Dossier de travail</b>D:\Projets\Probalis</div>
   </div>
@@ -127,7 +127,7 @@ tr:nth-child(even) td { background: #FAFBFC; }
     <tr><td>Forme et face-à-face</td><td><span class="tag ok">En ligne</span></td><td>Dans chaque fiche de match, gratuit (en ligne le 21/11/2026)</td></tr>
     <tr><td>Vitrine : vraies captures</td><td><span class="tag ok">En ligne</span></td><td>10 captures prises le 21/11/2026 avec de vrais matchs (grand match : Arsenal – Manchester City)</td></tr>
     <tr><td>Connexion Google, Premium, Office (admin)</td><td><span class="tag ok">Fait</span></td><td>Premium activé à la main après paiement WhatsApp</td></tr>
-    <tr><td>Mise à jour automatique toutes les 2 h</td><td><span class="tag block">Bloquée</span></td><td>Compte GitHub verrouillé (facturation) + clé Cloudflare à ajouter</td></tr>
+    <tr><td>Mise à jour automatique toutes les 2 h</td><td><span class="tag block">Bloquée</span></td><td>Préparée (historique chiffré, tests). Manquent : compte GitHub débloqué, secrets Cloudflare et <code>PROBALIS_HISTORY_KEY</code></td></tr>
     <tr><td>Paiement en ligne (Stripe, Flutterwave)</td><td><span class="tag todo">À faire</span></td><td>Prêt en mode démo, pas branché</td></tr>
     <tr><td>Nom de domaine, e-mails professionnels</td><td><span class="tag todo">À faire</span></td><td>E-mails envoyés par Gmail en attendant</td></tr>
   </table>
@@ -405,6 +405,10 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
   <h3>5.6 Historique (<code>probalis/site/history.py</code>)</h3>
   <ul>
     <li>Fichier public <code>/data/history.json</code> (relu à chaque construction) + copie complète <code>data/cache/history.json</code>.</li>
+    <li><strong>Copie complète chiffrée</strong> publiée sur le site : <code>/data/history-full.bin</code> (Fernet = AES + HMAC, clé
+      <code>PROBALIS_HISTORY_KEY</code>). Illisible sans la clé. Chaque construction la relit : un ordinateur sans copie locale (GitHub Actions)
+      retrouve ainsi tout l'historique. Garde-fous : la construction <strong>s'arrête</strong> si seule la version publique est disponible
+      (le 21/11/2026, elle n'avait que 4 paris sur 15 et 24 analyses sur 102 : la republier aurait effacé le reste), ou si la clé est fausse.</li>
     <li>La liste d'un jour est <strong>figée</strong> au premier calcul fait ce jour-là (heure UTC+1) et ne change plus. Un jour figé ne reçoit plus que
       les matchs pas encore commencés.</li>
     <li>Chaque jour garde l'analyse de <strong>chaque match</strong> (verdicts, le plus sûr, 1X2, score le plus probable, version du moteur), jugée
@@ -444,7 +448,7 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
     <tr><td><code>probalis/football/form.py</code></td><td>Forme récente et face-à-face affichés dans les fiches</td></tr>
     <tr><td><code>probalis/site/shots.py</code>, <code>probalis/deploy.py</code></td><td>Captures de la vitrine ; mise en ligne par petits paquets</td></tr>
     <tr><td><code>.github/workflows/</code></td><td>Calcul automatique toutes les 2 h et e-mails du jour (bloqués, voir 10)</td></tr>
-    <tr><td><code>tests/</code></td><td>Tests automatiques (46 tests, tous réussis le 21/11/2026)</td></tr>
+    <tr><td><code>tests/</code></td><td>Tests automatiques (55 tests, tous réussis le 21/11/2026), lancés aussi par GitHub Actions</td></tr>
   </table>
 </section>
 
@@ -509,8 +513,10 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     avec Wrangler (l'outil de Cloudflare). L'ordinateur doit être connecté au compte Cloudflare (<code>wrangler login</code>, déjà fait une fois).</p>
   <pre>.\.venv\Scripts\python.exe -m probalis build
 .\.venv\Scripts\python.exe -m probalis.deploy</pre>
-  <p>Variables publiques du site (adresse du site, adresse et clé publique de Supabase, contact, nom de l'éditeur) : à charger avant la construction
-    depuis le fichier privé <code>site-public.env</code> du dossier des secrets. Sans elles, le site se construit en « mode démo ».</p>
+  <p>Réglages privés : <code>python -m probalis build</code> charge tout seul <code>site-public.env</code> (adresse du site, adresse et clé publique de
+    Supabase, contact, nom de l'éditeur) et <code>historique.env</code> (clé <code>PROBALIS_HISTORY_KEY</code>) depuis
+    <code>D:\Projets\Probalis-secrets</code>, sans écraser un réglage déjà défini. Sans <code>site-public.env</code>, le site se construit en
+    « mode démo » ; sans la clé, la copie complète chiffrée de l'historique n'est pas publiée (message « Attention »).</p>
   <p><strong>Pourquoi <code>probalis.deploy</code> et pas Wrangler tout seul :</strong> la connexion du PC (~1 Mbit/s, coupures « ECONNRESET »)
     ne laisse jamais finir les gros paquets de Wrangler (≈ 40 Mo, trois à la fois) : le 21/11/2026, cinq essais de
     <code>npx wrangler pages deploy</code> ont échoué. <code>probalis/deploy.py</code> fabrique une copie de Wrangler 4.165.0 (l'original n'est pas
@@ -520,14 +526,27 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
   <h3>7.4 Contrôles après mise en ligne</h3>
   <ul>
     <li>Les adresses protégées <code>/lk/…</code> répondent 401 sans compte, aucune donnée Premium dans les pages publiques.</li>
-    <li>Pages publiques en 200 (/, /welcome/, /fr/, /en/, paris, ticket, historique, premium, /data/history.json, /sw.js), vraie page 404, un logo sous /logos/.</li>
+    <li>Pages publiques en 200 (/, /welcome/, /fr/, /en/, paris, ticket, historique, premium, /data/history.json, /data/history-full.bin, /sw.js), vraie page 404, un logo sous /logos/.</li>
     <li>Probalis Office : manifeste, icône, ancienne adresse admin en 404.</li>
   </ul>
   <h3>7.5 Mise à jour automatique (prévue, bloquée)</h3>
   <p><code>.github/workflows/build.yml</code> relance le calcul toutes les 2 heures (8 h 17 → 22 h 17 UTC, plus 0 h 17) et met le site en ligne.
-    Il faut : (1) que le compte GitHub ne soit plus verrouillé pour la facturation ; (2) les secrets GitHub <code>CLOUDFLARE_API_TOKEN</code>
-    (jeton Cloudflare avec la permission « Cloudflare Pages : Edit ») et <code>CLOUDFLARE_ACCOUNT_ID</code>. Sans cela, l'historique n'avance
-    que lors d'une mise en ligne à la main.</p>
+    Il lance d'abord les <strong>tests automatiques</strong> : si un test échoue, rien n'est calculé ni mis en ligne. <code>.github/workflows/tests.yml</code>
+    lance aussi les tests à chaque envoi de code (intégration continue).</p>
+  <p>Pour l'allumer, il faut, dans cet ordre :</p>
+  <ol>
+    <li>Un compte GitHub qui n'est plus verrouillé pour la facturation (voir 10 : support GitHub, organisation gratuite ou compte machine ;
+      GitHub n'autorise qu'<strong>un seul compte gratuit personnel</strong> par personne).</li>
+    <li>Le code avec les garde-fous de l'historique envoyé sur GitHub (commit), puis une mise en ligne faite depuis le PC <strong>avec la clé</strong> (<code>historique.env</code> présent) : elle publie la première copie complète
+      chiffrée de l'historique. Sans elle, le premier calcul automatique s'arrête (voulu).</li>
+    <li>Les secrets GitHub <code>PROBALIS_HISTORY_KEY</code> (même valeur que dans <code>historique.env</code>), <code>CLOUDFLARE_API_TOKEN</code>
+      (jeton Cloudflare avec la permission « Cloudflare Pages : Edit ») et <code>CLOUDFLARE_ACCOUNT_ID</code>, plus les 5 variables
+      <code>PROBALIS_*</code>.</li>
+    <li>Lancer une fois à la main (onglet Actions → « Analyses et site » → Run workflow) et vérifier le site.</li>
+  </ol>
+  <p>Une fois l'automatique en marche, éviter de construire depuis le PC au même moment (deux versions de l'historique). Une construction depuis le PC
+    reste possible entre deux passages : elle relit la copie complète en ligne. Tant que l'automatique est bloqué, l'historique n'avance que lors
+    d'une mise en ligne à la main.</p>
 </section>
 
 <!-- ============================== 8 ============================== -->
@@ -536,7 +555,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
   <p class="muted">Seulement les noms. Les valeurs sont dans les tableaux de bord des services et dans <code>D:\Projets\Probalis-secrets</code>.</p>
   <table>
     <tr><th style="width:22%">Service</th><th style="width:30%">Usage</th><th>Réglages (noms)</th></tr>
-    <tr><td>GitHub</td><td>Dépôt <code>Le-Joker/Probalis</code> (public), calcul automatique</td><td>Variables : <code>PROBALIS_SITE_URL</code>, <code>PROBALIS_SUPABASE_URL</code>, <code>PROBALIS_SUPABASE_ANON_KEY</code>, <code>PROBALIS_CONTACT_EMAIL</code>, <code>PROBALIS_OWNER_NAME</code>. Secrets : <code>CLOUDFLARE_API_TOKEN</code>, <code>CLOUDFLARE_ACCOUNT_ID</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code> (à ajouter)</td></tr>
+    <tr><td>GitHub</td><td>Dépôt <code>Le-Joker/Probalis</code> (public), calcul automatique</td><td>Variables : <code>PROBALIS_SITE_URL</code>, <code>PROBALIS_SUPABASE_URL</code>, <code>PROBALIS_SUPABASE_ANON_KEY</code>, <code>PROBALIS_CONTACT_EMAIL</code>, <code>PROBALIS_OWNER_NAME</code>. Secrets : <code>PROBALIS_HISTORY_KEY</code>, <code>CLOUDFLARE_API_TOKEN</code>, <code>CLOUDFLARE_ACCOUNT_ID</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code> (à ajouter). Sur le PC : <code>site-public.env</code> et <code>historique.env</code> dans <code>D:\Projets\Probalis-secrets</code></td></tr>
     <tr><td>Cloudflare Pages</td><td>Hébergement, projet <code>probalis</code>, fonction gardien</td><td>Publication par Wrangler (connexion du PC)</td></tr>
     <tr><td>Supabase</td><td>Connexion Google, base de données, fonctions serveur</td><td>Secrets : <code>SITE_URL</code>, <code>CONTACT_EMAIL</code>, <code>UNSUBSCRIBE_SECRET</code>, <code>ADMIN_EMAILS</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code> ; plus tard clés Stripe / Flutterwave / Resend. Outil : <code>npx supabase@3.2.0</code> (toujours <code>--yes</code> en production, jamais <code>db push</code> sans accord)</td></tr>
     <tr><td>Google Cloud</td><td>Bouton « Continuer avec Google »</td><td>Client OAuth « Probalis site » (identifiants collés dans Supabase)</td></tr>
@@ -567,6 +586,16 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       (forme et face-à-face dans la visite et dans la liste « Gratuit »), affichage de la forme corrigé sur ordinateur et petits téléphones, onglet
       « 7 jours » de l'Historique raccourci en français. Historique complet rapatrié dans <code>data/cache/</code> du dossier de travail.
       Mise en ligne par petits paquets (<code>python -m probalis.deploy</code>), la connexion coupant les gros envois de Wrangler.</td></tr>
+    <tr><td>21/11/2026</td><td>Préparation de la mise à jour automatique : copie complète chiffrée de l'historique publiée sur le site et relue à chaque
+      construction, arrêt si seule la version publique est disponible, réglages privés chargés tout seuls sur le PC, tests lancés avant chaque calcul
+      automatique et à chaque envoi de code. Changer de compte GitHub est possible sans couper l'appli (règle : un seul compte gratuit personnel).</td></tr>
+    <tr><td>21/11/2026</td><td>Diagnostic GitHub Actions : le verrou de facturation est toujours là (aucun lancement depuis le 19/11). Sans danger en attendant :
+      tant que les secrets Cloudflare et Gmail ne sont pas posés, un lancement ne peut ni mettre en ligne ni envoyer d'e-mails. Ordre retenu :
+      débloquer (carte ou support), sinon organisation gratuite « Probalis » (nom libre ce jour-là) ; envoyer le code avec les garde-fous de
+      l'historique <strong>avant</strong> de poser les secrets.</td></tr>
+    <tr><td>21/11/2026</td><td>Organisation gratuite <strong>Probalis</strong> créée (github.com/Probalis, propriétaire : le compte personnel). Test réussi :
+      dans le dépôt public <code>Probalis/test-actions</code>, un petit calcul GitHub Actions a démarré et fini sans erreur, malgré le verrou du
+      compte personnel. Étape suivante : déplacer le dépôt dans l'organisation (le site et les comptes ne bougent pas).</td></tr>
   </table>
 </section>
 
@@ -576,7 +605,13 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
   <h3>Bloquant (à faire par le porteur du projet)</h3>
   <table>
     <tr><th style="width:34%">Tâche</th><th>Comment</th></tr>
-    <tr><td>Débloquer GitHub Actions</td><td>Compte verrouillé « billing issue » (0 $ dû). Vérifier le moyen de paiement sur github.com/settings/billing ou écrire au support GitHub (rubrique Billing).</td></tr>
+    <tr><td>Débloquer GitHub Actions</td><td>Compte verrouillé « billing issue » (0 $ dû). Vérifié le 21/11/2026 à 16 h 44 UTC : chaque lancement (calcul et e-mails)
+      est refusé avant de démarrer (« The job was not started because your account is locked due to a billing issue »). Marche à suivre de GitHub :
+      photo de profil → Settings → Billing &amp; Licensing → Payment information. Avec une carte qui passe : Edit, GitHub refait une autorisation et
+      le compte se débloque tout seul (jusqu'à 24 h). Sans carte qui passe : Remove (possible avec un solde à 0), puis demander au support
+      (support.github.com) une « review of the billing lock ». <strong>Contournement trouvé le 21/11/2026</strong> : l'organisation gratuite
+      <code>Probalis</code> lance bien GitHub Actions (test réussi) ; il reste à y déplacer le dépôt. En parallèle, essayer une <strong>organisation gratuite</strong> « Probalis » (facturation séparée, gratuit pour un dépôt public, pas garanti) ; sinon un <strong>compte machine</strong> (autorisé, réservé aux tâches automatiques). Pas de second compte personnel gratuit : interdit par GitHub. Déplacer le dépôt ne coupe pas l'appli (site sur Cloudflare, comptes sur Supabase) ; ensuite mettre à jour l'adresse du dépôt (<code>git remote</code>, ce document).</td></tr>
+    <tr><td>Clé de l'historique dans GitHub</td><td>Recopier la valeur de <code>historique.env</code> dans le secret <code>PROBALIS_HISTORY_KEY</code>, après une mise en ligne faite avec la clé (voir 7.5).</td></tr>
     <tr><td>Clé Cloudflare dans GitHub</td><td>Créer un jeton Cloudflare (permission « Cloudflare Pages : Edit ») puis ajouter les secrets <code>CLOUDFLARE_API_TOKEN</code> et <code>CLOUDFLARE_ACCOUNT_ID</code> au dépôt.</td></tr>
     <tr><td>Secrets e-mails dans GitHub</td><td><code>GMAIL_SCRIPT_URL</code> et <code>GMAIL_SCRIPT_SECRET</code> (voir <code>docs/07</code>, parties 3 à 5) pour les e-mails et la notification du jour.</td></tr>
   </table>
@@ -634,9 +669,11 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <li>La traduction automatique de Chrome fait planter le tableau de bord Supabase : la désactiver sur cette page.</li>
     <li>Le service worker garde d'anciennes versions en cache pendant les essais locaux : le désinscrire pour voir les changements.</li>
     <li>TheSportsDB limite les appels (environ 10 par minute) : le premier calcul est long, ensuite le cache aide.</li>
-    <li><strong>L'historique complet n'existe que sur l'ordinateur qui construit</strong>, dans <code>data/cache/history.json</code> (listes pas encore
-      réglées, analyses enregistrées avant les matchs). La version en ligne n'en publie qu'une partie. Toujours construire dans
-      <code>D:\Projets\Probalis</code>, jamais dans une copie temporaire, et ne jamais effacer ce fichier : sinon les listes figées du jour seraient perdues.</li>
+    <li><strong>L'historique complet</strong> (listes pas encore réglées, analyses enregistrées avant les matchs) n'est pas dans la version publique.
+      Il est dans <code>data/cache/history.json</code> de l'ordinateur qui construit et, depuis le 21/11/2026, dans la copie chiffrée
+      <code>/data/history-full.bin</code> du site. Toujours construire dans <code>D:\Projets\Probalis</code>, jamais dans une copie temporaire, ne pas
+      effacer ce fichier et <strong>ne pas perdre la clé</strong> <code>historique.env</code> (sans elle, la copie en ligne est illisible ; en cas de
+      perte : nouvelle clé, mise en ligne depuis le PC, puis mise à jour du secret GitHub).</li>
   </ul>
 </section>
 
@@ -656,7 +693,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <tr><td>PWA</td><td>Site web qui s'installe comme une application, sans passer par un store.</td></tr>
     <tr><td>Mode démo</td><td>Site construit sans Supabase : connexion et Premium simulés sur le téléphone, pour essayer sans compte.</td></tr>
   </table>
-  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 21 novembre 2026 (version 1.1), forme et face-à-face et vraies captures de la vitrine en ligne, mise en ligne par petits paquets.</p>
+  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 21 novembre 2026 (version 1.2), mise à jour automatique préparée (historique chiffré, garde-fous, tests).</p>
 </section>
 
 </body>

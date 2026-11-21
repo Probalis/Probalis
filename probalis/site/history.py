@@ -14,10 +14,18 @@ avant le coup d'envoi (un jour figé reçoit encore les matchs qui n'ont pas com
 ceux déjà enregistrés). Ils sont réglés avec le score final ; les corners et cartons avec les chiffres publiés par
 football-data (championnats seulement : les coupes et les compétitions sans chiffres sont « non vérifiables »).
 Les analyses sont publiques une fois le match terminé. Détail gardé AN_DAYS jours, ensuite seulement le bilan.
+
+Copie complète chiffrée (/data/history-full.bin) : la version complète est aussi publiée, chiffrée avec la clé
+PROBALIS_HISTORY_KEY (Fernet : AES + HMAC, bibliothèque « cryptography »). Sans la clé, elle est illisible ; avec,
+n'importe quel ordinateur qui construit le site (le PC ou GitHub Actions, qui démarre sans copie locale) retrouve
+l'historique complet et ne perd pas les listes du jour pas encore réglées. Garde-fou : si seule la version publique
+(incomplète) est disponible, la construction s'arrête au lieu de republier un historique amputé.
 """
 from __future__ import annotations
 
+import gzip
 import json
+import os
 import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -30,6 +38,8 @@ from ..football.leagues import BY_CODE, current_season_start, season_codes
 from . import picks
 
 LOCAL = CACHE / "history.json"
+FULL_NAME = "history-full.bin"                   # copie complète chiffrée, publiée à côté de history.json
+KEY_ENV = "PROBALIS_HISTORY_KEY"                 # clé de chiffrement (secret GitHub et fichier privé du PC)
 VERSION = 1
 SETTLE_AFTER = timedelta(hours=2, minutes=30)   # un match est fini environ 2 h après le coup d'envoi
 GIVE_UP_AFTER = timedelta(days=6)                # sans score au bout de 6 jours (reporté, annulé) : remboursé
@@ -59,19 +69,70 @@ def _remote(site_url: str) -> dict | None:
     return data if isinstance(data, dict) and "days" in data else None
 
 
+class HistoryKeyError(RuntimeError):
+    """La copie complète en ligne ne s'ouvre pas avec la clé donnée (clé fausse ou fichier abîmé)."""
+
+
+def _key() -> str | None:
+    return (os.environ.get(KEY_ENV) or "").strip() or None
+
+
+def new_key() -> str:
+    """Nouvelle clé de chiffrement (à ranger dans le dossier des secrets et dans les secrets GitHub)."""
+    from cryptography.fernet import Fernet
+    return Fernet.generate_key().decode("ascii")
+
+
+def seal(hist: dict, key: str) -> bytes:
+    """Historique complet -> octets chiffrés (JSON compressé puis chiffré)."""
+    from cryptography.fernet import Fernet
+    raw = json.dumps(hist, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    return Fernet(key.encode("ascii")).encrypt(gzip.compress(raw))
+
+
+def unseal(blob: bytes, key: str) -> dict:
+    from cryptography.fernet import Fernet, InvalidToken
+    try:
+        raw = gzip.decompress(Fernet(key.encode("ascii")).decrypt(blob))
+    except (InvalidToken, ValueError, OSError) as e:
+        raise HistoryKeyError(f"copie complète de l'historique illisible avec {KEY_ENV} (clé fausse ?)") from e
+    data = json.loads(raw.decode("utf-8"))
+    if not (isinstance(data, dict) and "days" in data):
+        raise HistoryKeyError("copie complète de l'historique abîmée")
+    return data
+
+
+def _remote_full(site_url: str, key: str) -> dict | None:
+    """Copie complète chiffrée en ligne. None si elle n'existe pas encore."""
+    req = urllib.request.Request(f"{site_url}/data/{FULL_NAME}", headers={"User-Agent": USER_AGENT})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            body = resp.read()
+            ctype = resp.headers.get("Content-Type", "")
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return None
+        raise
+    if "html" in ctype:  # page d'accueil ou page d'erreur à la place du fichier
+        return None
+    return unseal(body, key)
+
+
 def _settled(entry: dict) -> int:
     return sum(1 for mt in entry.get("matches", {}).values() if mt.get("score") or mt.get("void"))
 
 
 def _rank(e: dict) -> tuple:
-    """Ordre de préférence d'une version d'un jour : figée, complète (pas « sealed »), puis la plus réglée."""
-    return (bool(e.get("frozen")), not e.get("sealed"), _settled(e))
+    """Ordre de préférence d'une version d'un jour : figée, complète (pas « sealed »), la plus réglée, puis celle
+    qui a le plus d'analyses de matchs enregistrées."""
+    return (bool(e.get("frozen")), not e.get("sealed"), _settled(e), len(e.get("an") or {}))
 
 
-def merge(a: dict | None, b: dict | None) -> dict:
-    """Réunit deux versions : pour chaque jour, la liste figée d'abord, complète ensuite, puis la plus réglée."""
+def merge(*versions: dict | None) -> dict:
+    """Réunit plusieurs versions : pour chaque jour, la liste figée d'abord, complète ensuite, puis la plus réglée.
+    À égalité, la première version donnée l'emporte."""
     out = _empty()
-    for src in (a, b):
+    for src in versions:
         for day, e in ((src or {}).get("days") or {}).items():
             cur = out["days"].get(day)
             if cur is None or _rank(e) > _rank(cur):
@@ -111,15 +172,21 @@ def public_copy(hist: dict, now: datetime | None = None) -> dict:
 
 
 def load(site_url: str) -> dict:
-    """Historique actuel : version en ligne + copie locale. Échoue si le site est injoignable et qu'aucune
-    copie locale n'existe (on ne republie jamais un historique vide par erreur)."""
+    """Historique actuel : version publique en ligne + copie locale + copie complète chiffrée en ligne.
+
+    Arrêts voulus (on ne republie jamais un historique vide ou amputé par erreur) :
+      - site injoignable et pas de copie locale ;
+      - copie complète en ligne qui ne s'ouvre pas avec la clé (clé fausse) ;
+      - seule la version publique disponible (ni copie locale, ni copie complète) alors qu'elle contient des jours :
+        elle n'a pas les paris en attente, la republier les effacerait.
+    """
     local = None
     if LOCAL.exists():
         try:
             local = json.loads(LOCAL.read_text(encoding="utf-8"))
         except ValueError:
             local = None
-    remote = None
+    remote = full = None
     if site_url:
         try:
             remote = _remote(site_url)
@@ -127,7 +194,22 @@ def load(site_url: str) -> dict:
             if local is None:
                 raise RuntimeError(f"Historique en ligne illisible ({e}) et pas de copie locale : arrêt.") from e
             print(f"  (historique en ligne illisible : {e} ; copie locale utilisée)")
-    return merge(remote, local)
+        key = _key()
+        if key:
+            try:
+                full = _remote_full(site_url, key)
+            except HistoryKeyError:
+                raise
+            except Exception as e:  # réseau
+                if local is None:
+                    raise RuntimeError(f"Copie complète de l'historique injoignable ({e}) et pas de copie locale : "
+                                       "arrêt.") from e
+                print(f"  (copie complète de l'historique injoignable : {e} ; copie locale utilisée)")
+    if local is None and full is None and remote and remote.get("days"):
+        raise RuntimeError("Historique complet introuvable : ni copie locale (data/cache/history.json), ni copie "
+                           f"complète en ligne lisible (clé {KEY_ENV} absente ou copie pas encore publiée). "
+                           "Arrêt pour ne pas effacer les paris en attente.")
+    return merge(remote, local, full)
 
 
 def _match_info(m: dict) -> dict:
@@ -414,6 +496,12 @@ def save(hist: dict, public_dir: Path, now: datetime) -> None:
     public_dir.mkdir(parents=True, exist_ok=True)
     (public_dir / "history.json").write_text(json.dumps(public_copy(hist, now), ensure_ascii=False,
                                                         separators=(",", ":")), encoding="utf-8")
+    key = _key()
+    if key:
+        (public_dir / FULL_NAME).write_bytes(seal(hist, key))
+    else:
+        print(f"  Attention : {KEY_ENV} absente, copie complète de l'historique non publiée "
+              "(la mise à jour automatique ne pourrait pas reprendre l'historique).")
 
 
 # --- Bilan ------------------------------------------------------------------------------------------------

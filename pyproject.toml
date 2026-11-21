@@ -3,7 +3,7 @@ name = "probalis"
 version = "0.1.0"
 description = "Moteurs d'analyse de paris sportifs de Probalis"
 requires-python = ">=3.11"
-dependencies = ["numpy", "scipy", "jinja2", "pillow>=11"]
+dependencies = ["numpy", "scipy", "jinja2", "pillow>=11", "cryptography>=44"]
 
 [project.optional-dependencies]
 dev = ["pytest"]

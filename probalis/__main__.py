@@ -6,12 +6,41 @@
 """
 from __future__ import annotations
 
+import os
 import sys
+from pathlib import Path
+
+# Fichiers privés lus avant la construction sur le PC (dossier des secrets, à côté du dépôt, jamais versionné).
+# Sur GitHub Actions, ces réglages viennent des variables et secrets du dépôt : le dossier n'existe pas.
+SECRETS_DIR = Path(os.environ.get("PROBALIS_SECRETS_DIR") or Path(__file__).resolve().parents[2] / "Probalis-secrets")
+ENV_FILES = ("site-public.env", "historique.env")
+
+
+def load_env_files(folder: Path = SECRETS_DIR) -> list[str]:
+    """Charge les réglages NOM=valeur des fichiers privés, sans écraser ceux déjà définis. Renvoie les fichiers lus."""
+    read = []
+    for name in ENV_FILES:
+        f = folder / name
+        if not f.is_file():
+            continue
+        for line in f.read_text(encoding="utf-8-sig").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            k, v = k.strip(), v.strip().strip('"').strip("'")
+            if k and v and not os.environ.get(k):
+                os.environ[k] = v
+        read.append(name)
+    return read
 
 
 def main() -> None:
     cmd = sys.argv[1] if len(sys.argv) > 1 else "build"
     if cmd == "build":
+        read = load_env_files()
+        if read:
+            print("Réglages privés chargés :", ", ".join(read))
         from .football.pipeline import run
         from .site.build import build
         print("Analyse des prochains matchs…")

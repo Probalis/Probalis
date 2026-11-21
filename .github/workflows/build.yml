@@ -33,6 +33,9 @@ jobs:
       PROBALIS_SUPABASE_ANON_KEY: ${{ vars.PROBALIS_SUPABASE_ANON_KEY }}
       PROBALIS_CONTACT_EMAIL: ${{ vars.PROBALIS_CONTACT_EMAIL }}
       PROBALIS_OWNER_NAME: ${{ vars.PROBALIS_OWNER_NAME }}
+      # Clé de la copie complète chiffrée de l'historique (/data/history-full.bin). Sans elle, le calcul s'arrête
+      # au lieu de republier un historique amputé (voir probalis/site/history.py).
+      PROBALIS_HISTORY_KEY: ${{ secrets.PROBALIS_HISTORY_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -43,7 +46,11 @@ jobs:
           cache-dependency-path: pyproject.toml
 
       - name: Installer Probalis
-        run: pip install -e .
+        run: pip install -e ".[dev]"
+
+      # Si un test échoue, rien n'est calculé ni mis en ligne : l'ancien site reste en ligne.
+      - name: Tests automatiques
+        run: python -m pytest -q
 
       - name: Reprendre les données déjà téléchargées
         uses: actions/cache/restore@v4
