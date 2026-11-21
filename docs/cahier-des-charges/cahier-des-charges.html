@@ -127,7 +127,7 @@ tr:nth-child(even) td { background: #FAFBFC; }
     <tr><td>Forme et face-à-face</td><td><span class="tag ok">En ligne</span></td><td>Dans chaque fiche de match, gratuit (en ligne le 21/11/2026)</td></tr>
     <tr><td>Vitrine : vraies captures</td><td><span class="tag ok">En ligne</span></td><td>10 captures prises le 21/11/2026 avec de vrais matchs (grand match : Arsenal – Manchester City)</td></tr>
     <tr><td>Connexion Google, Premium, Office (admin)</td><td><span class="tag ok">Fait</span></td><td>Premium activé à la main après paiement WhatsApp</td></tr>
-    <tr><td>Mise à jour automatique toutes les 2 h</td><td><span class="tag block">Bloquée</span></td><td>Préparée (historique chiffré, tests). Manquent : compte GitHub débloqué, secrets Cloudflare et <code>PROBALIS_HISTORY_KEY</code></td></tr>
+    <tr><td>Mise à jour automatique toutes les 2 h</td><td><span class="tag todo">Presque prête</span></td><td>Dépôt déplacé dans l'organisation <code>Probalis</code> : GitHub Actions marche (tests réussis le 21/11/2026). Copie complète chiffrée en ligne depuis le 21/11/2026 (19 h 30, heure de Paris). Manque : le secret <code>PROBALIS_HISTORY_KEY</code>, puis un premier lancement à la main</td></tr>
     <tr><td>Paiement en ligne (Stripe, Flutterwave)</td><td><span class="tag todo">À faire</span></td><td>Prêt en mode démo, pas branché</td></tr>
     <tr><td>Nom de domaine, e-mails professionnels</td><td><span class="tag todo">À faire</span></td><td>E-mails envoyés par Gmail en attendant</td></tr>
   </table>
@@ -529,16 +529,16 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <li>Pages publiques en 200 (/, /welcome/, /fr/, /en/, paris, ticket, historique, premium, /data/history.json, /data/history-full.bin, /sw.js), vraie page 404, un logo sous /logos/.</li>
     <li>Probalis Office : manifeste, icône, ancienne adresse admin en 404.</li>
   </ul>
-  <h3>7.5 Mise à jour automatique (prévue, bloquée)</h3>
+  <h3>7.5 Mise à jour automatique (presque prête)</h3>
   <p><code>.github/workflows/build.yml</code> relance le calcul toutes les 2 heures (8 h 17 → 22 h 17 UTC, plus 0 h 17) et met le site en ligne.
     Il lance d'abord les <strong>tests automatiques</strong> : si un test échoue, rien n'est calculé ni mis en ligne. <code>.github/workflows/tests.yml</code>
     lance aussi les tests à chaque envoi de code (intégration continue).</p>
   <p>Pour l'allumer, il faut, dans cet ordre :</p>
   <ol>
-    <li>Un compte GitHub qui n'est plus verrouillé pour la facturation (voir 10 : support GitHub, organisation gratuite ou compte machine ;
-      GitHub n'autorise qu'<strong>un seul compte gratuit personnel</strong> par personne).</li>
+    <li><s>Un compte GitHub qui n'est plus verrouillé pour la facturation</s> : <strong>fait le 21/11/2026</strong>, le dépôt est dans
+      l'organisation gratuite <code>Probalis</code>, où GitHub Actions marche malgré le verrou du compte personnel.</li>
     <li>Le code avec les garde-fous de l'historique envoyé sur GitHub (commit), puis une mise en ligne faite depuis le PC <strong>avec la clé</strong> (<code>historique.env</code> présent) : elle publie la première copie complète
-      chiffrée de l'historique. Sans elle, le premier calcul automatique s'arrête (voulu).</li>
+      chiffrée de l'historique. Sans elle, le premier calcul automatique s'arrête (voulu). <strong>Fait le 21/11/2026</strong> (commit <code>6a53dbd</code>, copie en ligne vérifiée).</li>
     <li>Les secrets GitHub <code>PROBALIS_HISTORY_KEY</code> (même valeur que dans <code>historique.env</code>), <code>CLOUDFLARE_API_TOKEN</code>
       (jeton Cloudflare avec la permission « Cloudflare Pages : Edit ») et <code>CLOUDFLARE_ACCOUNT_ID</code>, plus les 5 variables
       <code>PROBALIS_*</code>.</li>
@@ -555,7 +555,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
   <p class="muted">Seulement les noms. Les valeurs sont dans les tableaux de bord des services et dans <code>D:\Projets\Probalis-secrets</code>.</p>
   <table>
     <tr><th style="width:22%">Service</th><th style="width:30%">Usage</th><th>Réglages (noms)</th></tr>
-    <tr><td>GitHub</td><td>Dépôt <code>Le-Joker/Probalis</code> (public), calcul automatique</td><td>Variables : <code>PROBALIS_SITE_URL</code>, <code>PROBALIS_SUPABASE_URL</code>, <code>PROBALIS_SUPABASE_ANON_KEY</code>, <code>PROBALIS_CONTACT_EMAIL</code>, <code>PROBALIS_OWNER_NAME</code>. Secrets : <code>PROBALIS_HISTORY_KEY</code>, <code>CLOUDFLARE_API_TOKEN</code>, <code>CLOUDFLARE_ACCOUNT_ID</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code> (à ajouter). Sur le PC : <code>site-public.env</code> et <code>historique.env</code> dans <code>D:\Projets\Probalis-secrets</code></td></tr>
+    <tr><td>GitHub</td><td>Dépôt <code>Probalis/Probalis</code> (public), dans l'organisation gratuite <code>Probalis</code> dont le compte personnel du porteur du projet est propriétaire (déplacé le 21/11/2026 ; l'ancienne adresse redirige). Calcul automatique</td><td>Variables : <code>PROBALIS_SITE_URL</code>, <code>PROBALIS_SUPABASE_URL</code>, <code>PROBALIS_SUPABASE_ANON_KEY</code>, <code>PROBALIS_CONTACT_EMAIL</code>, <code>PROBALIS_OWNER_NAME</code>. Secrets : <code>PROBALIS_HISTORY_KEY</code>, <code>CLOUDFLARE_API_TOKEN</code>, <code>CLOUDFLARE_ACCOUNT_ID</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code> (tous posés sauf <code>PROBALIS_HISTORY_KEY</code> ; les e-mails du jour demandent aussi <code>SUPABASE_URL</code> et <code>SUPABASE_SERVICE_ROLE_KEY</code>, pas encore posés). Sur le PC : <code>site-public.env</code> et <code>historique.env</code> dans <code>D:\Projets\Probalis-secrets</code></td></tr>
     <tr><td>Cloudflare Pages</td><td>Hébergement, projet <code>probalis</code>, fonction gardien</td><td>Publication par Wrangler (connexion du PC)</td></tr>
     <tr><td>Supabase</td><td>Connexion Google, base de données, fonctions serveur</td><td>Secrets : <code>SITE_URL</code>, <code>CONTACT_EMAIL</code>, <code>UNSUBSCRIBE_SECRET</code>, <code>ADMIN_EMAILS</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code> ; plus tard clés Stripe / Flutterwave / Resend. Outil : <code>npx supabase@3.2.0</code> (toujours <code>--yes</code> en production, jamais <code>db push</code> sans accord)</td></tr>
     <tr><td>Google Cloud</td><td>Bouton « Continuer avec Google »</td><td>Client OAuth « Probalis site » (identifiants collés dans Supabase)</td></tr>
@@ -596,6 +596,10 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <tr><td>21/11/2026</td><td>Organisation gratuite <strong>Probalis</strong> créée (github.com/Probalis, propriétaire : le compte personnel). Test réussi :
       dans le dépôt public <code>Probalis/test-actions</code>, un petit calcul GitHub Actions a démarré et fini sans erreur, malgré le verrou du
       compte personnel. Étape suivante : déplacer le dépôt dans l'organisation (le site et les comptes ne bougent pas).</td></tr>
+    <tr><td>21/11/2026</td><td>Garde-fous de l'historique envoyés sur GitHub (commit <code>6a53dbd</code>) <strong>avant</strong> le déplacement, parce que
+      les secrets Cloudflare étaient déjà posés : l'ancien code aurait republié un historique amputé. Puis dépôt déplacé vers
+      <code>Probalis/Probalis</code> (variables et secrets suivis), PC rebranché (<code>git remote</code>), tests lancés à la main dans GitHub : réussis. Site reconstruit et remis en ligne depuis le PC avec la clé :
+      294 matchs, 50 résultats ajoutés à l'historique, copie chiffrée en ligne identique à la copie du PC (144 paris et 368 analyses, contre 18 et 74 dans la version publique).</td></tr>
   </table>
 </section>
 
@@ -605,15 +609,15 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
   <h3>Bloquant (à faire par le porteur du projet)</h3>
   <table>
     <tr><th style="width:34%">Tâche</th><th>Comment</th></tr>
-    <tr><td>Débloquer GitHub Actions</td><td>Compte verrouillé « billing issue » (0 $ dû). Vérifié le 21/11/2026 à 16 h 44 UTC : chaque lancement (calcul et e-mails)
-      est refusé avant de démarrer (« The job was not started because your account is locked due to a billing issue »). Marche à suivre de GitHub :
-      photo de profil → Settings → Billing &amp; Licensing → Payment information. Avec une carte qui passe : Edit, GitHub refait une autorisation et
-      le compte se débloque tout seul (jusqu'à 24 h). Sans carte qui passe : Remove (possible avec un solde à 0), puis demander au support
-      (support.github.com) une « review of the billing lock ». <strong>Contournement trouvé le 21/11/2026</strong> : l'organisation gratuite
-      <code>Probalis</code> lance bien GitHub Actions (test réussi) ; il reste à y déplacer le dépôt. En parallèle, essayer une <strong>organisation gratuite</strong> « Probalis » (facturation séparée, gratuit pour un dépôt public, pas garanti) ; sinon un <strong>compte machine</strong> (autorisé, réservé aux tâches automatiques). Pas de second compte personnel gratuit : interdit par GitHub. Déplacer le dépôt ne coupe pas l'appli (site sur Cloudflare, comptes sur Supabase) ; ensuite mettre à jour l'adresse du dépôt (<code>git remote</code>, ce document).</td></tr>
-    <tr><td>Clé de l'historique dans GitHub</td><td>Recopier la valeur de <code>historique.env</code> dans le secret <code>PROBALIS_HISTORY_KEY</code>, après une mise en ligne faite avec la clé (voir 7.5).</td></tr>
-    <tr><td>Clé Cloudflare dans GitHub</td><td>Créer un jeton Cloudflare (permission « Cloudflare Pages : Edit ») puis ajouter les secrets <code>CLOUDFLARE_API_TOKEN</code> et <code>CLOUDFLARE_ACCOUNT_ID</code> au dépôt.</td></tr>
-    <tr><td>Secrets e-mails dans GitHub</td><td><code>GMAIL_SCRIPT_URL</code> et <code>GMAIL_SCRIPT_SECRET</code> (voir <code>docs/07</code>, parties 3 à 5) pour les e-mails et la notification du jour.</td></tr>
+    <tr><td>GitHub Actions</td><td><strong>Réglé le 21/11/2026 par un contournement</strong> : le compte personnel reste verrouillé
+      (« billing issue », 0 $ dû), mais le dépôt est maintenant dans l'organisation gratuite <code>Probalis</code>, où GitHub Actions démarre
+      (dépôt de test <code>Probalis/test-actions</code>, puis les tests du vrai dépôt). Si un jour le compte personnel doit être débloqué :
+      photo de profil → Settings → Billing &amp; Licensing → Payment information (Edit avec une carte qui passe, ou Remove puis demande au
+      support, support.github.com, d'une « review of the billing lock »). Pas de second compte personnel gratuit : interdit par GitHub.</td></tr>
+    <tr><td>Clé de l'historique dans GitHub</td><td>Après une mise en ligne faite depuis le PC avec la clé (voir 7.5) : dans le dépôt <code>Probalis/Probalis</code>, Settings → Secrets and variables → Actions → New repository secret, nom <code>PROBALIS_HISTORY_KEY</code>, valeur recopiée depuis <code>historique.env</code>. Tant qu'il manque, chaque calcul automatique s'arrête sans rien publier (voulu).</td></tr>
+    <tr><td>Secrets e-mails dans GitHub</td><td><code>GMAIL_SCRIPT_URL</code> et <code>GMAIL_SCRIPT_SECRET</code> sont posés. Manquent
+      <code>SUPABASE_URL</code> et <code>SUPABASE_SERVICE_ROLE_KEY</code> (voir <code>docs/07</code>, parties 3 à 5) : sans eux, la tâche
+      « E-mails du jour » s'arrête proprement chaque matin sans rien envoyer.</td></tr>
   </table>
   <h3>Prochaines fonctionnalités proposées (par ordre d'utilité)</h3>
   <ol>
