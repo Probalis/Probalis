@@ -1,14 +1,15 @@
 # Probalis : e-mails du jour (alerte « grand choc demain » et rappel avant la fin du Premium), puis la notification du jour.
 # E-mails par Gmail (GMAIL_SCRIPT_URL + GMAIL_SCRIPT_SECRET, voir docs/07-recompenses-admin-notifications.md) ou par Resend.
-# Tourne une fois par jour, après le calcul de 6 h 05 (heure du Cameroun, voir build.yml). Voir docs/06-comptes-premium-emails.md.
+# Tourne une fois par jour à 10 h 05 (heure du Cameroun), lancé par le minuteur Cloudflare « probalis-horloge »
+# (cloudflare/horloge/), après le calcul de 6 h 05. Voir docs/06-comptes-premium-emails.md.
 # Tant que la variable PROBALIS_SUPABASE_URL n'est pas enregistrée, la tâche est simplement sautée (aucune minute
 # GitHub consommée, aucun échec). Si elle l'est mais qu'un secret manque, le script s'arrête proprement sans rien envoyer.
 name: E-mails du jour
 
 on:
-  schedule:
-    - cron: "7 9 * * *"     # 9 h 07 UTC : 10 h à Paris et Douala, 9 h à Dakar et Abidjan
-  workflow_dispatch:        # bouton « Run workflow » pour lancer à la main
+  # Pas d'horloge GitHub (« schedule ») : elle partait avec 7 à 8 heures de retard (20 et 21/11/2026). Le minuteur
+  # Cloudflare lance ce programme chaque jour à 10 h 05 au Cameroun (9 h 05 UTC), avec dry_run à false (envoi réel).
+  workflow_dispatch:        # bouton « Run workflow » : minuteur Cloudflare, ou à la main
     inputs:
       dry_run:
         description: "Simulation (montre ce qui serait envoyé, n'envoie rien)"

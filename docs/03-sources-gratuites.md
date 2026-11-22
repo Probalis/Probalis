@@ -88,10 +88,14 @@ Sans les secrets Cloudflare, les analyses tournent quand même, mais le site n'e
 - **Fenêtre glissante de 8 jours.** Chaque lancement analyse les matchs d'aujourd'hui jusqu'à J+8 : le 19, du 19
   au 27 ; le 20, du 20 au 28, etc. L'appli avance journée par journée dans le calendrier jusqu'à couvrir les 8 jours,
   même quand un championnat joue trois journées en une semaine (fêtes de fin d'année).
-- **Rythme des relances (depuis le 22/11/2026, heure du Cameroun = UTC+1)** (fichier `.github/workflows/build.yml`) :
-  du lundi au vendredi à 0 h 05, 6 h 05, 12 h 05, 18 h 05, 21 h 05 et 23 h 05 (les deux du soir pour les coupes
-  d'Europe de 18 h 45 et 21 h) ; le samedi et le dimanche toutes les heures. GitHub peut décaler un lancement,
-  parfois de plus d'une heure.
+- **Rythme des relances (depuis le 22/11/2026, heure du Cameroun = UTC+1)** : du lundi au vendredi à 0 h 05, 6 h 05,
+  12 h 05, 18 h 05, 21 h 05 et 23 h 05 (les deux du soir pour les coupes d'Europe de 18 h 45 et 21 h) ; le samedi et
+  le dimanche toutes les heures.
+- **Qui lance le calcul :** un minuteur Cloudflare gratuit, `probalis-horloge` (dossier `cloudflare/horloge/`), qui
+  appuie sur le bouton « Run workflow » de `.github/workflows/build.yml` aux heures ci-dessus. L'horloge de GitHub
+  (`schedule`) a été retirée : sur ce dépôt, elle n'a lancé qu'un calcul sur 9 prévus (22/11/2026). Le minuteur a
+  besoin d'une clé GitHub (secret `GITHUB_TOKEN` dans Cloudflare, droit « Actions : lecture et écriture » sur
+  `Probalis/Probalis` seulement) ; si elle expire, plus rien ne se lance tout seul (voir `cloudflare/horloge/README.md`).
 - **Pendant un match :** le score en direct de TheSportsDB (gratuit, dans les journées) sert à régler tout de suite
   les paris et verdicts déjà joués d'avance (voir `probalis/site/history.py`).
 - **À chaque relance :**

@@ -193,7 +193,8 @@ Le site lit les variables `PROBALIS_…` au moment de sa construction : la tâch
 
 Dès que ces valeurs sont là, le prochain build passe le site du mode démo au vrai mode.
 
-La tâche « E-mails du jour » (`.github/workflows/emails.yml`) tourne chaque jour à 9 h 07 UTC, dès que la variable
+La tâche « E-mails du jour » (`.github/workflows/emails.yml`) tourne chaque jour à 10 h 05 heure du Cameroun (9 h 05 UTC),
+lancée par le minuteur Cloudflare `probalis-horloge` (voir `cloudflare/horloge/README.md`), dès que la variable
 `PROBALIS_SUPABASE_URL` existe (avant, elle est sautée sans rien coûter). Pour l'essayer :
 **Actions → E-mails du jour → Run workflow** (la case « Simulation » est cochée par défaut : rien n'est envoyé,
 le journal montre ce qui partirait).

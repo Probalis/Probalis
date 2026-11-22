@@ -6,24 +6,18 @@
 name: Analyses et site
 
 on:
-  schedule:
-    # GitHub compte les heures en UTC. Heure du Cameroun (et de l'Afrique centrale et de l'Ouest en UTC+1) = UTC + 1.
-    # La 5e minute évite l'heure pile, très chargée chez GitHub (lancements retardés). GitHub peut quand même démarrer
-    # avec quelques minutes de retard, parfois plus.
-    # Semaine (lundi → vendredi, heure du Cameroun) : 0 h 05, 6 h 05, 12 h 05, 18 h 05, 21 h 05 et 23 h 05.
-    # Un match de 18 h 45 est fini à 21 h 05 ; un match de 21 h est fini (ou presque) à 23 h 05 : ses paris déjà
-    # joués d'avance sont réglés, le reste au lancement de 0 h 05.
-    - cron: "5 23 * * 0-4"              # 0 h 05 du lundi au vendredi (23 h 05 UTC, la veille)
-    - cron: "5 5,11,17,20,22 * * 1-5"   # 6 h 05, 12 h 05, 18 h 05, 21 h 05 et 23 h 05 du lundi au vendredi
-    # Week-end (samedi et dimanche, heure du Cameroun) : toutes les heures, de samedi 0 h 05 à dimanche 23 h 05.
-    - cron: "5 23 * * 5"          # samedi 0 h 05 (vendredi 23 h 05 UTC)
-    - cron: "5 * * * 6"           # samedi 1 h 05 → dimanche 0 h 05
-    - cron: "5 0-22 * * 0"        # dimanche 1 h 05 → 23 h 05
-    # Coût : 78 lancements par semaine (30 en semaine, 48 le week-end), 1 à 4 minutes chacun avec les données gardées.
-    # Gratuit et sans limite tant que le dépôt est public ; même en privé, environ 340 lancements par mois (1 à 4 min)
-    # resteraient en général sous les 2 000 minutes gratuites. Cloudflare Pages : environ 340 mises en ligne par mois
-    # (limite gratuite : 500).
-  workflow_dispatch:        # bouton « Run workflow » pour relancer à la main
+  # Pas d'horloge GitHub (« schedule ») : elle lançait très mal les calculs sur ce dépôt (22/11/2026 : 1 calcul sur 9
+  # prévus). C'est le minuteur Cloudflare « probalis-horloge » (cloudflare/horloge/) qui appuie sur « Run workflow »
+  # aux heures voulues (heure du Cameroun, UTC+1) :
+  #   - du lundi au vendredi : 0 h 05, 6 h 05, 12 h 05, 18 h 05, 21 h 05 et 23 h 05 ;
+  #   - samedi et dimanche : toutes les heures.
+  # Un match de 18 h 45 est fini à 21 h 05 ; un match de 21 h est fini (ou presque) à 23 h 05 : ses paris déjà
+  # joués d'avance sont réglés, le reste au lancement de 0 h 05.
+  # Coût : 78 lancements par semaine (30 en semaine, 48 le week-end), 1 à 4 minutes chacun avec les données gardées.
+  # Gratuit et sans limite tant que le dépôt est public ; même en privé, environ 340 lancements par mois (1 à 4 min)
+  # resteraient en général sous les 2 000 minutes gratuites. Cloudflare Pages : environ 340 mises en ligne par mois
+  # (limite gratuite : 500).
+  workflow_dispatch:        # bouton « Run workflow » : minuteur Cloudflare, ou à la main
 
 concurrency:
   group: analyses

@@ -92,7 +92,7 @@ tr:nth-child(even) td { background: #FAFBFC; }
     décrit tout le projet : ce qu'il fait, comment il fonctionne, ce qui a été décidé et ce qui reste à faire, pour
     que n'importe qui (une personne ou une autre intelligence artificielle) puisse reprendre le travail sans rien perdre.</p>
   <div class="meta">
-    <div><b>Version</b>1.5 · 22 novembre 2026</div>
+    <div><b>Version</b>1.6 · 22 novembre 2026</div>
     <div><b>Application</b>probalis.pages.dev</div>
     <div><b>Dossier de travail</b>D:\Projets\Probalis</div>
   </div>
@@ -127,9 +127,9 @@ tr:nth-child(even) td { background: #FAFBFC; }
     <tr><td>Forme et face-à-face</td><td><span class="tag ok">En ligne</span></td><td>Dans chaque fiche de match, gratuit (en ligne le 21/11/2026)</td></tr>
     <tr><td>Vitrine : vraies captures</td><td><span class="tag ok">En ligne</span></td><td>10 captures prises le 21/11/2026 avec de vrais matchs (grand match : Arsenal – Manchester City)</td></tr>
     <tr><td>Connexion Google, Premium, Office (admin)</td><td><span class="tag ok">Fait</span></td><td>Premium activé à la main après paiement WhatsApp</td></tr>
-    <tr><td>Mise à jour automatique (6 fois par jour en semaine, toutes les heures le week-end)</td><td><span class="tag ok">En marche</span></td><td>Depuis le 21/11/2026 : GitHub Actions dans l'organisation <code>Probalis</code> calcule et met le site en ligne tout seul (premier passage réussi, historique intact). Rythme du 22/11/2026, voir 7.5</td></tr>
+    <tr><td>Mise à jour automatique (6 fois par jour en semaine, toutes les heures le week-end)</td><td><span class="tag ok">En marche</span></td><td>Depuis le 21/11/2026 : GitHub Actions dans l'organisation <code>Probalis</code> calcule et met le site en ligne (historique intact). Depuis le 22/11/2026, c'est le minuteur Cloudflare <code>probalis-horloge</code> qui le lance aux bonnes heures (l'horloge de GitHub ne lançait presque rien : 1 calcul sur 9) ; premier lancement vérifié à 7 h 05 pile (calcul réussi, site mis à jour à 7 h 07). Rythme et réglages en 7.5</td></tr>
     <tr><td>Paris réglés pendant le match</td><td><span class="tag ok">Fait</span></td><td>Depuis le 22/11/2026 : un pari ou un verdict déjà gagné ou perdu d'avance (score en direct de TheSportsDB) est réglé tout de suite, dans l'historique et sur la fiche du match (voir 5.6)</td></tr>
-    <tr><td>Cotes des coupes d'Europe (The Odds API)</td><td><span class="tag ok">En ligne</span></td><td>Depuis le 22/11/2026 (commit e243838, calcul automatique de 2 h 40) : Ligue des champions, Ligue Europa, Ligue Conférence, Ligue des champions féminine, Frauen-Bundesliga et Ligue saoudienne calées sur les vraies cotes quand leur match est à moins de 3 jours. Vérifié sur le site : fiche Arsenal – Borussia Dortmund « Calé sur les cotes », bas des pages et FAQ de la vitrine qui citent The Odds API</td></tr>
+    <tr><td>Cotes des coupes d'Europe (The Odds API)</td><td><span class="tag ok">En ligne</span></td><td>Depuis le 22/11/2026 (commit e243838, calcul lancé à la main à 2 h 40) : Ligue des champions, Ligue Europa, Ligue Conférence, Ligue des champions féminine, Frauen-Bundesliga et Ligue saoudienne calées sur les vraies cotes quand leur match est à moins de 3 jours. Vérifié sur le site : fiche Arsenal – Borussia Dortmund « Calé sur les cotes », bas des pages et FAQ de la vitrine qui citent The Odds API</td></tr>
     <tr><td>Paiement en ligne (Stripe, Flutterwave)</td><td><span class="tag todo">À faire</span></td><td>Prêt en mode démo, pas branché</td></tr>
     <tr><td>Nom de domaine, e-mails professionnels</td><td><span class="tag todo">À faire</span></td><td>E-mails envoyés par Gmail en attendant</td></tr>
   </table>
@@ -479,8 +479,9 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
     <tr><td><code>probalis/football/form.py</code></td><td>Forme récente et face-à-face affichés dans les fiches</td></tr>
     <tr><td><code>probalis/football/oddsapi.py</code></td><td>Cotes de The Odds API (coupes d'Europe, football féminin, Ligue saoudienne) et garde du quota gratuit</td></tr>
     <tr><td><code>probalis/site/shots.py</code>, <code>probalis/deploy.py</code></td><td>Captures de la vitrine ; mise en ligne par petits paquets</td></tr>
-    <tr><td><code>.github/workflows/</code></td><td>Calcul automatique (rythme en 7.5) et e-mails du jour (bloqués, voir 10)</td></tr>
-    <tr><td><code>tests/</code></td><td>Tests automatiques (67 tests, tous réussis le 22/11/2026), lancés aussi par GitHub Actions</td></tr>
+    <tr><td><code>.github/workflows/</code></td><td>Calcul automatique (rythme en 7.5) et e-mails du jour (bloqués, voir 10), lancés par le minuteur Cloudflare</td></tr>
+    <tr><td><code>cloudflare/horloge/</code></td><td>Minuteur Cloudflare <code>probalis-horloge</code> : appuie sur « Run workflow » aux heures du calcul et des e-mails du jour (<code>worker.mjs</code>, tests dans <code>test.mjs</code>, mode d'emploi dans <code>README.md</code>)</td></tr>
+    <tr><td><code>tests/</code></td><td>Tests automatiques (68 tests, tous réussis le 22/11/2026, dont ceux du minuteur), lancés aussi par GitHub Actions</td></tr>
   </table>
 </section>
 
@@ -561,14 +562,30 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <li>Pages publiques en 200 (/, /welcome/, /fr/, /en/, paris, ticket, historique, premium, /data/history.json, /data/history-full.bin, /sw.js), vraie page 404, un logo sous /logos/.</li>
     <li>Probalis Office : manifeste, icône, ancienne adresse admin en 404.</li>
   </ul>
-  <h3>7.5 Mise à jour automatique (en marche depuis le 21/11/2026)</h3>
-  <p><code>.github/workflows/build.yml</code> relance le calcul et met le site en ligne. Rythme voulu par le porteur du projet (22/11/2026),
-    en <strong>heure du Cameroun (UTC+1)</strong> ; GitHub compte en UTC, les lignes <code>cron</code> ont donc une heure de moins :</p>
+  <h3>7.5 Mise à jour automatique (en marche depuis le 21/11/2026, minuteur Cloudflare depuis le 22/11/2026)</h3>
+  <p><code>.github/workflows/build.yml</code> relance le calcul et met le site en ligne. Il est lancé par le <strong>minuteur Cloudflare</strong>
+    <code>probalis-horloge</code> (dossier <code>cloudflare/horloge/</code>, offre gratuite de Cloudflare Workers), qui appuie sur le bouton
+    « Run workflow » aux heures voulues par le porteur du projet (22/11/2026), en <strong>heure du Cameroun (UTC+1)</strong> :</p>
   <ul>
     <li><strong>Lundi → vendredi</strong> : 0 h 05, 6 h 05, 12 h 05, 18 h 05, 21 h 05 et 23 h 05. Les deux du soir suivent les coupes d'Europe
       (coups d'envoi 18 h 45 et 21 h) : un match de 18 h 45 est fini à 21 h 05, un match de 21 h est fini (ou presque) à 23 h 05.</li>
     <li><strong>Samedi et dimanche</strong> : toutes les heures, de 0 h 05 à 23 h 05.</li>
-    <li>La 5e minute évite l'heure pile, très chargée chez GitHub. GitHub démarre parfois avec du retard (constaté : 1 h 20 le 21/11/2026).</li>
+    <li><strong>E-mails du jour</strong> (<code>emails.yml</code>) : chaque jour à 10 h 05, lancés par le même minuteur (envoi réel, pas de simulation).</li>
+    <li>Le minuteur passe toutes les heures à la 5e minute (heure UTC, <code>wrangler.toml</code>) et choisit les heures dans <code>worker.mjs</code>
+      (<code>WEEKDAY_HOURS</code>, <code>EMAIL_HOUR</code>). Il réessaie deux fois si GitHub a un souci passager. Journaux : Cloudflare →
+      Workers &amp; Pages → <code>probalis-horloge</code> → Observability (« build.yml : lancé »). Mise en ligne depuis le PC :
+      <code>npx --yes wrangler@4.165.0 deploy</code> dans <code>cloudflare/horloge</code>.</li>
+    <li><strong>Clé du minuteur</strong> : secret Cloudflare <code>GITHUB_TOKEN</code>, une clé GitHub « fine-grained » nommée « Probalis horloge »
+      (propriétaire <code>Probalis</code>, dépôt <code>Probalis/Probalis</code> seulement, droit « Actions : lecture et écriture » seulement), posée par
+      le porteur du projet le 22/11/2026. <strong>Si elle expire</strong>, plus rien ne se lance tout seul : la date « Mis à jour le » en bas des pages ne
+      bouge plus et les journaux du minuteur affichent « refusé par GitHub (code 401) ». Créer alors une nouvelle clé et la reposer
+      (<code>cloudflare/horloge/README.md</code>).</li>
+    <li><strong>Pourquoi pas l'horloge de GitHub</strong> (<code>schedule</code>, retirée de <code>build.yml</code> et <code>emails.yml</code> le 22/11/2026) : elle est très peu fiable sur ce dépôt.
+      Entre le 21/11 à 19 h et le 22/11 à 6 h 30 (heure du Cameroun), 9 calculs automatiques étaient prévus (4 à l'ancien rythme, 5 au nouveau) :
+      un seul a démarré, avec 1 h 20 de retard ; aucun cette nuit-là. Les e-mails du jour (prévus à 10 h 07) sont partis avec 7 à 8 heures de retard
+      les 20 et 21/11. Aucune panne annoncée sur githubstatus.com. GitHub prévient que ces lancements peuvent être retardés, voire abandonnés,
+      quand ses serveurs sont chargés. Les lancements à la main (bouton « Run workflow ») et les tests après chaque envoi, eux, démarrent tout de suite :
+      c'est pour cela que le minuteur appuie sur ce bouton.</li>
     <li>Coût : 78 lancements par semaine, 1 à 4 minutes chacun avec les données gardées. Gratuit et illimité tant que le dépôt est public
       (en privé : environ 340 lancements par mois, en général sous les 2 000 minutes gratuites). Cloudflare Pages : environ 340 mises en ligne par mois (limite gratuite 500).</li>
     <li>Pendant un match, les journées TheSportsDB qui contiennent un match commencé depuis moins de 4 h sont redemandées à chaque lancement
@@ -589,6 +606,9 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <li>Lancer une fois à la main (onglet Actions → « Analyses et site » → Run workflow) et vérifier le site. <strong>Fait le 21/11/2026</strong> :
       premier passage réussi en 55 min (cache vide : tout est téléchargé ; les suivants reprennent les données gardées), 290 matchs,
       jours figés identiques à ceux du PC, un pari de plus réglé.</li>
+    <li>Le minuteur Cloudflare : connexion du PC à Cloudflare avec le droit de gérer les Workers (accordée par le porteur du projet le 22/11/2026),
+      mise en ligne de <code>probalis-horloge</code>, clé <code>GITHUB_TOKEN</code> posée par le porteur du projet. <strong>Fait le 22/11/2026</strong> :
+      premier lancement par le minuteur vérifié à 7 h 05 pile (calcul réussi, site mis à jour à 7 h 07).</li>
   </ol>
   <p>Une fois l'automatique en marche, éviter de construire depuis le PC au même moment (deux versions de l'historique), surtout le week-end
     (un passage chaque heure, à la 5e minute). Une construction depuis le PC
@@ -605,6 +625,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <tr><td>GitHub</td><td>Dépôt <code>Probalis/Probalis</code> (public), dans l'organisation gratuite <code>Probalis</code> dont le compte personnel du porteur du projet est propriétaire (déplacé le 21/11/2026 ; l'ancienne adresse redirige). Calcul automatique</td><td>Variables : <code>PROBALIS_SITE_URL</code>, <code>PROBALIS_SUPABASE_URL</code>, <code>PROBALIS_SUPABASE_ANON_KEY</code>, <code>PROBALIS_CONTACT_EMAIL</code>, <code>PROBALIS_OWNER_NAME</code>. Secrets : <code>PROBALIS_HISTORY_KEY</code>, <code>CLOUDFLARE_API_TOKEN</code>, <code>CLOUDFLARE_ACCOUNT_ID</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code>, <code>PROBALIS_ODDS_API_KEY</code> (tous posés ; les e-mails du jour demandent aussi <code>SUPABASE_URL</code> et <code>SUPABASE_SERVICE_ROLE_KEY</code>, pas encore posés). Sur le PC : <code>site-public.env</code>, <code>historique.env</code> et <code>cotes.env</code> dans <code>D:\Projets\Probalis-secrets</code></td></tr>
     <tr><td>The Odds API</td><td>Cotes des coupes d'Europe, de la Ligue des champions féminine, de la Frauen-Bundesliga et de la Ligue saoudienne (offre gratuite, 500 crédits par mois)</td><td>Compte créé par le porteur du projet. Clé : secret GitHub <code>PROBALIS_ODDS_API_KEY</code> et <code>cotes.env</code> sur le PC (même valeur). Crédits restants visibles dans le tableau de bord du service</td></tr>
     <tr><td>Cloudflare Pages</td><td>Hébergement, projet <code>probalis</code>, fonction gardien</td><td>Publication par Wrangler (connexion du PC)</td></tr>
+    <tr><td>Cloudflare Workers</td><td>Minuteur <code>probalis-horloge</code> : lance le calcul et les e-mails du jour aux bonnes heures (voir 7.5)</td><td>Secret <code>GITHUB_TOKEN</code> (clé GitHub « Probalis horloge », droit « Actions : lecture et écriture » sur <code>Probalis/Probalis</code>). Publication par Wrangler (connexion du PC)</td></tr>
     <tr><td>Supabase</td><td>Connexion Google, base de données, fonctions serveur</td><td>Secrets : <code>SITE_URL</code>, <code>CONTACT_EMAIL</code>, <code>UNSUBSCRIBE_SECRET</code>, <code>ADMIN_EMAILS</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code> ; plus tard clés Stripe / Flutterwave / Resend. Outil : <code>npx supabase@3.2.0</code> (toujours <code>--yes</code> en production, jamais <code>db push</code> sans accord)</td></tr>
     <tr><td>Google Cloud</td><td>Bouton « Continuer avec Google »</td><td>Client OAuth « Probalis site » (identifiants collés dans Supabase)</td></tr>
     <tr><td>Google Apps Script</td><td>Envoi des e-mails depuis Gmail</td><td>Propriété <code>SECRET</code> du script ; adresse <code>/exec</code></td></tr>
@@ -676,8 +697,17 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       Frauen-Bundesliga, 4 sur 4 (5 à 8 bookmakers, plus/moins 2,5 souvent absent : calage sur le 1X2 seul). 4 crédits dépensés, 496 restants. Ligue
       Europa, Ligue Conférence et Ligue saoudienne (premiers matchs le jeudi) seront relevées à partir de lundi, quand leur match sera à moins de 3 jours.
       <strong>En ligne</strong> dans la nuit : code envoyé sur GitHub (commit e243838, tests GitHub réussis), puis premier calcul automatique avec les cotes
-      (prévu à 2 h 05, lancé par GitHub vers 2 h 40, réussi). Vérifié sur https://probalis.pages.dev : la fiche Arsenal – Borussia Dortmund affiche
+      (lancé à la main avec le bouton « Run workflow » à 2 h 40, réussi ; le calcul automatique prévu à 2 h 05 n'a pas démarré, voir l'entrée suivante).
+      Vérifié sur https://probalis.pages.dev : la fiche Arsenal – Borussia Dortmund affiche
       « Calé sur les cotes » et la note « Cotes relevées sur The Odds API » ; le bas des pages et la FAQ de la vitrine citent The Odds API.</td></tr>
+    <tr><td>22/11/2026</td><td><strong>Horloge de GitHub peu fiable</strong> (remarqué par le porteur du projet, qui ne voyait aucun lancement
+      dans la nuit) : sur 9 calculs automatiques prévus entre le 21/11 à 19 h et le 22/11 à 6 h 30, un seul a démarré (avec 1 h 20 de retard) ;
+      les e-mails du jour partent avec 7 à 8 heures de retard. Le site n'a été mis à jour cette nuit que par le calcul lancé à la main à 2 h 40.
+      Aucune panne annoncée chez GitHub. <strong>Réglé le même jour</strong>, avec l'accord du porteur du projet : minuteur gratuit de Cloudflare
+      <code>probalis-horloge</code> (<code>cloudflare/horloge/</code>) qui appuie sur « Run workflow » aux mêmes heures (78 calculs par semaine, vérifié
+      par les tests heure par heure sur deux semaines) et lance les e-mails du jour à 10 h 05. Le porteur du projet a accordé à Wrangler le droit de
+      gérer les Workers, créé la clé GitHub « Probalis horloge » (droit « Actions » seulement) et l'a posée dans Cloudflare. Premier lancement par le
+      minuteur vérifié à 7 h 05 pile (calcul réussi, site mis à jour à 7 h 07). Horloge de GitHub retirée de <code>build.yml</code> et <code>emails.yml</code>. 1 test ajouté (68 au total).</td></tr>
     <tr><td>22/11/2026</td><td><strong>Moteur : trois pistes testées, aucune adoptée</strong> (détails dans <code>docs/05-fiabilite.md</code>).
       (1) <strong>Enjeu</strong> de fin de saison (rien à jouer, maintien, course aux places ; 14 championnats, 2 saisons) : avec des cotes, aucun effet ;
       sans cotes, les équipes sans enjeu gagnent moins que prévu, mais la règle ne passe que dans un sens sur deux : à refaire en avril 2027.
@@ -710,6 +740,9 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       <code>D:\Projets\Probalis-secrets\cotes.env</code> (<code>PROBALIS_ODDS_API_KEY=…</code>) et dans le secret GitHub <code>PROBALIS_ODDS_API_KEY</code>.
       Premier relevé réussi le même jour, code envoyé sur GitHub et en ligne le même jour. Reste : vérifier au bout d'un mois la consommation réelle
       (crédits restants dans le tableau de bord de The Odds API). Si la clé change : mettre la nouvelle aux deux endroits.</td></tr>
+    <tr><td>Clé GitHub du minuteur</td><td><strong>Posée le 22/11/2026</strong> par le porteur du projet (secret Cloudflare <code>GITHUB_TOKEN</code> du minuteur
+      <code>probalis-horloge</code>). Reste : noter ici sa date d'expiration et, avant cette date, créer une nouvelle clé et la reposer
+      (<code>cloudflare/horloge/README.md</code>). Sans clé valable, le site ne se met plus à jour tout seul.</td></tr>
   </table>
   <h3>Prochaines fonctionnalités proposées (par ordre d'utilité)</h3>
   <ol>
@@ -760,6 +793,9 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
   </ol>
   <h3>Pièges connus</h3>
   <ul>
+    <li>Ne pas remettre l'horloge de GitHub (<code>schedule</code>) dans les programmes : elle ne lance presque rien sur ce dépôt, et en plus du minuteur
+      elle doublerait des lancements (plus de 500 mises en ligne par mois chez Cloudflare Pages). Si le site ne se met plus à jour : regarder d'abord
+      la clé du minuteur (expirée ?) dans ses journaux Cloudflare.</li>
     <li>Sur Windows, la console casse les accents : <code>$env:PYTHONIOENCODING = "utf-8"</code>.</li>
     <li>PowerShell 5.1 (Compress-Archive) écrit des « \ » dans les zip et casse le site : publier avec Wrangler, pas par zip.</li>
     <li>Wrangler seul échoue sur la connexion du PC (gros paquets coupés en route) : publier avec <code>python -m probalis.deploy</code> (voir 7.3).
@@ -795,7 +831,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <tr><td>PWA</td><td>Site web qui s'installe comme une application, sans passer par un store.</td></tr>
     <tr><td>Mode démo</td><td>Site construit sans Supabase : connexion et Premium simulés sur le téléphone, pour essayer sans compte.</td></tr>
   </table>
-  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 22 novembre 2026 (version 1.5), nouveau rythme du calcul automatique, paris réglés pendant le match, vraies cotes des coupes d'Europe (The Odds API : en ligne et vérifiées sur le site).</p>
+  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 22 novembre 2026 (version 1.6), nouveau rythme du calcul automatique lancé par un minuteur Cloudflare (l'horloge de GitHub ne lançait presque rien), paris réglés pendant le match, vraies cotes des coupes d'Europe (The Odds API : en ligne et vérifiées sur le site).</p>
 </section>
 
 </body>

@@ -52,9 +52,10 @@ Si la console affiche des accents cassés, lance d'abord `$env:PYTHONIOENCODING 
 
 ## Mise à jour automatique
 
-Une fois le projet sur GitHub, `.github/workflows/build.yml` relance l'analyse toutes les 2 heures pendant la
-journée (de 8 h 17 à 22 h 17 UTC, plus 0 h 17), puis met le site en ligne sur Cloudflare Pages. Mise en route et
-coûts : `docs/03-sources-gratuites.md`, parties 4 et 5.
+`.github/workflows/build.yml` relance l'analyse puis met le site en ligne sur Cloudflare Pages. Il est lancé par
+un minuteur Cloudflare (`cloudflare/horloge/`), car l'horloge de GitHub lançait très mal les calculs : du lundi au
+vendredi à 0 h 05, 6 h 05, 12 h 05, 18 h 05, 21 h 05 et 23 h 05, le week-end toutes les heures (heure du Cameroun).
+Mise en route et coûts : `docs/03-sources-gratuites.md`, parties 4 et 5, et `cloudflare/horloge/README.md`.
 
 ## Organisation
 

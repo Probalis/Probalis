@@ -1,0 +1,13 @@
+# Horloge des calculs de Probalis (voir worker.mjs et README.md).
+# Mise en ligne depuis le PC connecté à Cloudflare, dans ce dossier :  npx --yes wrangler@4.165.0 deploy
+# Aucun identifiant de compte ici (dépôt public) : Wrangler prend le compte connecté sur le PC.
+name = "probalis-horloge"
+main = "worker.mjs"
+compatibility_date = "2026-11-01"
+workers_dev = false     # pas d'adresse publique : le minuteur n'a rien à montrer
+
+[triggers]
+crons = ["5 * * * *"]   # toutes les heures à la 5e minute (heure UTC) ; worker.mjs choisit les heures du calcul
+
+[observability]
+enabled = true          # journaux visibles dans Cloudflare (Workers → probalis-horloge → Observability)
