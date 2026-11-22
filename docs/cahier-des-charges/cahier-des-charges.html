@@ -92,7 +92,7 @@ tr:nth-child(even) td { background: #FAFBFC; }
     décrit tout le projet : ce qu'il fait, comment il fonctionne, ce qui a été décidé et ce qui reste à faire, pour
     que n'importe qui (une personne ou une autre intelligence artificielle) puisse reprendre le travail sans rien perdre.</p>
   <div class="meta">
-    <div><b>Version</b>1.2 · 21 novembre 2026</div>
+    <div><b>Version</b>1.5 · 22 novembre 2026</div>
     <div><b>Application</b>probalis.pages.dev</div>
     <div><b>Dossier de travail</b>D:\Projets\Probalis</div>
   </div>
@@ -129,7 +129,7 @@ tr:nth-child(even) td { background: #FAFBFC; }
     <tr><td>Connexion Google, Premium, Office (admin)</td><td><span class="tag ok">Fait</span></td><td>Premium activé à la main après paiement WhatsApp</td></tr>
     <tr><td>Mise à jour automatique (6 fois par jour en semaine, toutes les heures le week-end)</td><td><span class="tag ok">En marche</span></td><td>Depuis le 21/11/2026 : GitHub Actions dans l'organisation <code>Probalis</code> calcule et met le site en ligne tout seul (premier passage réussi, historique intact). Rythme du 22/11/2026, voir 7.5</td></tr>
     <tr><td>Paris réglés pendant le match</td><td><span class="tag ok">Fait</span></td><td>Depuis le 22/11/2026 : un pari ou un verdict déjà gagné ou perdu d'avance (score en direct de TheSportsDB) est réglé tout de suite, dans l'historique et sur la fiche du match (voir 5.6)</td></tr>
-    <tr><td>Cotes des coupes d'Europe (The Odds API)</td><td><span class="tag todo">À envoyer</span></td><td>Code prêt et testé le 22/11/2026, clé posée (PC et GitHub) et premier relevé réussi : 18 matchs de Ligue des champions sur 18 et 4 de Frauen-Bundesliga sur 4 calés sur les vraies cotes. En ligne au premier calcul automatique qui suivra le commit de ce code (pas encore fait)</td></tr>
+    <tr><td>Cotes des coupes d'Europe (The Odds API)</td><td><span class="tag ok">En ligne</span></td><td>Depuis le 22/11/2026 (commit e243838, calcul automatique de 2 h 40) : Ligue des champions, Ligue Europa, Ligue Conférence, Ligue des champions féminine, Frauen-Bundesliga et Ligue saoudienne calées sur les vraies cotes quand leur match est à moins de 3 jours. Vérifié sur le site : fiche Arsenal – Borussia Dortmund « Calé sur les cotes », bas des pages et FAQ de la vitrine qui citent The Odds API</td></tr>
     <tr><td>Paiement en ligne (Stripe, Flutterwave)</td><td><span class="tag todo">À faire</span></td><td>Prêt en mode démo, pas branché</td></tr>
     <tr><td>Nom de domaine, e-mails professionnels</td><td><span class="tag todo">À faire</span></td><td>E-mails envoyés par Gmail en attendant</td></tr>
   </table>
@@ -674,7 +674,10 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       <strong>Clé posée</strong> par le porteur du projet (PC et secret GitHub) ; <strong>premier relevé réel</strong> le soir même : Ligue des champions, 18 matchs
       reçus (22 bookmakers chacun) et 18 reliés sur 18 malgré des noms différents (« ŠK Slovan Bratislava », « Sabah FK », « Paris Saint Germain ») ;
       Frauen-Bundesliga, 4 sur 4 (5 à 8 bookmakers, plus/moins 2,5 souvent absent : calage sur le 1X2 seul). 4 crédits dépensés, 496 restants. Ligue
-      Europa, Ligue Conférence et Ligue saoudienne (premiers matchs le jeudi) seront relevées à partir de lundi, quand leur match sera à moins de 3 jours.</td></tr>
+      Europa, Ligue Conférence et Ligue saoudienne (premiers matchs le jeudi) seront relevées à partir de lundi, quand leur match sera à moins de 3 jours.
+      <strong>En ligne</strong> dans la nuit : code envoyé sur GitHub (commit e243838, tests GitHub réussis), puis premier calcul automatique avec les cotes
+      (prévu à 2 h 05, lancé par GitHub vers 2 h 40, réussi). Vérifié sur https://probalis.pages.dev : la fiche Arsenal – Borussia Dortmund affiche
+      « Calé sur les cotes » et la note « Cotes relevées sur The Odds API » ; le bas des pages et la FAQ de la vitrine citent The Odds API.</td></tr>
     <tr><td>22/11/2026</td><td><strong>Moteur : trois pistes testées, aucune adoptée</strong> (détails dans <code>docs/05-fiabilite.md</code>).
       (1) <strong>Enjeu</strong> de fin de saison (rien à jouer, maintien, course aux places ; 14 championnats, 2 saisons) : avec des cotes, aucun effet ;
       sans cotes, les équipes sans enjeu gagnent moins que prévu, mais la règle ne passe que dans un sens sur deux : à refaire en avril 2027.
@@ -705,7 +708,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       « E-mails du jour » s'arrête proprement chaque matin sans rien envoyer.</td></tr>
     <tr><td>Clé gratuite The Odds API</td><td><strong>Posée le 22/11/2026</strong> par le porteur du projet, dans
       <code>D:\Projets\Probalis-secrets\cotes.env</code> (<code>PROBALIS_ODDS_API_KEY=…</code>) et dans le secret GitHub <code>PROBALIS_ODDS_API_KEY</code>.
-      Premier relevé réussi le même jour. Reste : envoyer le code sur GitHub (commit), puis vérifier au bout d'un mois la consommation réelle
+      Premier relevé réussi le même jour, code envoyé sur GitHub et en ligne le même jour. Reste : vérifier au bout d'un mois la consommation réelle
       (crédits restants dans le tableau de bord de The Odds API). Si la clé change : mettre la nouvelle aux deux endroits.</td></tr>
   </table>
   <h3>Prochaines fonctionnalités proposées (par ordre d'utilité)</h3>
@@ -792,7 +795,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <tr><td>PWA</td><td>Site web qui s'installe comme une application, sans passer par un store.</td></tr>
     <tr><td>Mode démo</td><td>Site construit sans Supabase : connexion et Premium simulés sur le téléphone, pour essayer sans compte.</td></tr>
   </table>
-  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 22 novembre 2026 (version 1.4), nouveau rythme du calcul automatique, paris réglés pendant le match, vraies cotes des coupes d'Europe (The Odds API : clé posée, premier relevé réussi).</p>
+  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 22 novembre 2026 (version 1.5), nouveau rythme du calcul automatique, paris réglés pendant le match, vraies cotes des coupes d'Europe (The Odds API : en ligne et vérifiées sur le site).</p>
 </section>
 
 </body>
