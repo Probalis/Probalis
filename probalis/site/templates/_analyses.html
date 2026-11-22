@@ -1,6 +1,7 @@
 {# Analyses des derniers jours (onglet Historique, page d'un match terminé). À importer « with context ». #}
 {% from "_card.html" import crest %}
-{% macro vd_res(res) %}{% if res %}<span class="vd-r {{ res }}" title="{{ t['vd_res_' ~ res] }}" aria-label="{{ t['vd_res_' ~ res] }}">{{ icon({'won': 'check', 'lost': 'x', 'void': 'equal', 'nv': 'minus', 'open': 'minus'}[res], 12, 3) }}</span>{% else %}<span class="vd-r wait" title="{{ t.ha_pending }}" aria-label="{{ t.ha_pending }}">{{ icon('clock', 12, 2.6) }}</span>{% endif %}{% endmacro %}
+{# st : verdict de corners ou cartons d'un match fini, en attente des chiffres publiés après le match #}
+{% macro vd_res(res, st=false) %}{% if res %}<span class="vd-r {{ res }}" title="{{ t['vd_res_' ~ res] }}" aria-label="{{ t['vd_res_' ~ res] }}">{{ icon({'won': 'check', 'lost': 'x', 'void': 'equal', 'nv': 'minus', 'open': 'minus'}[res], 12, 3) }}</span>{% else %}{% set w = t.ha_pending_st if st else t.ha_pending %}<span class="vd-r wait" title="{{ w }}" aria-label="{{ w }}">{{ icon('clock', 12, 2.6) }}</span>{% endif %}{% endmacro %}
 
 {% macro an_match(mt) %}
 {% if mt.slug %}<a class="ha-m" href="{{ root }}match/{{ mt.slug }}.html">{% else %}<div class="ha-m">{% endif %}
@@ -9,7 +10,7 @@
     <span class="ha-side">{{ crest(mt.away_crest, 's16') }}<span class="ha-nm">{{ mt.away }}</span><b>{{ mt.score[1] if mt.score else '' }}</b></span>
   </span>
   <span class="ha-ok{% if mt.n and mt.ok / mt.n >= 0.7 %} good{% endif %}">{% if mt.status == 'void' %}{{ t.ha_void_short }}{% elif mt.status == 'live' %}<b>{{ mt.ok }}/{{ mt.n }}</b><small>{{ t.ha_live }}</small>{% elif mt.n %}<b>{{ mt.ok }}/{{ mt.n }}</b><small>{{ t.ha_ok }}</small>{% else %}<small>{{ t.ha_pending_short }}</small>{% endif %}</span>
-  {% if mt.best %}<span class="ha-b"><small>{{ t.vd_best }}</small><span class="ha-bq">{{ mt.best.q }}</span><b class="vd-a {{ mt.best.cls }}">{{ mt.best.ans }}</b><span class="ha-bp">{{ mt.best.pct }}</span>{{ vd_res(mt.best.res) }}</span>{% endif %}
+  {% if mt.best %}<span class="ha-b"><small>{{ t.vd_best }}</small><span class="ha-bq">{{ mt.best.q }}</span><b class="vd-a {{ mt.best.cls }}">{{ mt.best.ans }}</b><span class="ha-bp">{{ mt.best.pct }}</span>{{ vd_res(mt.best.res, mt.status == 'done' and mt.best.k in ('co', 'ca')) }}</span>{% endif %}
 {% if mt.slug %}</a>{% else %}</div>{% endif %}
 {% endmacro %}
 

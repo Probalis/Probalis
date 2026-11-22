@@ -92,7 +92,7 @@ tr:nth-child(even) td { background: #FAFBFC; }
     décrit tout le projet : ce qu'il fait, comment il fonctionne, ce qui a été décidé et ce qui reste à faire, pour
     que n'importe qui (une personne ou une autre intelligence artificielle) puisse reprendre le travail sans rien perdre.</p>
   <div class="meta">
-    <div><b>Version</b>1.6 · 22 novembre 2026</div>
+    <div><b>Version</b>1.7 · 22 novembre 2026</div>
     <div><b>Application</b>probalis.pages.dev</div>
     <div><b>Dossier de travail</b>D:\Projets\Probalis</div>
   </div>
@@ -431,7 +431,10 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
     <li>La liste d'un jour est <strong>figée</strong> au premier calcul fait ce jour-là (heure UTC+1) et ne change plus. Un jour figé ne reçoit plus que
       les matchs pas encore commencés.</li>
     <li>Chaque jour garde l'analyse de <strong>chaque match</strong> (verdicts, le plus sûr, 1X2, score le plus probable, version du moteur), jugée
-      une fois le match fini. Corners et cartons : jugés quand football-data publie les chiffres (2 à 4 jours), « non vérifiables » pour les coupes.</li>
+      une fois le match fini. Corners et cartons : jugés quand football-data publie les chiffres (2 à 4 jours), « non vérifiables » pour les coupes,
+      ou pour un championnat au bout de 6 jours sans chiffres. Un match de championnat enregistré sans ses noms football-data (listes faites avant le
+      21/11/2026) est retrouvé par sa date et les noms TheSportsDB, les deux équipes devant tomber sur le même match (<code>find_named</code> dans
+      <code>history.py</code>). Sur la page d'un match fini, une note explique que les corners et cartons attendent leurs chiffres.</li>
     <li>30 jours en détail, puis seulement le bilan. La version publique ne montre que ce qui est terminé (le reste est Premium).</li>
     <li><strong>Règlement pendant le match</strong> (22/11/2026) : chaque lancement relève le score en direct de TheSportsDB
       (<code>fixtures.live_score</code> : statuts 1H, HT, 2H, LIVE ; pas les prolongations, les paris portent sur 90 minutes) et le garde dans
@@ -481,7 +484,7 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
     <tr><td><code>probalis/site/shots.py</code>, <code>probalis/deploy.py</code></td><td>Captures de la vitrine ; mise en ligne par petits paquets</td></tr>
     <tr><td><code>.github/workflows/</code></td><td>Calcul automatique (rythme en 7.5) et e-mails du jour (bloqués, voir 10), lancés par le minuteur Cloudflare</td></tr>
     <tr><td><code>cloudflare/horloge/</code></td><td>Minuteur Cloudflare <code>probalis-horloge</code> : appuie sur « Run workflow » aux heures du calcul et des e-mails du jour (<code>worker.mjs</code>, tests dans <code>test.mjs</code>, mode d'emploi dans <code>README.md</code>)</td></tr>
-    <tr><td><code>tests/</code></td><td>Tests automatiques (68 tests, tous réussis le 22/11/2026, dont ceux du minuteur), lancés aussi par GitHub Actions</td></tr>
+    <tr><td><code>tests/</code></td><td>Tests automatiques (73 tests, tous réussis le 22/11/2026, dont ceux du minuteur), lancés aussi par GitHub Actions</td></tr>
   </table>
 </section>
 
@@ -700,6 +703,15 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       (lancé à la main avec le bouton « Run workflow » à 2 h 40, réussi ; le calcul automatique prévu à 2 h 05 n'a pas démarré, voir l'entrée suivante).
       Vérifié sur https://probalis.pages.dev : la fiche Arsenal – Borussia Dortmund affiche
       « Calé sur les cotes » et la note « Cotes relevées sur The Odds API » ; le bas des pages et la FAQ de la vitrine citent The Odds API.</td></tr>
+    <tr><td>22/11/2026</td><td><strong>Corners et cartons pas réglés dans l'historique</strong> (remarqué par le porteur du projet) : sur 102 matchs
+      joués le 21/11, 71 avaient des verdicts en attente, tous de corners ou de cartons. Tous les autres (1X2, double chance, plus/moins, les deux
+      équipes marquent, buts d'une équipe) étaient réglés. Deux causes. (1) Normal : football-data.co.uk publie les corners et cartons 2 à 4 jours après
+      le match (le 22/11, ses fichiers s'arrêtaient au 14/11) ; ils seront réglés tout seuls dès la publication (fichiers relus toutes les 1 h 30).
+      (2) Défaut : 19 matchs de grands championnats (Premier League, Liga, Serie A, Bundesliga, Ligue 1…) avaient été enregistrés avant le 21/11/2026 à 4 h 35
+      sans leurs noms football-data, et ont été marqués « non vérifiables » tout de suite. Corrigé : ces matchs sont retrouvés par leur date et les noms
+      TheSportsDB (essai sur 352 matchs de 2026/27 : les 295 déjà publiés tous retrouvés avec le bon score, aucun mauvais ; les 57 autres pas encore
+      publiés), et ceux marqués trop tôt sont remis en attente (les analyses enregistrées ne changent pas, seul le règlement est refait). Sur la page d'un
+      match fini, une note explique l'attente (« publiés en général 2 à 4 jours après le match »). 5 tests ajoutés (73 au total).</td></tr>
     <tr><td>22/11/2026</td><td><strong>Horloge de GitHub peu fiable</strong> (remarqué par le porteur du projet, qui ne voyait aucun lancement
       dans la nuit) : sur 9 calculs automatiques prévus entre le 21/11 à 19 h et le 22/11 à 6 h 30, un seul a démarré (avec 1 h 20 de retard) ;
       les e-mails du jour partent avec 7 à 8 heures de retard. Le site n'a été mis à jour cette nuit que par le calcul lancé à la main à 2 h 40.
@@ -831,7 +843,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <tr><td>PWA</td><td>Site web qui s'installe comme une application, sans passer par un store.</td></tr>
     <tr><td>Mode démo</td><td>Site construit sans Supabase : connexion et Premium simulés sur le téléphone, pour essayer sans compte.</td></tr>
   </table>
-  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 22 novembre 2026 (version 1.6), nouveau rythme du calcul automatique lancé par un minuteur Cloudflare (l'horloge de GitHub ne lançait presque rien), paris réglés pendant le match, vraies cotes des coupes d'Europe (The Odds API : en ligne et vérifiées sur le site).</p>
+  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 22 novembre 2026 (version 1.7), corners et cartons réglés même pour les matchs enregistrés sans noms football-data, nouveau rythme du calcul automatique lancé par un minuteur Cloudflare (l'horloge de GitHub ne lançait presque rien), paris réglés pendant le match, vraies cotes des coupes d'Europe (The Odds API : en ligne et vérifiées sur le site).</p>
 </section>
 
 </body>

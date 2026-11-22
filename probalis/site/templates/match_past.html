@@ -34,13 +34,14 @@
   {% if m.best %}<div class="vd-top">
     <span class="vd-tag">{{ t.vd_best }}</span>
     <div class="vd-q">{{ m.best.q }}</div>
-    <div class="vd-ans"><b class="vd-a {{ m.best.cls }}">{{ m.best.ans }}</b><span class="vd-p">{{ m.best.pct }}</span>{{ vd_res(m.best.res) }}</div>
+    <div class="vd-ans"><b class="vd-a {{ m.best.cls }}">{{ m.best.ans }}</b><span class="vd-p">{{ m.best.pct }}</span>{{ vd_res(m.best.res, m.status == 'done' and m.best.k in ('co', 'ca')) }}</div>
   </div>{% endif %}
   <div class="vds">
-  {% for v in m.rows %}<div class="vd has-res{% if v.best %} is-best{% endif %}"><span class="vd-q">{{ v.q }}</span><b class="vd-a {{ v.cls }}">{{ v.ans }}</b><b class="vd-p">{{ v.pct }}</b>{{ vd_res(v.res) }}</div>
+  {% for v in m.rows %}<div class="vd has-res{% if v.best %} is-best{% endif %}"><span class="vd-q">{{ v.q }}</span><b class="vd-a {{ v.cls }}">{{ v.ans }}</b><b class="vd-p">{{ v.pct }}</b>{{ vd_res(v.res, m.status == 'done' and v.k in ('co', 'ca')) }}</div>
   {% endfor %}
   </div>
   </div>
+  {% if m.wait_st %}<p class="note">{{ t.ha_wait_st }}</p>{% endif %}
   {% if m.nv %}<p class="note">{{ t.ha_unverif }}.</p>{% endif %}
   <p class="note">{{ t.vd_note }}</p>
 </section>

@@ -389,8 +389,7 @@ class _FdRows:
     def __init__(self):
         self.files: dict[tuple[str, str], dict] = {}
 
-    def find(self, code: str, kickoff: str, home: str, away: str):
-        ko = datetime.fromisoformat(kickoff)
+    def _rows(self, code: str, ko: datetime) -> dict:
         season = season_codes(current_season_start(ko.date()), 1)[0]
         rows = self.files.get((code, season))
         if rows is None:
@@ -401,15 +400,46 @@ class _FdRows:
                     if r.played:
                         rows[(r.date.isoformat(), r.home, r.away)] = r
             self.files[(code, season)] = rows
-        for d in (ko.date(), (ko - timedelta(hours=12)).date(), (ko + timedelta(hours=12)).date()):
-            r = rows.get((d.isoformat(), home, away))
+        return rows
+
+    @staticmethod
+    def _days(ko: datetime) -> list[str]:
+        return [d.isoformat() for d in (ko.date(), (ko - timedelta(hours=12)).date(), (ko + timedelta(hours=12)).date())]
+
+    def find(self, code: str, kickoff: str, home: str, away: str):
+        ko = datetime.fromisoformat(kickoff)
+        rows = self._rows(code, ko)
+        for d in self._days(ko):
+            r = rows.get((d, home, away))
             if r:
                 return r
         return None
 
+    def find_named(self, code: str, kickoff: str, home: str, away: str):
+        """Même recherche avec les noms TheSportsDB, pour un match enregistré sans ses noms football-data (avant le
+        21/11/2026). Les deux équipes doivent tomber sur le même match de ce jour-là : pas de mauvais rapprochement."""
+        ko = datetime.fromisoformat(kickoff)
+        days = set(self._days(ko))
+        cands = [r for (d, _, _), r in self._rows(code, ko).items() if d in days]
+        if not cands:
+            return None
+        names = fixtures.match_names([home, away], sorted({n for r in cands for n in (r.home, r.away)}))
+        h, a = names.get(home), names.get(away)
+        return next((r for r in cands if (r.home, r.away) == (h, a)), None) if h and a else None
+
 
 def _has_counts(e: dict, mid: str) -> bool:
     return any(d["k"] in ("co", "ca") for d in ((e.get("an") or {}).get(mid) or {}).get("v", []))
+
+
+def _fd_row(fd: _FdRows, mt: dict):
+    """Ligne football-data d'un match de championnat (score, corners, cartons), ou None."""
+    lg = BY_CODE.get(mt["league"])
+    if not (lg and lg.category == "domestic"):
+        return None
+    if mt.get("fd"):
+        return fd.find(mt["league"], mt["kickoff"], *mt["fd"])
+    return fd.find_named(mt["league"], mt["kickoff"], mt["home"]["name"], mt["away"]["name"])
 
 
 def settle(hist: dict, now: datetime, lookups: int = MAX_LOOKUPS) -> int:
@@ -424,10 +454,14 @@ def settle(hist: dict, now: datetime, lookups: int = MAX_LOOKUPS) -> int:
         for mid, mt in e.get("matches", {}).items():
             ko = datetime.fromisoformat(mt["kickoff"])
             lg = BY_CODE.get(mt["league"])
-            domestic = bool(lg and lg.category == "domestic" and mt.get("fd"))
+            domestic = bool(lg and lg.category == "domestic")
+            # Match de championnat enregistré sans ses noms football-data (listes faites avant le 21/11/2026) et marqué
+            # « non vérifiable » trop tôt : on recherche ses chiffres jusqu'à GIVE_UP_AFTER, comme les autres.
+            if domestic and mt.get("nost") and not mt.get("fd") and not mt.get("st") and now <= ko + GIVE_UP_AFTER:
+                mt.pop("nost")
             # Corners et cartons : chiffres de football-data (championnats), sinon « non vérifiable »
             if mt.get("score") and not mt.get("st") and not mt.get("nost") and _has_counts(e, mid):
-                row = fd.find(mt["league"], mt["kickoff"], *mt["fd"]) if domestic else None
+                row = _fd_row(fd, mt)
                 st = {}
                 if row:
                     if (c := signals.corners(row)):
@@ -456,7 +490,7 @@ def settle(hist: dict, now: datetime, lookups: int = MAX_LOOKUPS) -> int:
             else:
                 sc = fixtures.score(ev) if ev else None
             if sc is None and domestic:
-                row = fd.find(mt["league"], mt["kickoff"], *mt["fd"])
+                row = _fd_row(fd, mt)
                 if row:
                     sc = (row.fthg, row.ftag)
             if sc is None and lookups > 0:

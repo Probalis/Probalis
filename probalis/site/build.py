@@ -601,7 +601,7 @@ def _an_rows(rec: dict, lang: str, home: str, away: str) -> list[dict]:
         ans, cls = verdict_answer(v, lang)
         rows.append({"q": verdict_question(v, lang, home, away), "ans": ans, "cls": cls, "pct": i18n.pct(v["p"], lang),
                      "res": "open" if v["open"] and r in ("won", "lost") else r, "best": i == rec.get("b"),
-                     "open": v["open"]})
+                     "open": v["open"], "k": v["key"]})
     return rows
 
 
@@ -620,6 +620,8 @@ def _an_match(e: dict, mid: str, rec: dict, lang: str, links: set) -> dict:
     return {**mm, "id": mid, "league": mt["league"], "rows": rows, "best": best, "status": status,
             "ok": sum(1 for r in done if r["res"] == "won"), "n": len(done),
             "nv": any(r["res"] == history.NV for r in rows),
+            # Match fini, corners ou cartons pas encore publiés (football-data, 2 à 4 jours) : on l'explique
+            "wait_st": status == "done" and any(r["res"] is None and r["k"] in ("co", "ca") for r in rows),
             "score_txt": f"{mt['score'][0]} - {mt['score'][1]}" if mt.get("score") else None,
             "x": [i18n.pct(p, lang) for p in rec.get("x") or []], "ts": (rec.get("ts") or "").replace("-", " - "),
             "st": mt.get("st"), "eng_old": rec.get("eng") == "v1"}
