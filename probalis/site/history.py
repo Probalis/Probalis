@@ -5,6 +5,12 @@ y ajoute les listes des jours à venir et les résultats des matchs terminés, p
 La version en ligne ne montre que les paris réglés : les paris en attente sont des contenus Premium, ils n'y
 figurent pas (le jour est alors marqué « sealed »). La version complète est gardée dans data/cache/history.json.
 
+Pendant un match (score en direct de TheSportsDB) : un pari ou un verdict déjà joué d'avance est réglé tout de suite.
+Exemple : « plus de 1,5 but » à 2-0 est gagné quoi qu'il arrive ensuite (les buts ne s'effacent pas), « moins de 2,5
+buts » à 2-1… perdu dès le 3e but. Un pari qui peut encore changer (1X2, double chance…) attend le score final.
+Le score final, quand il arrive, refait tous les calculs (il corrige aussi un but annulé après coup). Un match que
+TheSportsDB marque déjà « fini » est réglé tout de suite ; sinon on attend 2 h 30 après le coup d'envoi.
+
 Règle d'honnêteté : la liste d'un jour est figée dès le premier calcul fait ce jour-là (ou plus tard) ;
 ensuite elle ne change plus, même si le modèle change d'avis. Les listes des jours suivants restent
 provisoires jusque-là. Tout pari enregistré a donc été publié avant le coup d'envoi de son match.
@@ -154,7 +160,7 @@ def public_copy(hist: dict, now: datetime | None = None) -> dict:
     out["days"] = {}
     for day, e in (hist.get("days") or {}).items():
         tiers = {t: [c for c in lst if c.get("res")] for t, lst in (e.get("tiers") or {}).items()}
-        coupons = [cp for cp in e.get("coupons") or [] if cp.get("res")]
+        coupons = [cp for cp in e.get("coupons") or [] if coupon_shown(cp)]
         ms = e.get("matches") or {}
         an = {mid: rec for mid, rec in (e.get("an") or {}).items() if match_over(ms.get(mid) or {}, now)}
         hidden = sum(len(lst) for lst in (e.get("tiers") or {}).values()) + len(e.get("coupons") or []) \
@@ -327,6 +333,39 @@ def compact(hist: dict, today: str) -> None:
         del e["an"]
 
 
+LIVE_EXTRA = 10  # buts encore possibles pour chaque équipe, pour savoir si un pari est déjà joué d'avance
+
+
+def live_result(settle_fn, hg: int, ag: int) -> str | None:
+    """« won » ou « lost » si le pari a le même résultat quel que soit le nombre de buts encore à venir (score en
+    direct hg-ag) ; None s'il peut encore changer. settle_fn(buts domicile, buts extérieur) -> won / lost / void…"""
+    seen = set()
+    for i in range(LIVE_EXTRA + 1):
+        for j in range(LIVE_EXTRA + 1):
+            seen.add(settle_fn(hg + i, ag + j))
+            if len(seen) > 1:
+                return None
+    r = seen.pop()
+    return r if r in ("won", "lost") else None
+
+
+def live_scores(hist: dict) -> dict[str, tuple[int, int]]:
+    """Matchs en cours avec leur score en direct (relevé par settle) : id -> (buts domicile, buts extérieur)."""
+    return {mid: tuple(mt["live"]) for e in (hist.get("days") or {}).values()
+            for mid, mt in (e.get("matches") or {}).items() if mt.get("live") and not mt.get("score")}
+
+
+def live_decided(mt: dict, rec: dict) -> bool:
+    """Match en cours avec au moins un verdict déjà joué d'avance (affiché tout de suite dans l'historique)."""
+    return bool(mt.get("live")) and not mt.get("score") and not mt.get("void")         and any(r in ("won", "lost") and not d.get("o") for d, r in zip(rec.get("v") or [], rec.get("r") or []))
+
+
+def coupon_shown(cp: dict) -> str | None:
+    """Résultat d'un coupon à afficher (et à publier) : seulement quand chacun de ses paris est réglé. Un coupon
+    perdu dès son premier match ne dévoile pas les paris de ses matchs encore à jouer."""
+    return cp.get("res") if all(c.get("res") for c in cp.get("legs") or []) else None
+
+
 def _scores_from_cache() -> dict[str, dict]:
     """Matchs déjà téléchargés (journées de championnat, coupes) : idEvent -> événement TheSportsDB."""
     out = {}
@@ -400,13 +439,22 @@ def settle(hist: dict, now: datetime, lookups: int = MAX_LOOKUPS) -> int:
                 elif not domestic or now > ko + GIVE_UP_AFTER:
                     mt["nost"] = True
             if mt.get("score") or mt.get("void"):
+                mt.pop("live", None)
                 continue
-            if now < ko + SETTLE_AFTER:
+            if now < ko:
                 continue
             if known is None:
                 known = _scores_from_cache()
             ev = known.get(mid)
-            sc = fixtures.score(ev) if ev else None
+            live = fixtures.live_score(ev) if ev else None
+            if live:
+                mt["live"] = list(live)  # match en cours : paris déjà joués d'avance réglés plus bas
+            if now < ko + SETTLE_AFTER:
+                sc = fixtures.final_score(ev) if ev else None  # déjà marqué « fini » : réglé tout de suite
+                if not sc:
+                    continue
+            else:
+                sc = fixtures.score(ev) if ev else None
             if sc is None and domestic:
                 row = fd.find(mt["league"], mt["kickoff"], *mt["fd"])
                 if row:
@@ -421,9 +469,13 @@ def settle(hist: dict, now: datetime, lookups: int = MAX_LOOKUPS) -> int:
             status = ((ev or {}).get("strStatus") or "").strip().lower()
             if sc:
                 mt["score"] = list(sc)
+                mt.pop("live", None)
                 filled += 1
+            elif (live := fixtures.live_score(ev) if ev else None):
+                mt["live"] = list(live)  # match pas encore fini (prolongations, retard)
             elif status in _VOID_STATUS or now > ko + GIVE_UP_AFTER:
                 mt["void"] = True
+                mt.pop("live", None)
                 filled += 1
         _apply_results(e)
     return filled
@@ -434,6 +486,8 @@ def _leg_result(e: dict, c: dict) -> str | None:
     if mt.get("void"):
         return "void"
     if not mt.get("score"):
+        if mt.get("live"):
+            return live_result(lambda h, a: picks.settle(c["key"], c["line"], c["sel"], h, a), *mt["live"])
         return None
     hg, ag = mt["score"]
     return picks.settle(c["key"], c["line"], c["sel"], hg, ag)
@@ -448,7 +502,9 @@ def verdict_results(e: dict, mid: str, rec: dict) -> list:
             out.append("void")
             continue
         if not mt.get("score"):
-            out.append(None)
+            live = mt.get("live")
+            ok = live and d["k"] not in ("co", "ca")  # corners et cartons : pas de chiffres en direct
+            out.append(live_result(lambda h, a, v=verdict_of(d): vd.settle(v, h, a), *live) if ok else None)
             continue
         r = vd.settle(verdict_of(d), *mt["score"], mt.get("st"))
         if r is None and d["k"] in ("co", "ca") and (mt.get("nost") or mt.get("st")):

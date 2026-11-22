@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta, timezone
 import numpy as np
 
 from probalis.football.data import FRESH_HOURS, MatchRow
-from probalis.football.fixtures import _round_max_age, finished, upcoming_fixtures
+from probalis.football.fixtures import LIVE_HOURS, _round_max_age, finished, upcoming_fixtures
 from probalis.football.leagues import BY_CODE
 from probalis.football.model import fit
 from probalis.football.pipeline import _fresh_results
@@ -73,12 +73,16 @@ def test_window_keeps_today_to_day_eight_and_drops_finished():
 def test_round_cache_is_short_only_while_matches_are_close():
     now = datetime.now(timezone.utc)
     soon = [_event("1", "A", "B", now + timedelta(hours=10))]
+    in_play = [_event("1", "A", "B", now - timedelta(hours=1), status="2H")]
     just_played = [_event("1", "A", "B", now - timedelta(hours=3), status="Not Started")]
+    played_no_result = [_event("1", "A", "B", now - timedelta(hours=6), status="Not Started")]
     later = [_event("1", "A", "B", now + timedelta(days=5))]
     old_postponed = [_event("1", "A", "B", now - timedelta(days=20), status="Postponed"),
                      _event("2", "C", "D", now - timedelta(days=20), (1, 1))]
     assert _round_max_age(soon) == FRESH_HOURS
-    assert _round_max_age(just_played) == FRESH_HOURS
+    assert _round_max_age(in_play) == LIVE_HOURS        # match en cours : score en direct à chaque relance
+    assert _round_max_age(just_played) == LIVE_HOURS
+    assert _round_max_age(played_no_result) == FRESH_HOURS
     assert _round_max_age(later) == 6
     assert _round_max_age(old_postponed) == 24
     assert _round_max_age([]) == 24

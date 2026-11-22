@@ -1,6 +1,6 @@
 # Probalis : e-mails du jour (alerte « grand choc demain » et rappel avant la fin du Premium), puis la notification du jour.
 # E-mails par Gmail (GMAIL_SCRIPT_URL + GMAIL_SCRIPT_SECRET, voir docs/07-recompenses-admin-notifications.md) ou par Resend.
-# Tourne une fois par jour, après la mise à jour des analyses de 8 h 17 UTC. Voir docs/06-comptes-premium-emails.md.
+# Tourne une fois par jour, après le calcul de 6 h 05 (heure du Cameroun, voir build.yml). Voir docs/06-comptes-premium-emails.md.
 # Tant que la variable PROBALIS_SUPABASE_URL n'est pas enregistrée, la tâche est simplement sautée (aucune minute
 # GitHub consommée, aucun échec). Si elle l'est mais qu'un secret manque, le script s'arrête proprement sans rien envoyer.
 name: E-mails du jour

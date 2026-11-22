@@ -210,8 +210,16 @@ def verdict_answer(v: dict, lang: str) -> tuple[str, str]:
     return (t["vd_yes"], "yes") if v["yes"] else (t["vd_no"], "no")
 
 
-def _verdicts_view(m: dict, lang: str) -> dict:
-    """Les verdicts OUI / NON de la fiche, et le plus sûr avec sa preuve (verdicts comparables du passé)."""
+def _live_verdict(v: dict, live: tuple | None) -> str | None:
+    """« won » / « lost » si le verdict est déjà joué pendant le match (score en direct), sinon None."""
+    if not live or v.get("open") or v["key"] in ("co", "ca"):  # corners et cartons : pas de chiffres en direct
+        return None
+    return history.live_result(lambda h, a: vd.settle(v, h, a), *live)
+
+
+def _verdicts_view(m: dict, lang: str, live: tuple | None = None) -> dict:
+    """Les verdicts OUI / NON de la fiche, et le plus sûr avec sa preuve (verdicts comparables du passé).
+    live : score en direct du match en cours ; les verdicts déjà joués d'avance portent « Déjà validé / perdu »."""
     t = i18n.UI[lang]
     home, away = m["home"]["name"], m["away"]["name"]
     params = load_params()
@@ -223,7 +231,7 @@ def _verdicts_view(m: dict, lang: str) -> dict:
         ans, cls = verdict_answer(v, lang)
         rows.append({"q": verdict_question(v, lang, home, away), "ans": ans, "cls": cls,
                      "pct": i18n.pct(v["p"], lang), "w": round(min(max(v["p"], 0), 1) * 100, 1),
-                     "level": _level(v["p"]), "best": v is best})
+                     "level": _level(v["p"]), "best": v is best, "live": _live_verdict(v, live)})
     top = None
     if best:
         ans, cls = verdict_answer(best, lang)
@@ -235,7 +243,7 @@ def _verdicts_view(m: dict, lang: str) -> dict:
         else:
             proof = t["vd_proof_none"].format(pct=i18n.pct(best["p"], lang), miss=max(1, round((1 - best["p"]) * 10)))
         top = {"q": verdict_question(best, lang, home, away), "ans": ans, "cls": cls,
-               "pct": i18n.pct(best["p"], lang), "proof": proof}
+               "pct": i18n.pct(best["p"], lang), "proof": proof, "live": _live_verdict(best, live)}
     counts = m.get("counts") or {}
     counts_txt = None
     if counts.get("corners") and counts.get("cards"):
@@ -294,7 +302,7 @@ def _round_txt(m: dict, lang: str) -> str | None:
     return None
 
 
-def _match_view(m: dict, lang: str, info: dict, sections: dict) -> dict:
+def _match_view(m: dict, lang: str, info: dict, sections: dict, live: dict | None = None) -> dict:
     lg = BY_CODE[m["league"]]
     t = i18n.UI[lang]
     x12 = _find(m, "1x2")["sel"]
@@ -334,8 +342,9 @@ def _match_view(m: dict, lang: str, info: dict, sections: dict) -> dict:
         "top_scores": [(s.replace("-", " - "), i18n.pct(p, lang)) for s, p in m["top_score"]],
         "day_short": i18n.day_short(ko, lang), "day_med": i18n.day_med(ko, lang),
         "groups": groups, "priced_view": priced, "n_markets": len(m["markets"]),
+        "odds_note": t["odds_note_api" if m.get("odds_src") == "oddsapi" else "odds_note"],
         "key_markets": _key_markets(m, lang), "compare": _compare(m, lang, best),
-        "vd": _verdicts_view(m, lang),
+        "vd": _verdicts_view(m, lang, (live or {}).get(m["id"])),
         "why": explain.render(m.get("factors"), lang, m["home"]["name"], m["away"]["name"]),
         "form": _form_view(m, lang),
     }
@@ -460,6 +469,7 @@ def _mini_match(mt: dict, lang: str, slugs: set) -> dict:
             "home": mt["home"]["name"], "away": mt["away"]["name"],
             "home_crest": _crest(mt["home"]), "away_crest": _crest(mt["away"]),
             "day_short": i18n.day_short(ko, lang), "score": mt.get("score"), "void": mt.get("void"),
+            "live": bool(mt.get("live")) and not mt.get("score") and not mt.get("void"),  # match en cours
             "league_name": (lg.name_fr if lang == "fr" else lg.name_en) if lg else ""}
 
 
@@ -487,7 +497,9 @@ def _coupon_view(cp: dict, ms: dict, lang: str, slugs: set) -> dict:
     t = i18n.UI[lang]
     legs = [_pick_view(c, ms[c["mid"]], lang, slugs) for c in cp["legs"]]
     p = min(cp["p"], 0.99)
-    return {"target": cp["target"], "n": len(legs), "legs": legs, "res": cp.get("res"),
+    # Coupon dévoilé seulement quand chacun de ses paris est réglé : un coupon déjà perdu ne montre pas
+    # les paris de ses matchs encore à jouer (réservés au Premium).
+    return {"target": cp["target"], "n": len(legs), "legs": legs, "res": history.coupon_shown(cp),
             "title": t["coupon_target"].format(n=cp["target"]),
             "meta": t["coupon_meta"].format(n=len(legs), p=i18n.pct(p, lang)), "times": _times(p, lang),
             "book": i18n.odds(cp["book"], lang), "fair": t["coupon_fair"].format(o=i18n.odds(cp["fair"], lang)),
@@ -600,7 +612,11 @@ def _an_match(e: dict, mid: str, rec: dict, lang: str, links: set) -> dict:
     rows = _an_rows(rec, lang, mm["home"], mm["away"])
     done = [r for r in rows if r["res"] in ("won", "lost")]
     best = next((r for r in rows if r["best"]), None)
-    status = "void" if mt.get("void") else ("done" if mt.get("score") else "wait")
+    status = "void" if mt.get("void") else ("done" if mt.get("score") else ("live" if mm["live"] else "wait"))
+    if status == "live":  # match en cours : seulement les verdicts déjà joués d'avance (les autres restent Premium)
+        rows = [r for r in rows if r["res"] in ("won", "lost")]
+        done = rows
+        best = next((r for r in rows if r["best"]), None)
     return {**mm, "id": mid, "league": mt["league"], "rows": rows, "best": best, "status": status,
             "ok": sum(1 for r in done if r["res"] == "won"), "n": len(done),
             "nv": any(r["res"] == history.NV for r in rows),
@@ -630,7 +646,8 @@ def _analyses_view(hist: dict, now: datetime, lang: str, links: set) -> dict:
         d = td - timedelta(days=off)
         e = days.get(d.isoformat()) or {}
         ms = e.get("matches") or {}
-        shown = {mid: rec for mid, rec in (e.get("an") or {}).items() if history.match_over(ms.get(mid) or {}, now)}
+        shown = {mid: rec for mid, rec in (e.get("an") or {}).items()
+                 if history.match_over(ms.get(mid) or {}, now) or history.live_decided(ms.get(mid) or {}, rec)}
         if off == 0 and not shown:
             continue
         items = sorted((_an_match(e, mid, rec, lang, links) for mid, rec in shown.items()),
@@ -987,7 +1004,7 @@ def _office(env, lk, common: dict, cfg: dict) -> None:
 
 
 def _site_pages(env: Environment, hist: dict, today: str, slugs: set, sim: dict | None, cfg: dict, site: dict,
-                version: str, now: datetime) -> None:
+                version: str, now: datetime, odds_api: bool = False) -> None:
     """Le site vitrine : / en français, /welcome/ en anglais, et /app/ (point d'entrée de l'appli installée)."""
     site_url = site["site_url"] or DEFAULT_SITE_URL
     code = qr.svg(site_url + "/", label="QR")
@@ -1014,6 +1031,7 @@ def _site_pages(env: Environment, hist: dict, today: str, slugs: set, sim: dict 
             prices=_site_prices(cfg, lang), odds=_site_odds(lang), shots_day=_shots_day(lang),
             qr=Markup(code.replace('aria-label="QR"', f'aria-label="{escape(s["qr_label"])}"')),
             contact=site.get("contact_email"), year=now.year, ld=ld, js=js, shot=_shot_fn(lang), cfg=cfg,
+            credit=i18n.UI[lang]["data_credit_api" if odds_api else "data_credit"], odds_api=odds_api,
             ref=config.referral_view())
         out.write_text(page, encoding="utf-8")
     app_dir = PUBLIC / "app"
@@ -1053,6 +1071,9 @@ def build(data: dict) -> Path:
     settled = history.settle(hist, now)
     if settled:
         print(f"Historique : {settled} résultat(s) de match ajouté(s).")
+    live = history.live_scores(hist)  # matchs en cours : paris et verdicts déjà joués d'avance
+    if live:
+        print(f"Matchs en cours : {len(live)} (paris déjà gagnés ou perdus réglés tout de suite).")
     global LOGOS
     LOGOS = Logos()
     added = LOGOS.prepare(_logo_urls(data, hist))
@@ -1062,13 +1083,15 @@ def build(data: dict) -> Path:
     past = past_matches(hist, now, slugs)
     links = slugs | {e["matches"][mid]["slug"] for e, mid, _ in past}
     sim = _simulation()
+    odds_api = any(m.get("odds_src") == "oddsapi" for m in data["matches"])  # mention de la source des cotes
     for lang in i18n.LANGS:
         t = i18n.UI[lang]
-        views = [_match_view(m, lang, info, sections) for m in data["matches"] if m["league"] in BY_CODE]
+        views = [_match_view(m, lang, info, sections, live) for m in data["matches"] if m["league"] in BY_CODE]
         common = {"lang": lang, "t": t, "other_lang": "en" if lang == "fr" else "fr", "version": version,
                   "generated": generated, "generated_iso": data["generated_at"], "js": i18n.js_strings(lang),
                   "cfg": cfg, "site": site, "free_markets": sorted(config.FREE_MARKETS),
-                  "site_url": site["site_url"] or DEFAULT_SITE_URL}
+                  "site_url": site["site_url"] or DEFAULT_SITE_URL,
+                  "credit": t["data_credit_api" if odds_api else "data_credit"]}
         out = PUBLIC / lang
         (out / "match").mkdir(parents=True)
 
@@ -1144,7 +1167,7 @@ def build(data: dict) -> Path:
                 encoding="utf-8")
 
     lk.start("site")
-    _site_pages(env, hist, today, slugs, sim, cfg, site, version, now)
+    _site_pages(env, hist, today, slugs, sim, cfg, site, version, now, odds_api)
     # Adresse inconnue (vieux lien de match…) : page 404 qui renvoie vers l'historique ou l'accueil
     (PUBLIC / "404.html").write_text(env.get_template("404.html").render(
         lang="fr", t=i18n.UI["fr"], t_en=i18n.UI["en"], version=version), encoding="utf-8")

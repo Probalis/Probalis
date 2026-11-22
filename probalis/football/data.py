@@ -15,7 +15,7 @@ SEASON_URL = "https://www.football-data.co.uk/mmz4281/{season}/{code}.csv"
 FIXTURES_URL = "https://www.football-data.co.uk/fixtures.csv"
 EXTRA_URL = "https://www.football-data.co.uk/new/{code}.csv"
 USER_AGENT = "Mozilla/5.0 (compatible; ProbalisBot/0.1)"
-FRESH_HOURS = 1.5  # le site est recalculé toutes les 2 heures : les données du jour ne doivent pas être plus vieilles
+FRESH_HOURS = 1.5  # données du jour pas plus vieilles qu'1 h 30 (relances toutes les heures le week-end, toutes les 6 h en semaine)
 
 STAT_COLUMNS = ("HS", "AS", "HST", "AST", "HC", "AC", "HF", "AF", "HY", "AY", "HR", "AR")
 NON_ODDS = {"Div", "Date", "Time", "HomeTeam", "AwayTeam", "FTHG", "FTAG", "FTR", "HTHG", "HTAG", "HTR",

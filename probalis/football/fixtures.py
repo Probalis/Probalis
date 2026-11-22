@@ -242,6 +242,30 @@ _LIVE_OR_LATER = {"ns", "not started", "tbd", "1h", "2h", "ht", "et", "bt", "p",
                   "postponed", "pst", "cancelled", "canc", "abandoned", "abd"}
 
 
+# Match en cours dans le temps réglementaire. Pas les prolongations ni les tirs au but : les paris portent sur les
+# 90 minutes, le score du temps réglementaire reste alors celui relevé juste avant.
+_IN_PLAY = {"1h", "ht", "2h", "live"}
+LIVE_HOURS = 0.25  # cache d'une journée dont un match se joue : redemandée à chaque relance (score en direct)
+
+
+def final_score(e: dict) -> tuple[int, int] | None:
+    """Score final seulement si TheSportsDB marque clairement le match comme fini (« FT »…) : réglé sans attendre."""
+    status = (e.get("strStatus") or "").strip().lower()
+    return score(e) if status in _PLAYED else None
+
+
+def live_score(e: dict) -> tuple[int, int] | None:
+    """Score d'un match en cours (TheSportsDB le donne dans ses journées, sans clé payante), sinon None."""
+    status = (e.get("strStatus") or "").strip().lower()
+    hs, as_ = e.get("intHomeScore"), e.get("intAwayScore")
+    if status not in _IN_PLAY or hs in (None, "") or as_ in (None, ""):
+        return None
+    try:
+        return int(hs), int(as_)
+    except (TypeError, ValueError):
+        return None
+
+
 def score(e: dict) -> tuple[int, int] | None:
     """Score final d'un match terminé, sinon None."""
     status = (e.get("strStatus") or "").strip().lower()
@@ -259,13 +283,17 @@ def score(e: dict) -> tuple[int, int] | None:
 def _round_max_age(events: list[dict] | None) -> float:
     """Durée de cache d'une journée pas encore terminée.
 
-    Courte si un de ses matchs se joue dans les 36 heures ou vient de se jouer sans résultat connu :
-    chaque relance (toutes les 2 heures) récupère alors les scores et les changements d'horaire.
+    Très courte si un de ses matchs a commencé il y a moins de 4 heures sans score final : chaque relance récupère
+    le score en direct (paris déjà gagnés ou perdus réglés tout de suite). Courte si un de ses matchs se joue dans
+    les 36 heures ou vient de se jouer sans résultat connu : chaque relance récupère alors les scores et les
+    changements d'horaire.
     """
     if not events:
         return 24 if events is not None else 6
     now = datetime.now(timezone.utc)
     pending = [k for e in events if not score(e) and (k := _kickoff(e))]
+    if any(-4 * 3600 <= (k - now).total_seconds() <= 0 for k in pending):
+        return LIVE_HOURS
     if any(-3 * 86400 <= (k - now).total_seconds() <= 36 * 3600 for k in pending):
         return FRESH_HOURS
     return 6 if any(k > now for k in pending) else 24  # 24 h : il ne manque que des matchs reportés

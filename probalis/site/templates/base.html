@@ -55,7 +55,7 @@
 <footer class="foot">
   <p>{{ t.responsible }}</p>
   <p class="foot-links"><a href="{{ root }}premium.html">{{ t.premium }}</a> · <a href="{{ root }}jeu-responsable.html">{{ t.legal_responsible }}</a> · <a href="{{ root }}conditions.html">{{ t.legal_terms }}</a> · <a href="{{ root }}confidentialite.html">{{ t.legal_privacy }}</a></p>
-  <p>{{ t.data_credit }} {{ t.updated }} <time data-dt="{{ generated_iso }}">{{ generated.strftime('%d/%m/%Y %H:%M') }} UTC</time>{% if not no_lang %} · <a href="/{{ other_lang }}/{{ path }}" hreflang="{{ other_lang }}" data-lang="{{ other_lang }}">{{ t.lang_version }}</a>{% endif %}</p>
+  <p>{{ credit or t.data_credit }} {{ t.updated }} <time data-dt="{{ generated_iso }}">{{ generated.strftime('%d/%m/%Y %H:%M') }} UTC</time>{% if not no_lang %} · <a href="/{{ other_lang }}/{{ path }}" hreflang="{{ other_lang }}" data-lang="{{ other_lang }}">{{ t.lang_version }}</a>{% endif %}</p>
 </footer>
 {% endblock %}
 </div>

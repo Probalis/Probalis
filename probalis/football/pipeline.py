@@ -7,13 +7,15 @@ import unicodedata
 from datetime import date, datetime, timedelta, timezone
 
 from ..core.value import Outcome
-from .engine import LeagueModels, add_counts, analyse, factors as engine_factors, fit_league, load_params
+from .engine import (LeagueModels, add_counts, analyse, factors as engine_factors, fit_league, load_params,
+                     market_rates, mix)
 from .data import load_history, load_upcoming_odds, MatchRow
 from . import form
 from .fixtures import Fixture, finished, league_badge, league_rounds, match_names, upcoming_fixtures
 from .leagues import LEAGUES, League, current_season_start, season_codes
 from .linked import DOMESTIC_SOURCES, FINAL_ROUND, Linked, men_cups, women, world
-from .predict import Prediction, confidence, predict
+from . import oddsapi
+from .predict import Prediction, confidence, predict, predict_from_rates
 
 # Fenêtre glissante : chaque lancement analyse les matchs d'aujourd'hui jusqu'à J+8
 # (le 19, du 19 au 27 ; le 20, du 20 au 28, etc.).
@@ -151,12 +153,14 @@ def _cup_count_rates(h: str, a: str, league_models: dict, kind: str, neutral: bo
 
 def _linked_matches(lg: League, linked: Linked, today: date, report: dict,
                     league_models: dict | None = None) -> tuple[list[dict], dict]:
-    """Matchs d'une coupe d'Europe ou d'un championnat féminin, analysés par le modèle relié.
+    """Matchs d'une coupe d'Europe, d'un championnat féminin ou de la Ligue saoudienne, analysés par le modèle relié.
 
-    Pas de cotes gratuites pour ces compétitions : l'analyse vient du modèle seul, la confiance est donc
-    plafonnée à « moyenne ».
+    Pas de fichier de cotes football-data.co.uk pour ces compétitions. Avec la clé gratuite de The Odds API
+    (football/oddsapi.py), l'analyse est calée sur les cotes comme en championnat (même règle : engine.market_rates
+    puis mix) ; sans cotes, elle vient du modèle seul et la confiance est plafonnée à « moyenne ».
     """
     fixtures = _upcoming(lg, today)
+    odds_by_id = oddsapi.odds_for(lg.code, fixtures)
     kind = "cup" if lg.cup else "dom"
     m = linked.model
     quality = {t: float(m.attack[i] - m.defence[i]) for i, t in enumerate(m.teams)}
@@ -170,9 +174,20 @@ def _linked_matches(lg: League, linked: Linked, today: date, report: dict,
             report["unmatched"].append(f"{lg.code}: {f.home_tsdb} - {f.away_tsdb}")
             continue
         view = m.view(kind, neutral=str(f.round) == FINAL_ROUND)
-        pred = predict(view, h, a)
+        model_pred = pred = predict(view, h, a)
         conf = confidence(view, h, a)
         conf = "medium" if conf == "high" else conf
+        odds = odds_by_id.get(f.event_id, {})
+        source, mkt_terms = "model", None
+        if ("1x2", None) in odds:
+            o12 = [odds[("1x2", None)][k]["avg"] for k in ("1", "X", "2")]
+            ou = odds.get(("ou", 2.5))
+            oou = [ou["over"]["avg"], ou["under"]["avg"]] if ou else None
+            lam_m, mu_m = market_rates(o12, oou, view.rho, p, start=(pred.lam, pred.mu))
+            lam, mu = mix((pred.lam, pred.mu), (lam_m, mu_m), p.w_mkt)
+            pred = predict_from_rates(view, h, a, lam, mu)
+            source, conf = "market", "high"
+            mkt_terms = (math.log(lam / model_pred.lam), math.log(mu / model_pred.mu))
         rates, partial = {}, False
         if lg.category == "europe" and league_models:
             for k in ("corners", "cards"):
@@ -183,10 +198,14 @@ def _linked_matches(lg: League, linked: Linked, today: date, report: dict,
         counts = add_counts(pred, None, None, h, a, p, rates=rates)
         if counts and partial:
             counts["partial"] = True
-        facts = engine_factors(LeagueModels(view, season_teams=pool), h, a, pred.lam, pred.mu, {}, None, conf)
-        out.append(_match_dict(lg, f, h, a, pred, pred, "model", quality[h] + quality[a], conf, {}, facts, counts,
-                               p.version))
+        facts = engine_factors(LeagueModels(view, season_teams=pool), h, a, pred.lam, pred.mu, {}, mkt_terms, conf)
+        d = _match_dict(lg, f, h, a, pred, model_pred, source, quality[h] + quality[a], conf,
+                        _priced(pred, odds), facts, counts, p.version)
+        if source == "market":
+            d["odds_src"] = "oddsapi"   # cotes de The Odds API (les championnats : football-data.co.uk)
+        out.append(d)
     report["leagues"][lg.code] = {"fixtures": len(fixtures), "predicted": len(out), "train_matches": m.n_matches,
+                                  "odds": sum(1 for x in out if x["source"] == "market"),
                                   "rho": round(m.rho, 3),
                                   "home_adv": round(m.home_cup if lg.cup else m.home_dom, 3)}
     return out, _badge(lg, fixtures)
@@ -215,7 +234,10 @@ def _run_linked(name: str, builder, lgs: list[League], today: date, matches: lis
         ms, league_info[lg.code] = _linked_matches(lg, linked, today, report, league_models)
         matches += ms
         if verbose:
-            print(f"  {lg.code:>5} {lg.name_fr:<28} {len(ms)}/{report['leagues'][lg.code]['fixtures']} matchs analysés")
+            n_odds = report["leagues"][lg.code].get("odds") or 0
+            extra = f", dont {n_odds} calés sur les cotes" if n_odds else ""
+            print(f"  {lg.code:>5} {lg.name_fr:<28} {len(ms)}/{report['leagues'][lg.code]['fixtures']} matchs analysés"
+                  f"{extra}")
 
 
 def run(today: date | None = None, leagues: tuple[League, ...] = LEAGUES, verbose: bool = True) -> dict:

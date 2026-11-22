@@ -3,7 +3,8 @@
 Règles (les mêmes pour les matchs à venir, l'historique et la simulation sur 2025/26) :
 - marchés classiques seulement, faciles à trouver chez tous les bookmakers et réglés sur le score final :
   1X2, double chance, plus/moins de 1,5 / 2,5 / 3,5 buts, les deux équipes marquent, une équipe marque (1 ou 2 buts) ;
-- jamais de match à faible confiance ni de football féminin (trop peu de données, pas de cotes gratuites) ;
+- jamais de match à faible confiance ni de football féminin (trop peu de données ; règle gardée même quand
+  The Odds API donne les cotes de la Ligue des champions féminine ou de la Frauen-Bundesliga) ;
 - un seul pari par match dans chaque liste, et pas plus de deux paris du même type parmi les cinq ;
 - cote « bookmaker » estimée = cote juste moins une marge de 5 % (marge moyenne d'un marché classique).
 """

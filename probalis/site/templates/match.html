@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% from "_card.html" import crest, league_logo, bar3, pcts, ad, lock_pill %}
 {% macro row(r, sub=none) %}<div class="r"><div class="r-l"><span>{{ r.label }}{% if r.push %} <small>({{ t.push }} {{ r.push }})</small>{% endif %}</span>{% if sub %}<small>{{ sub }}</small>{% endif %}<i class="meter"><i class="{{ r.level }}" style="width: {{ r.w }}%"></i></i></div><b class="r-p">{{ r.pct }}</b><span class="pill">{{ r.fair }}</span></div>{% endmacro %}
+{% macro vd_live(res) %}{% if res %}<span class="pk-res {{ res }} vd-live">{{ icon({'won': 'check', 'lost': 'x'}[res], 12, 3) }}{{ t['vd_live_' ~ res] }}</span>{% endif %}{% endmacro %}
 {% macro legend() %}<span class="legend" aria-hidden="true"><span>{{ t.chance }}</span><span>{{ t.fair_odds }}</span></span>{% endmacro %}
 {% block title %}{{ m.home.name }} – {{ m.away.name }} : {% if lang == 'fr' %}analyse et probabilités{% else %}analysis and probabilities{% endif %} · Probalis{% endblock %}
 {% block description %}{{ m.league_name }} · {{ m.home.name }} – {{ m.away.name }} : {{ t.meta_match }}{% endblock %}
@@ -77,11 +78,11 @@
     {% if m.vd.top %}<div class="vd-top">
       <span class="vd-tag">{{ t.vd_best }}</span>
       <div class="vd-q">{{ m.vd.top.q }}</div>
-      <div class="vd-ans"><b class="vd-a {{ m.vd.top.cls }}">{{ m.vd.top.ans }}</b><span class="vd-p">{{ m.vd.top.pct }}</span></div>
+      <div class="vd-ans"><b class="vd-a {{ m.vd.top.cls }}">{{ m.vd.top.ans }}</b><span class="vd-p">{{ m.vd.top.pct }}</span>{{ vd_live(m.vd.top.live) }}</div>
       <p class="vd-proof">{{ m.vd.top.proof }}</p>
     </div>{% endif %}
     <div class="vds">
-    {% for v in m.vd.rows %}<div class="vd{% if v.best %} is-best{% endif %}"><span class="vd-q">{{ v.q }}</span><b class="vd-a {{ v.cls }}">{{ v.ans }}</b><b class="vd-p">{{ v.pct }}</b><i class="meter"><i class="{{ v.level }}" style="width: {{ v.w }}%"></i></i></div>
+    {% for v in m.vd.rows %}<div class="vd{% if v.best %} is-best{% endif %}"><span class="vd-q">{{ v.q }}</span><b class="vd-a {{ v.cls }}">{{ v.ans }}</b><b class="vd-p">{{ v.pct }}</b><i class="meter"><i class="{{ v.level }}" style="width: {{ v.w }}%"></i></i>{{ vd_live(v.live) }}</div>
     {% endfor %}
     </div>
     {% if m.vd.counts_txt %}<p class="vd-counts">{{ icon('target', 14, 2.2) }}<span>{{ m.vd.counts_txt }}</span></p>{% endif %}
@@ -184,7 +185,7 @@
       </div>
       {% endfor %}
     </div>{% endcall %}
-    <p class="note">{{ t.src_market_help }} {{ t.odds_note }}</p>
+    <p class="note">{{ t.src_market_help }} {{ m.odds_note or t.odds_note }}</p>
     {% else %}
     <p class="note">{{ t.src_model_help }} {{ t.fair_help }}</p>
     {% endif %}

@@ -438,6 +438,9 @@ html:not(.js) .panel + .panel { margin-top: 18px; }
 .vd > .vd-p { text-align: right; font-family: var(--font-num); font-size: 15px; font-weight: 700; }
 .vd > .meter { grid-column: 1 / -1; margin-top: 8px; }
 .vd.is-best > .vd-q::after { content: "★"; margin-left: 6px; font-size: 12px; color: var(--green); }
+/* Match en cours : verdict déjà joué d'avance (« Déjà validé » / « Déjà perdu ») */
+.vd > .vd-live { grid-column: 1 / -1; justify-self: start; margin-top: 8px; }
+.vd-ans .vd-live { margin-left: auto; }
 .vd-a { display: inline-flex; align-items: center; justify-content: center; min-width: 54px; height: 26px; padding: 0 10px;
   border-radius: 999px; font-family: var(--font-num); font-size: 12px; font-weight: 800; letter-spacing: .4px; }
 .vd-a.yes { background: var(--green); color: #052E16; }

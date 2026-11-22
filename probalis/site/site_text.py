@@ -45,7 +45,8 @@ SITE = {
         "proof_caption": "Chance annoncée et réussite réelle, saison {season}",
 
         "carnet_h2": "La liste du jour est enregistrée avant le premier match.",
-        "carnet_lead": "Chaque jour, les paris du jour sont figés, puis réglés tout seuls avec le score final. "
+        "carnet_lead": "Chaque jour, les paris du jour sont figés, puis réglés tout seuls : pendant le match dès qu'un pari "
+                       "est déjà gagné ou perdu, sinon avec le score final. "
                        "Rien n'est effacé, même les jours perdus.",
         "carnet_title": "Paris du jour",
         "carnet_saved": "Enregistré le",
@@ -78,7 +79,8 @@ SITE = {
                   "un remplaçant. Entre la cote de ton bookmaker : tu sais tout de suite si elle vaut le coup."},
             {"tab": "Onglet Historique", "shot": "history",
              "h3": "Nos résultats, sans maquillage",
-             "p": "Les analyses et les listes sont enregistrées avant les matchs, puis jugées avec le score final. Hier, avant-hier, "
+             "p": "Les analyses et les listes sont enregistrées avant les matchs, puis jugées pendant le match dès que c'est joué, "
+                  "sinon avec le score final. Hier, avant-hier, "
                   "la semaine : tu vois chaque verdict juste ou faux, les jours gagnés comme les jours perdus."},
         ],
 
@@ -166,6 +168,9 @@ SITE = {
         "qr_label": "QR code qui ouvre Probalis",
 
         "faq_h2": "Questions fréquentes",
+        # Sources citées dans la FAQ ; The Odds API seulement quand ses cotes sont vraiment utilisées.
+        "data_src": "football-data.co.uk et de TheSportsDB",
+        "data_src_api": "football-data.co.uk, de TheSportsDB et de The Odds API (cotes des coupes d'Europe)",
         "faq": [
             ("Probalis est-il un bookmaker ?",
              "Non. Probalis ne prend aucun pari et ne touche pas à ton argent. Tu joues où tu veux ; on t'aide seulement à choisir "
@@ -178,7 +183,7 @@ SITE = {
              "D'un moteur fait maison qui pèse plusieurs indices : la force de chaque équipe sur trois saisons, les occasions "
              "créées (tirs et tirs cadrés), la forme récente, l'avantage du terrain, puis les cotes moyennes du marché quand elles "
              "existent. Ses réglages sont appris sur la saison 2024/25, puis vérifiés sur 2025/26, une saison qu'il n'avait jamais "
-             "vue. Les données viennent de football-data.co.uk et de TheSportsDB."),
+             "vue. Les données viennent de {data_src}."),
             ("C'est quoi, le verdict « le plus sûr » ?",
              "Dans chaque match, la question où le moteur est le plus sûr de sa réponse (OUI ou NON). Sur la saison 2025/26, "
              "testée sans que le moteur l'ait vue, ce verdict s'est vérifié environ 8 fois sur 10. Ce n'est jamais une certitude : "
@@ -248,7 +253,8 @@ SITE = {
         "proof_caption": "Announced chance and actual hit rate, season {season}",
 
         "carnet_h2": "Today's list is saved before the first kick-off.",
-        "carnet_lead": "Every day, the bets of the day are locked, then settled automatically with the final score. "
+        "carnet_lead": "Every day, the bets of the day are locked, then settled automatically: during the match as soon as "
+                       "a bet is already won or lost, otherwise with the final score. "
                        "Nothing is deleted, not even the losing days.",
         "carnet_title": "Today's bets",
         "carnet_saved": "Saved on",
@@ -281,7 +287,8 @@ SITE = {
                   "replacement. Enter your bookmaker's odds: you know at once whether they're worth it."},
             {"tab": "History tab", "shot": "history",
              "h3": "Our results, unvarnished",
-             "p": "Analyses and lists are saved before kick-off, then judged with the final score. Yesterday, the day before, "
+             "p": "Analyses and lists are saved before kick-off, then judged during the match once it's decided, otherwise "
+                  "with the final score. Yesterday, the day before, "
                   "the week: you see every verdict right or wrong, the winning days and the losing days."},
         ],
 
@@ -366,6 +373,8 @@ SITE = {
         "qr_label": "QR code that opens Probalis",
 
         "faq_h2": "Frequently asked questions",
+        "data_src": "football-data.co.uk and TheSportsDB",
+        "data_src_api": "football-data.co.uk, TheSportsDB and The Odds API (European cup odds)",
         "faq": [
             ("Is Probalis a bookmaker?",
              "No. Probalis takes no bets and never touches your money. You play wherever you like; we just help you choose with "
@@ -378,7 +387,7 @@ SITE = {
              "From a home-made engine that weighs several clues: each team's strength over three seasons, the chances they create "
              "(shots and shots on target), recent form, home advantage, then the average market odds when they exist. Its "
              "settings are learnt on the 2024/25 season, then checked on 2025/26, a season it had never seen. Data comes from "
-             "football-data.co.uk and TheSportsDB."),
+             "{data_src}."),
             ("What is the “most reliable” verdict?",
              "In every match, the question where the engine is surest of its answer (YES or NO). Over the 2025/26 season, tested "
              "without the engine having seen it, this verdict came true about 8 times in 10. It's never a certainty: 2 times in "

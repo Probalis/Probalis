@@ -1,6 +1,6 @@
 {# Cartes des paris du jour (onglet Paris et Historique). À importer « with context ». #}
 {% from "_card.html" import crest %}
-{% macro res_badge(res, score=none) %}<span class="pk-res {{ res or 'wait' }}">{{ icon({'won': 'check', 'lost': 'x', 'void': 'equal'}.get(res, 'clock'), 12, 3) }}{{ t['res_' ~ (res or 'wait')] }}{% if score %} · {{ score[0] }}-{{ score[1] }}{% endif %}</span>{% endmacro %}
+{% macro res_badge(res, score=none, live=false) %}<span class="pk-res {{ res or 'wait' }}">{{ icon({'won': 'check', 'lost': 'x', 'void': 'equal'}.get(res, 'clock'), 12, 3) }}{{ t['res_' ~ (res or 'wait')] }}{% if score %} · {{ score[0] }}-{{ score[1] }}{% elif live and res %} · {{ t.res_live }}{% endif %}</span>{% endmacro %}
 
 {% macro pick_card(e, first=false, hist=false) %}
 <div class="pick{% if first %} free1{% endif %}{% if e.res %} done res-{{ e.res }}{% endif %}{% if hist %} hist{% endif %}" data-ko="{{ e.match.kickoff }}">
@@ -18,7 +18,7 @@
     </span>
     {% call lk(m=e.match.slug, free=first, on=not e.res, own=true) %}{% if lk.pub %}<span class="pk-fair lkd" aria-hidden="true"><small>{{ t.fair_odds }}</small><span class="pill">0,00</span></span>{% else %}<span class="pk-fair"><small>{{ t.fair_odds }}</small><span class="pill">{{ e.fair }}</span></span>{% endif %}{% endcall %}
   {% if e.match.slug and not e.res %}</a>{% else %}</span>{% endif %}
-  {% if e.res or hist %}{{ res_badge(e.res, e.match.score) }}{% else %}
+  {% if e.res or hist %}{{ res_badge(e.res, e.match.score, e.match.live) }}{% else %}
   <span class="pk-started">{{ icon('clock', 12, 2.6) }}{{ t.started }}</span>
   {% call lk(m=e.match.slug, free=first, hide=true) %}<button class="pk-add js-only" type="button" data-add='{{ e.add|tojson }}' aria-pressed="false" aria-label="{{ t.add_coupon }} : {{ e.label }}" title="{{ t.add_coupon }}">{{ icon('plus', 20, 2.6) }}{{ icon('check', 20, 2.6) }}</button>{% endcall %}
   {% endif %}

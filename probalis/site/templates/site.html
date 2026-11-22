@@ -320,7 +320,7 @@
     <h2 id="faq-h">{{ s.faq_h2 }}</h2>
     <div class="faq-list">
       {% for q, a in s.faq %}
-      <details><summary><span>{{ q }}</span>{{ icon('plus', 20, 2.2) }}</summary><p>{{ a.format(week=prices.first.week, month=prices.first.month, year=prices.first.year, signup=ref.signup, active=ref.active, active_days=ref.active_days, welcome=ref.welcome, buy_min=ref.buy_min, buy_max=ref.buy_max) }}</p></details>
+      <details><summary><span>{{ q }}</span>{{ icon('plus', 20, 2.2) }}</summary><p>{{ a.format(week=prices.first.week, month=prices.first.month, year=prices.first.year, signup=ref.signup, active=ref.active, active_days=ref.active_days, welcome=ref.welcome, buy_min=ref.buy_min, buy_max=ref.buy_max, data_src=s.data_src_api if odds_api else s.data_src) }}</p></details>
       {% endfor %}
     </div>
   </div>
@@ -366,7 +366,7 @@
       </div>
     </div>
     <p class="ft-resp">{{ t.responsible }}</p>
-    <p class="ft-small">{{ t.data_credit }} © {{ year }} Probalis</p>
+    <p class="ft-small">{{ credit or t.data_credit }} © {{ year }} Probalis</p>
   </div>
 </footer>
 

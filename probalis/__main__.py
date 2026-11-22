@@ -13,7 +13,7 @@ from pathlib import Path
 # Fichiers privés lus avant la construction sur le PC (dossier des secrets, à côté du dépôt, jamais versionné).
 # Sur GitHub Actions, ces réglages viennent des variables et secrets du dépôt : le dossier n'existe pas.
 SECRETS_DIR = Path(os.environ.get("PROBALIS_SECRETS_DIR") or Path(__file__).resolve().parents[2] / "Probalis-secrets")
-ENV_FILES = ("site-public.env", "historique.env")
+ENV_FILES = ("site-public.env", "historique.env", "cotes.env")  # cotes.env : PROBALIS_ODDS_API_KEY (The Odds API)
 
 
 def load_env_files(folder: Path = SECRETS_DIR) -> list[str]:

@@ -8,7 +8,7 @@
     <span class="ha-side">{{ crest(mt.home_crest, 's16') }}<span class="ha-nm">{{ mt.home }}</span><b>{{ mt.score[0] if mt.score else '' }}</b></span>
     <span class="ha-side">{{ crest(mt.away_crest, 's16') }}<span class="ha-nm">{{ mt.away }}</span><b>{{ mt.score[1] if mt.score else '' }}</b></span>
   </span>
-  <span class="ha-ok{% if mt.n and mt.ok / mt.n >= 0.7 %} good{% endif %}">{% if mt.status == 'void' %}{{ t.ha_void_short }}{% elif mt.n %}<b>{{ mt.ok }}/{{ mt.n }}</b><small>{{ t.ha_ok }}</small>{% else %}<small>{{ t.ha_pending_short }}</small>{% endif %}</span>
+  <span class="ha-ok{% if mt.n and mt.ok / mt.n >= 0.7 %} good{% endif %}">{% if mt.status == 'void' %}{{ t.ha_void_short }}{% elif mt.status == 'live' %}<b>{{ mt.ok }}/{{ mt.n }}</b><small>{{ t.ha_live }}</small>{% elif mt.n %}<b>{{ mt.ok }}/{{ mt.n }}</b><small>{{ t.ha_ok }}</small>{% else %}<small>{{ t.ha_pending_short }}</small>{% endif %}</span>
   {% if mt.best %}<span class="ha-b"><small>{{ t.vd_best }}</small><span class="ha-bq">{{ mt.best.q }}</span><b class="vd-a {{ mt.best.cls }}">{{ mt.best.ans }}</b><span class="ha-bp">{{ mt.best.pct }}</span>{{ vd_res(mt.best.res) }}</span>{% endif %}
 {% if mt.slug %}</a>{% else %}</div>{% endif %}
 {% endmacro %}

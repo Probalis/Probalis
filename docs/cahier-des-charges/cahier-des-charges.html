@@ -117,7 +117,7 @@ tr:nth-child(even) td { background: #FAFBFC; }
     <li><span>A</span>Petit lexique</li>
   </ol>
 
-  <h3>État en un coup d'œil (21 novembre 2026)</h3>
+  <h3>État en un coup d'œil (22 novembre 2026)</h3>
   <table>
     <tr><th style="width:34%">Élément</th><th style="width:14%">État</th><th>Détail</th></tr>
     <tr><td>Application en ligne</td><td><span class="tag ok">En ligne</span></td><td>https://probalis.pages.dev (français sous /fr/, anglais sous /en/)</td></tr>
@@ -127,7 +127,9 @@ tr:nth-child(even) td { background: #FAFBFC; }
     <tr><td>Forme et face-à-face</td><td><span class="tag ok">En ligne</span></td><td>Dans chaque fiche de match, gratuit (en ligne le 21/11/2026)</td></tr>
     <tr><td>Vitrine : vraies captures</td><td><span class="tag ok">En ligne</span></td><td>10 captures prises le 21/11/2026 avec de vrais matchs (grand match : Arsenal – Manchester City)</td></tr>
     <tr><td>Connexion Google, Premium, Office (admin)</td><td><span class="tag ok">Fait</span></td><td>Premium activé à la main après paiement WhatsApp</td></tr>
-    <tr><td>Mise à jour automatique toutes les 2 h</td><td><span class="tag ok">En marche</span></td><td>Depuis le 21/11/2026 : GitHub Actions dans l'organisation <code>Probalis</code> calcule et met le site en ligne tout seul (premier passage réussi, historique intact)</td></tr>
+    <tr><td>Mise à jour automatique (6 fois par jour en semaine, toutes les heures le week-end)</td><td><span class="tag ok">En marche</span></td><td>Depuis le 21/11/2026 : GitHub Actions dans l'organisation <code>Probalis</code> calcule et met le site en ligne tout seul (premier passage réussi, historique intact). Rythme du 22/11/2026, voir 7.5</td></tr>
+    <tr><td>Paris réglés pendant le match</td><td><span class="tag ok">Fait</span></td><td>Depuis le 22/11/2026 : un pari ou un verdict déjà gagné ou perdu d'avance (score en direct de TheSportsDB) est réglé tout de suite, dans l'historique et sur la fiche du match (voir 5.6)</td></tr>
+    <tr><td>Cotes des coupes d'Europe (The Odds API)</td><td><span class="tag todo">À envoyer</span></td><td>Code prêt et testé le 22/11/2026, clé posée (PC et GitHub) et premier relevé réussi : 18 matchs de Ligue des champions sur 18 et 4 de Frauen-Bundesliga sur 4 calés sur les vraies cotes. En ligne au premier calcul automatique qui suivra le commit de ce code (pas encore fait)</td></tr>
     <tr><td>Paiement en ligne (Stripe, Flutterwave)</td><td><span class="tag todo">À faire</span></td><td>Prêt en mode démo, pas branché</td></tr>
     <tr><td>Nom de domaine, e-mails professionnels</td><td><span class="tag todo">À faire</span></td><td>E-mails envoyés par Gmail en attendant</td></tr>
   </table>
@@ -266,11 +268,13 @@ tr:nth-child(even) td { background: #FAFBFC; }
 
   <h3>3.4 Historique</h3>
   <ul>
-    <li><strong>Paris du jour, le bilan :</strong> chaque liste est <em>figée</em> avant les matchs puis réglée toute seule avec le score final.
+    <li><strong>Paris du jour, le bilan :</strong> chaque liste est <em>figée</em> avant les matchs puis réglée toute seule avec le score final,
+      ou <strong>dès qu'un pari est joué d'avance pendant le match</strong> (badge « Gagné · en cours » / « Perdu · en cours »).
       Annoncé contre réel par niveau, coupons, et jour par jour. Rien n'est effacé.</li>
     <li><strong>Analyses des derniers jours</strong> (Hier / Avant-hier / 7 derniers jours) : pour chaque match terminé, le score final et
       chacun de ses verdicts juste ✓ ou faux ✗, le bilan du jour (« 41 verdicts justes sur 56 pour 72 % annoncés ») et la réussite du
-      verdict « le plus sûr ». Public une fois le match fini.</li>
+      verdict « le plus sûr ». Public une fois le match fini. <strong>Pendant le match</strong>, l'onglet Aujourd'hui montre déjà les verdicts
+      joués d'avance (« déjà joués · en cours »), et seulement ceux-là.</li>
     <li>Les jours enregistrés avant le nouveau moteur restent tels quels, marqués « ancien moteur ».</li>
     <li>Une ancienne adresse de fiche (lien WhatsApp) d'un match terminé mène à sa page « Ce que disait l'analyse ». Une adresse inconnue
       mène à une page 404 qui renvoie vers l'historique.</li>
@@ -343,12 +347,15 @@ tr:nth-child(even) td { background: #FAFBFC; }
     <tr><td>Grands championnats</td><td>Premier League, LaLiga, Serie A, Bundesliga, Ligue 1, Eredivisie, Liga Portugal, Pro League (Belgique), Süper Lig</td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
     <tr><td>Divisions inférieures</td><td>Championship, League One, League Two, LaLiga 2, Ligue 2</td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
     <tr><td></td><td>National League (Angleterre, 5e division)</td><td>Oui</td><td>Non</td><td>Oui</td></tr>
-    <tr><td>Coupes d'Europe</td><td>Ligue des champions, Ligue Europa, Ligue Conférence</td><td>Non</td><td colspan="2">Estimés (championnat de chaque club), « non vérifiables »</td></tr>
-    <tr><td>Autres championnats</td><td>Ligue saoudienne (Roshn Saudi League)</td><td>Non</td><td>Non</td><td>Non</td></tr>
-    <tr><td>Football féminin</td><td>Women's Super League, Frauen-Bundesliga, Arkema Première Ligue, Liga F, Serie A féminine, Ligue des champions féminine</td><td>Non</td><td>Non</td><td>Non</td></tr>
+    <tr><td>Coupes d'Europe</td><td>Ligue des champions, Ligue Europa, Ligue Conférence</td><td>Oui, avec la clé The Odds API</td><td colspan="2">Estimés (championnat de chaque club), « non vérifiables »</td></tr>
+    <tr><td>Autres championnats</td><td>Ligue saoudienne (Roshn Saudi League)</td><td>Oui, avec la clé The Odds API</td><td>Non</td><td>Non</td></tr>
+    <tr><td>Football féminin</td><td>Women's Super League, Frauen-Bundesliga, Arkema Première Ligue, Liga F, Serie A féminine, Ligue des champions féminine</td><td>Ligue des champions féminine et Frauen-Bundesliga avec la clé The Odds API ; les autres : non</td><td>Non</td><td>Non</td></tr>
   </table>
-  <p>Sans cotes, l'analyse vient du modèle seul et la confiance est plafonnée à « moyenne ». Le football féminin a son analyse mais n'entre
-    pas dans les paris du jour. La liste est dans <code>probalis/football/leagues.py</code> (code, numéro TheSportsDB, noms FR/EN, catégorie).</p>
+  <p>Sans cotes, l'analyse vient du modèle seul et la confiance est plafonnée à « moyenne ». Avec la clé gratuite de The Odds API (code
+    prêt depuis le 22/11/2026, voir 5.2), un match de ces compétitions coté par au moins deux bookmakers est calé sur les cotes comme un
+    grand championnat (étiquette « Calé sur les cotes », confiance « élevée » possible) ; sans clé, ou quand le quota du mois est épuisé, il reste
+    au modèle seul. La Women's Super League n'est pas proposée par The Odds API. Le football féminin a son analyse mais n'entre
+    pas dans les paris du jour (règle inchangée, même avec des cotes). La liste est dans <code>probalis/football/leagues.py</code> (code, numéro TheSportsDB, noms FR/EN, catégorie).</p>
 </section>
 
 <!-- ============================== 5 ============================== -->
@@ -370,6 +377,18 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
       plus les résultats d'autres championnats européens (Écosse, Grèce, Autriche, Suisse, Scandinavie…) pour situer les clubs des coupes.</li>
     <li><strong>TheSportsDB</strong> (clé publique gratuite, environ 10 appels par minute) : calendrier, résultats tout récents, logos,
       coupes d'Europe, football féminin, Ligue saoudienne.</li>
+    <li><strong>The Odds API</strong> (offre gratuite : 500 crédits par mois ; <code>probalis/football/oddsapi.py</code>) : cotes 1X2 et
+      plus/moins de 2,5 buts des bookmakers européens (dont 1xBet et Pinnacle) pour les compétitions absentes des fichiers football-data :
+      Ligue des champions, Ligue Europa, Ligue Conférence, Ligue des champions féminine, Frauen-Bundesliga, Ligue saoudienne. On prend la
+      <strong>moyenne d'au moins deux bookmakers</strong>, la marge est retirée, puis le moteur se cale dessus comme pour un grand championnat.
+      Les matchs sont reliés à ceux de TheSportsDB par le nom des équipes et l'horaire (écart de 6 h au plus).
+      <strong>Quota gardé :</strong> 2 crédits par appel (un par marché ; une réponse vide est gratuite) ; une compétition n'est redemandée
+      que si elle a un match dans les 3 jours, au plus toutes les 12 h (toutes les 24 h si le match est à plus d'un jour) ; budget du mois par
+      compétition (UCL 90, UEL 80, UECL 80, UWCL 40, Frauen-Bundesliga 60, Ligue saoudienne 80, soit 430) ; plus aucun appel sous 40 crédits
+      restants (chiffre renvoyé par The Odds API) ; cotes gardées au plus 30 h. Compteur dans <code>data/cache/oddsapi/quota.json</code>,
+      remis à zéro chaque mois. Sans la clé <code>PROBALIS_ODDS_API_KEY</code>, rien n'est demandé. Conditions lues le 22/11/2026 : affichage
+      et calculs permis, y compris sur un site payant ; revente des cotes brutes interdite. La page du match cite alors « The Odds API »
+      comme source des cotes, et le bas des pages l'ajoute aux sources.</li>
     <li>Tout est gardé en cache dans <code>data/cache/</code> (non versionné). Le premier calcul dure environ 30 minutes, les suivants
       environ 20 minutes (25 compétitions).</li>
   </ul>
@@ -414,6 +433,18 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
     <li>Chaque jour garde l'analyse de <strong>chaque match</strong> (verdicts, le plus sûr, 1X2, score le plus probable, version du moteur), jugée
       une fois le match fini. Corners et cartons : jugés quand football-data publie les chiffres (2 à 4 jours), « non vérifiables » pour les coupes.</li>
     <li>30 jours en détail, puis seulement le bilan. La version publique ne montre que ce qui est terminé (le reste est Premium).</li>
+    <li><strong>Règlement pendant le match</strong> (22/11/2026) : chaque lancement relève le score en direct de TheSportsDB
+      (<code>fixtures.live_score</code> : statuts 1H, HT, 2H, LIVE ; pas les prolongations, les paris portent sur 90 minutes) et le garde dans
+      <code>matches[id].live</code>. Un pari ou un verdict est réglé tout de suite s'il a le <strong>même résultat quel que soit le nombre de buts
+      encore à venir</strong> (<code>history.live_result</code> essaie jusqu'à 10 buts de plus par équipe) : « plus de 1,5 but » à 2-0 est gagné,
+      « moins de 2,5 buts » à 2-1 est perdu, « les deux équipes marquent » à 1-1 est gagné ; 1X2, double chance et remboursé si nul attendent
+      le score final ; corners et cartons aussi. Le score final refait tous les calculs (il corrige un but annulé après coup).</li>
+    <li>Un match que TheSportsDB marque déjà « fini » (<code>fixtures.final_score</code>) est réglé sans attendre ; sinon on attend 2 h 30 après
+      le coup d'envoi, puis football-data et la recherche par match.</li>
+    <li><strong>Coupons</strong> : dévoilés (pages et version publique) seulement quand <strong>chacun</strong> de leurs paris est réglé
+      (<code>history.coupon_shown</code>). Un coupon perdu dès le premier match ne montre pas les paris des matchs encore à jouer (Premium).</li>
+    <li>Fiche d'un match en cours : chaque verdict joué d'avance porte « Déjà validé » ou « Déjà perdu » (<code>build._live_verdict</code>).
+      Le score en direct lui-même n'est pas affiché (non demandé).</li>
   </ul>
 
   <h3>5.7 Forme et face-à-face (<code>probalis/football/form.py</code>)</h3>
@@ -437,7 +468,7 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
     <tr><td><code>probalis/football/pipeline.py</code></td><td>Chaîne complète : données → moteur → analyses de chaque match (+ forme)</td></tr>
     <tr><td><code>probalis/football/engine.py</code>, <code>tune.py</code>, <code>signals.py</code></td><td>Moteur v2, apprentissage des réglages, buts mérités</td></tr>
     <tr><td><code>probalis/football/model.py</code>, <code>linked.py</code>, <code>predict.py</code></td><td>Dixon-Coles, modèle relié, prédiction</td></tr>
-    <tr><td><code>probalis/football/simulation.py</code>, <code>backtest*.py</code></td><td>Tests de fiabilité sur une saison passée</td></tr>
+    <tr><td><code>probalis/football/simulation.py</code>, <code>backtest*.py</code>, <code>tendance*.py</code>, <code>calendrier.py</code>, <code>enjeu.py</code>, <code>elo.py</code>, <code>relie.py</code></td><td>Tests de fiabilité sur une saison passée ; tests des idées « tendance du jour », « calendrier », « enjeu », classement Elo et mélange de modèles, écart accentué du modèle relié (aucune adoptée pour l'instant, voir <code>docs/05</code>). Résultats Elo dans <code>data/cache/engine/elo/</code></td></tr>
     <tr><td><code>probalis/site/build.py</code></td><td>Construction de tout le site (pages, vitrine, verrou, logos, historique)</td></tr>
     <tr><td><code>probalis/site/templates/</code>, <code>static/</code></td><td>Gabarits Jinja2 des pages, styles (<code>style.css</code>), script (<code>app.js</code>)</td></tr>
     <tr><td><code>probalis/site/i18n.py</code>, <code>site_text.py</code></td><td>Tous les textes FR/EN de l'appli et de la vitrine</td></tr>
@@ -446,9 +477,10 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
     <tr><td><code>supabase/</code></td><td>Base de données (migrations SQL) et fonctions serveur (admin, member, notify, checkout…)</td></tr>
     <tr><td><code>functions/lk/</code></td><td>Gardien des chiffres Premium (Cloudflare Pages Function)</td></tr>
     <tr><td><code>probalis/football/form.py</code></td><td>Forme récente et face-à-face affichés dans les fiches</td></tr>
+    <tr><td><code>probalis/football/oddsapi.py</code></td><td>Cotes de The Odds API (coupes d'Europe, football féminin, Ligue saoudienne) et garde du quota gratuit</td></tr>
     <tr><td><code>probalis/site/shots.py</code>, <code>probalis/deploy.py</code></td><td>Captures de la vitrine ; mise en ligne par petits paquets</td></tr>
-    <tr><td><code>.github/workflows/</code></td><td>Calcul automatique toutes les 2 h et e-mails du jour (bloqués, voir 10)</td></tr>
-    <tr><td><code>tests/</code></td><td>Tests automatiques (55 tests, tous réussis le 21/11/2026), lancés aussi par GitHub Actions</td></tr>
+    <tr><td><code>.github/workflows/</code></td><td>Calcul automatique (rythme en 7.5) et e-mails du jour (bloqués, voir 10)</td></tr>
+    <tr><td><code>tests/</code></td><td>Tests automatiques (67 tests, tous réussis le 22/11/2026), lancés aussi par GitHub Actions</td></tr>
   </table>
 </section>
 
@@ -514,8 +546,8 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
   <pre>.\.venv\Scripts\python.exe -m probalis build
 .\.venv\Scripts\python.exe -m probalis.deploy</pre>
   <p>Réglages privés : <code>python -m probalis build</code> charge tout seul <code>site-public.env</code> (adresse du site, adresse et clé publique de
-    Supabase, contact, nom de l'éditeur) et <code>historique.env</code> (clé <code>PROBALIS_HISTORY_KEY</code>) depuis
-    <code>D:\Projets\Probalis-secrets</code>, sans écraser un réglage déjà défini. Sans <code>site-public.env</code>, le site se construit en
+    Supabase, contact, nom de l'éditeur), <code>historique.env</code> (clé <code>PROBALIS_HISTORY_KEY</code>) et <code>cotes.env</code>
+    (clé <code>PROBALIS_ODDS_API_KEY</code> de The Odds API) depuis <code>D:\Projets\Probalis-secrets</code>, sans écraser un réglage déjà défini. Sans <code>site-public.env</code>, le site se construit en
     « mode démo » ; sans la clé, la copie complète chiffrée de l'historique n'est pas publiée (message « Attention »).</p>
   <p><strong>Pourquoi <code>probalis.deploy</code> et pas Wrangler tout seul :</strong> la connexion du PC (~1 Mbit/s, coupures « ECONNRESET »)
     ne laisse jamais finir les gros paquets de Wrangler (≈ 40 Mo, trois à la fois) : le 21/11/2026, cinq essais de
@@ -530,7 +562,19 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <li>Probalis Office : manifeste, icône, ancienne adresse admin en 404.</li>
   </ul>
   <h3>7.5 Mise à jour automatique (en marche depuis le 21/11/2026)</h3>
-  <p><code>.github/workflows/build.yml</code> relance le calcul toutes les 2 heures (8 h 17 → 22 h 17 UTC, plus 0 h 17) et met le site en ligne.
+  <p><code>.github/workflows/build.yml</code> relance le calcul et met le site en ligne. Rythme voulu par le porteur du projet (22/11/2026),
+    en <strong>heure du Cameroun (UTC+1)</strong> ; GitHub compte en UTC, les lignes <code>cron</code> ont donc une heure de moins :</p>
+  <ul>
+    <li><strong>Lundi → vendredi</strong> : 0 h 05, 6 h 05, 12 h 05, 18 h 05, 21 h 05 et 23 h 05. Les deux du soir suivent les coupes d'Europe
+      (coups d'envoi 18 h 45 et 21 h) : un match de 18 h 45 est fini à 21 h 05, un match de 21 h est fini (ou presque) à 23 h 05.</li>
+    <li><strong>Samedi et dimanche</strong> : toutes les heures, de 0 h 05 à 23 h 05.</li>
+    <li>La 5e minute évite l'heure pile, très chargée chez GitHub. GitHub démarre parfois avec du retard (constaté : 1 h 20 le 21/11/2026).</li>
+    <li>Coût : 78 lancements par semaine, 1 à 4 minutes chacun avec les données gardées. Gratuit et illimité tant que le dépôt est public
+      (en privé : environ 340 lancements par mois, en général sous les 2 000 minutes gratuites). Cloudflare Pages : environ 340 mises en ligne par mois (limite gratuite 500).</li>
+    <li>Pendant un match, les journées TheSportsDB qui contiennent un match commencé depuis moins de 4 h sont redemandées à chaque lancement
+      (cache de 15 min) : c'est ce qui donne le score en direct.</li>
+  </ul>
+  <p>
     Il lance d'abord les <strong>tests automatiques</strong> : si un test échoue, rien n'est calculé ni mis en ligne. <code>.github/workflows/tests.yml</code>
     lance aussi les tests à chaque envoi de code (intégration continue).</p>
   <p>Pour l'allumer, il faut, dans cet ordre :</p>
@@ -546,7 +590,8 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       premier passage réussi en 55 min (cache vide : tout est téléchargé ; les suivants reprennent les données gardées), 290 matchs,
       jours figés identiques à ceux du PC, un pari de plus réglé.</li>
   </ol>
-  <p>Une fois l'automatique en marche, éviter de construire depuis le PC au même moment (deux versions de l'historique). Une construction depuis le PC
+  <p>Une fois l'automatique en marche, éviter de construire depuis le PC au même moment (deux versions de l'historique), surtout le week-end
+    (un passage chaque heure, à la 5e minute). Une construction depuis le PC
     reste possible entre deux passages : elle relit la copie complète en ligne. Tant que l'automatique est bloqué, l'historique n'avance que lors
     d'une mise en ligne à la main.</p>
 </section>
@@ -557,7 +602,8 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
   <p class="muted">Seulement les noms. Les valeurs sont dans les tableaux de bord des services et dans <code>D:\Projets\Probalis-secrets</code>.</p>
   <table>
     <tr><th style="width:22%">Service</th><th style="width:30%">Usage</th><th>Réglages (noms)</th></tr>
-    <tr><td>GitHub</td><td>Dépôt <code>Probalis/Probalis</code> (public), dans l'organisation gratuite <code>Probalis</code> dont le compte personnel du porteur du projet est propriétaire (déplacé le 21/11/2026 ; l'ancienne adresse redirige). Calcul automatique</td><td>Variables : <code>PROBALIS_SITE_URL</code>, <code>PROBALIS_SUPABASE_URL</code>, <code>PROBALIS_SUPABASE_ANON_KEY</code>, <code>PROBALIS_CONTACT_EMAIL</code>, <code>PROBALIS_OWNER_NAME</code>. Secrets : <code>PROBALIS_HISTORY_KEY</code>, <code>CLOUDFLARE_API_TOKEN</code>, <code>CLOUDFLARE_ACCOUNT_ID</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code> (tous posés sauf <code>PROBALIS_HISTORY_KEY</code> ; les e-mails du jour demandent aussi <code>SUPABASE_URL</code> et <code>SUPABASE_SERVICE_ROLE_KEY</code>, pas encore posés). Sur le PC : <code>site-public.env</code> et <code>historique.env</code> dans <code>D:\Projets\Probalis-secrets</code></td></tr>
+    <tr><td>GitHub</td><td>Dépôt <code>Probalis/Probalis</code> (public), dans l'organisation gratuite <code>Probalis</code> dont le compte personnel du porteur du projet est propriétaire (déplacé le 21/11/2026 ; l'ancienne adresse redirige). Calcul automatique</td><td>Variables : <code>PROBALIS_SITE_URL</code>, <code>PROBALIS_SUPABASE_URL</code>, <code>PROBALIS_SUPABASE_ANON_KEY</code>, <code>PROBALIS_CONTACT_EMAIL</code>, <code>PROBALIS_OWNER_NAME</code>. Secrets : <code>PROBALIS_HISTORY_KEY</code>, <code>CLOUDFLARE_API_TOKEN</code>, <code>CLOUDFLARE_ACCOUNT_ID</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code>, <code>PROBALIS_ODDS_API_KEY</code> (tous posés ; les e-mails du jour demandent aussi <code>SUPABASE_URL</code> et <code>SUPABASE_SERVICE_ROLE_KEY</code>, pas encore posés). Sur le PC : <code>site-public.env</code>, <code>historique.env</code> et <code>cotes.env</code> dans <code>D:\Projets\Probalis-secrets</code></td></tr>
+    <tr><td>The Odds API</td><td>Cotes des coupes d'Europe, de la Ligue des champions féminine, de la Frauen-Bundesliga et de la Ligue saoudienne (offre gratuite, 500 crédits par mois)</td><td>Compte créé par le porteur du projet. Clé : secret GitHub <code>PROBALIS_ODDS_API_KEY</code> et <code>cotes.env</code> sur le PC (même valeur). Crédits restants visibles dans le tableau de bord du service</td></tr>
     <tr><td>Cloudflare Pages</td><td>Hébergement, projet <code>probalis</code>, fonction gardien</td><td>Publication par Wrangler (connexion du PC)</td></tr>
     <tr><td>Supabase</td><td>Connexion Google, base de données, fonctions serveur</td><td>Secrets : <code>SITE_URL</code>, <code>CONTACT_EMAIL</code>, <code>UNSUBSCRIBE_SECRET</code>, <code>ADMIN_EMAILS</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code> ; plus tard clés Stripe / Flutterwave / Resend. Outil : <code>npx supabase@3.2.0</code> (toujours <code>--yes</code> en production, jamais <code>db push</code> sans accord)</td></tr>
     <tr><td>Google Cloud</td><td>Bouton « Continuer avec Google »</td><td>Client OAuth « Probalis site » (identifiants collés dans Supabase)</td></tr>
@@ -606,6 +652,40 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       premier « Analyses et site » lancé à la main : tests, calcul (290 matchs), mise en ligne, tout réussi en 55 min. Vérifié ensuite : jours figés
       identiques à ceux du PC, aucune analyse perdue, site et logos en ligne. Messages du calcul désormais affichés en direct dans l'onglet Actions.
       Règle : ne plus construire depuis le PC pendant un passage automatique (toutes les 2 h, à la 17e minute, heure UTC).</td></tr>
+    <tr><td>21/11/2026</td><td>Idée du porteur du projet retestée : « quand les grandes équipes peinent en journée, elles peinent aussi le soir ».
+      Test ciblé (tous championnats ensemble, vrais favoris seulement, 17 championnats, 6 saisons, 2 430 matchs du soir,
+      <code>python -m probalis.football.tendance_grands</code>) : corrélation nulle, rien ajouté au calcul (détails dans <code>docs/05-fiabilite.md</code>).
+      Discussion ouverte sur les modèles (Elo, XGBoost, bayésien, xG…) et sur le contexte des matchs (calendrier, Ligue des champions, enjeu).</td></tr>
+    <tr><td>21/11/2026</td><td>Effet du calendrier testé (idée du porteur du projet : rotation avant la Ligue des champions, fatigue après) :
+      15 championnats, 3 saisons, 2 160 matchs européens, <code>python -m probalis.football.calendrier --check 2627</code>. Aucune
+      rotation visible, fatigue qui change de sens d'une saison à l'autre, aucune correction ne rend les prédictions plus justes sur une
+      saison jamais vue : rien ajouté au calcul (les cotes en tiennent déjà compte). Détails dans <code>docs/05-fiabilite.md</code>.</td></tr>
+    <tr><td>22/11/2026</td><td>Heures vérifiées avec le porteur du projet : l'heure du PC est UTC+1 (Cameroun) ; l'écart constaté venait du retard
+      de GitHub, pas du fuseau. <strong>Nouveau rythme</strong> : en semaine 0 h 05, 6 h 05, 12 h 05, 18 h 05, 21 h 05, 23 h 05 ; le week-end toutes les
+      heures (voir 7.5). <strong>Paris et verdicts réglés pendant le match</strong> dès qu'ils sont joués d'avance, dans l'historique et sur la fiche
+      (« Déjà validé » / « Déjà perdu ») ; match marqué « fini » réglé sans attendre 2 h 30 ; coupons dévoilés seulement quand tous leurs paris
+      sont réglés (voir 5.6). Tests : <code>tests/test_live.py</code>.</td></tr>
+    <tr><td>22/11/2026</td><td><strong>Vraies cotes pour les coupes d'Europe (The Odds API)</strong> : code prêt, clé posée, premier relevé réussi. Pourquoi : là où il y a des
+      cotes, elles battent tous nos modèles, et les coupes d'Europe étaient calculées sans cotes. Conditions de l'offre gratuite lues (affichage et calculs
+      permis, y compris sur un site payant ; revente des cotes brutes interdite). Six compétitions (UCL, UEL, UECL, UWCL, Frauen-Bundesliga, Ligue
+      saoudienne ; la WSL n'est pas proposée). Moyenne d'au moins deux bookmakers, même calage que les grands championnats. Le quota de 500 crédits
+      est gardé par un budget par compétition et une réserve de 40 (détails en 5.2). Sans clé, rien ne change. La page du match et le bas des pages
+      citent « The Odds API » seulement quand ses cotes sont vraiment utilisées. 7 tests ajoutés (67 au total, tous réussis).
+      <strong>Clé posée</strong> par le porteur du projet (PC et secret GitHub) ; <strong>premier relevé réel</strong> le soir même : Ligue des champions, 18 matchs
+      reçus (22 bookmakers chacun) et 18 reliés sur 18 malgré des noms différents (« ŠK Slovan Bratislava », « Sabah FK », « Paris Saint Germain ») ;
+      Frauen-Bundesliga, 4 sur 4 (5 à 8 bookmakers, plus/moins 2,5 souvent absent : calage sur le 1X2 seul). 4 crédits dépensés, 496 restants. Ligue
+      Europa, Ligue Conférence et Ligue saoudienne (premiers matchs le jeudi) seront relevées à partir de lundi, quand leur match sera à moins de 3 jours.</td></tr>
+    <tr><td>22/11/2026</td><td><strong>Moteur : trois pistes testées, aucune adoptée</strong> (détails dans <code>docs/05-fiabilite.md</code>).
+      (1) <strong>Enjeu</strong> de fin de saison (rien à jouer, maintien, course aux places ; 14 championnats, 2 saisons) : avec des cotes, aucun effet ;
+      sans cotes, les équipes sans enjeu gagnent moins que prévu, mais la règle ne passe que dans un sens sur deux : à refaire en avril 2027.
+      (2) <strong>Classement Elo</strong> « à deux étages » (pays + club) et mélange avec le modèle relié pour les matchs sans cotes : Elo seul moins précis ;
+      mélange (≈ 2/3 modèle, 1/3 Elo) meilleur dans les deux sens pour les coupes d'Europe (1X2 −0,004, plus/moins 2,5 −0,0014) et le football féminin,
+      mais le gain sur le 1X2 n'est pas encore sûr (borne 95 % +0,0019) : à refaire en juin 2027. (3) <strong>Écart accentué</strong> du modèle relié : aucun gain,
+      il est déjà bien réglé. Rien n'est changé dans le calcul du site.</td></tr>
+    <tr><td>22/11/2026</td><td><strong>Sportradar</strong> regardé à la demande du porteur du projet : essai gratuit de 30 jours, 1 000 requêtes
+      par 30 jours, 1 requête par seconde, un seul produit ; les probabilités et les cotes en direct passent par leur service commercial. Les conditions de
+      l'essai réservent les données à un test interne : interdit de les publier ou de les afficher. Ensuite, contrat payant sans prix public.
+      Pas retenu pour le site ; utile seulement pour juger leurs données avant un éventuel budget.</td></tr>
   </table>
 </section>
 
@@ -623,6 +703,10 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <tr><td>Secrets e-mails dans GitHub</td><td><code>GMAIL_SCRIPT_URL</code> et <code>GMAIL_SCRIPT_SECRET</code> sont posés. Manquent
       <code>SUPABASE_URL</code> et <code>SUPABASE_SERVICE_ROLE_KEY</code> (voir <code>docs/07</code>, parties 3 à 5) : sans eux, la tâche
       « E-mails du jour » s'arrête proprement chaque matin sans rien envoyer.</td></tr>
+    <tr><td>Clé gratuite The Odds API</td><td><strong>Posée le 22/11/2026</strong> par le porteur du projet, dans
+      <code>D:\Projets\Probalis-secrets\cotes.env</code> (<code>PROBALIS_ODDS_API_KEY=…</code>) et dans le secret GitHub <code>PROBALIS_ODDS_API_KEY</code>.
+      Premier relevé réussi le même jour. Reste : envoyer le code sur GitHub (commit), puis vérifier au bout d'un mois la consommation réelle
+      (crédits restants dans le tableau de bord de The Odds API). Si la clé change : mettre la nouvelle aux deux endroits.</td></tr>
   </table>
   <h3>Prochaines fonctionnalités proposées (par ordre d'utilité)</h3>
   <ol>
@@ -630,7 +714,9 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       et montre son vrai bilan (gagné, perdu, mises). Fidélise et aide à jouer raisonnablement. Demande une table Supabase (accord avant toute écriture en production).</li>
     <li><strong>Équipes favorites et alertes</strong> : suivre ses clubs, alerte avant leur match (verdict le plus sûr en Premium) et après (résultat).</li>
     <li><strong>Équipes nationales (CAN)</strong> : vérifier d'abord que les résultats gratuits suffisent pour un calcul honnête (pas de cotes gratuites).</li>
-    <li><strong>Vraies cotes de bookmakers</strong> (par exemple The Odds API, 500 requêtes/mois gratuites) : à tester avant tout affichage.</li>
+    <li><strong>Tests du moteur à refaire</strong> : « plus rien à jouer » sans cotes en <strong>avril 2027</strong> (<code>python -m probalis.football.enjeu</code>,
+      avec la fin de 2026/27) ; mélange Elo pour les coupes d'Europe et le football féminin en <strong>juin 2027</strong> (<code>python -m probalis.football.elo --force</code>,
+      périodes à décaler d'un an). Adoption seulement si la règle du moteur passe.</li>
     <li>Corners et cartons dans les paris du jour, une fois leur fiabilité prouvée par l'historique.</li>
   </ol>
   <h3>Plus tard</h3>
@@ -678,6 +764,10 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <li>La traduction automatique de Chrome fait planter le tableau de bord Supabase : la désactiver sur cette page.</li>
     <li>Le service worker garde d'anciennes versions en cache pendant les essais locaux : le désinscrire pour voir les changements.</li>
     <li>TheSportsDB limite les appels (environ 10 par minute) : le premier calcul est long, ensuite le cache aide.</li>
+    <li>Le quota de The Odds API (500 crédits par mois) est commun à GitHub et au PC : une construction depuis le PC avec <code>cotes.env</code>
+      dépense aussi des crédits. Chaque ordinateur a son propre compteur (<code>data/cache/oddsapi/quota.json</code>), mais le chiffre « crédits
+      restants » renvoyé par The Odds API et la réserve de 40 crédits protègent le total. Une clé refusée (erreur 401) ou un quota épuisé (429)
+      arrête les appels jusqu'au mois suivant sur cet ordinateur : effacer <code>quota.json</code> après avoir corrigé la clé.</li>
     <li><strong>L'historique complet</strong> (listes pas encore réglées, analyses enregistrées avant les matchs) n'est pas dans la version publique.
       Il est dans <code>data/cache/history.json</code> de l'ordinateur qui construit et, depuis le 21/11/2026, dans la copie chiffrée
       <code>/data/history-full.bin</code> du site. Toujours construire dans <code>D:\Projets\Probalis</code>, jamais dans une copie temporaire, ne pas
@@ -702,7 +792,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <tr><td>PWA</td><td>Site web qui s'installe comme une application, sans passer par un store.</td></tr>
     <tr><td>Mode démo</td><td>Site construit sans Supabase : connexion et Premium simulés sur le téléphone, pour essayer sans compte.</td></tr>
   </table>
-  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 21 novembre 2026 (version 1.2), mise à jour automatique préparée (historique chiffré, garde-fous, tests).</p>
+  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 22 novembre 2026 (version 1.4), nouveau rythme du calcul automatique, paris réglés pendant le match, vraies cotes des coupes d'Europe (The Odds API : clé posée, premier relevé réussi).</p>
 </section>
 
 </body>
