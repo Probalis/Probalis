@@ -21,6 +21,7 @@
   <label class="q-search">{{ icon('search', 18, 2.2) }}<input type="search" id="q" placeholder="{{ t.q_placeholder }}" aria-label="{{ t.q_label }}" autocomplete="off" enterkeyhint="search"></label>
   <div class="chips scroll-x" id="chips" role="group" aria-label="{{ t.leagues_title }}">
     <button class="chip all on" type="button" data-league="" aria-pressed="true"><span class="chip-ic">{{ icon('grid', 16, 2.2) }}</span>{{ t.all_leagues }}</button>
+    <button class="chip favs-chip" type="button" aria-pressed="false" hidden><span class="chip-ic">{{ icon('star', 16, 2.4) }}</span>{{ t.fav_chip }}<span class="count"></span></button>
     {% for lg in chips %}
     <button class="chip" type="button" data-league="{{ lg.code }}" aria-pressed="false">{{ league_logo(lg) }}{{ lg.name }}<span class="count">{{ lg.count }}</span></button>
     {% endfor %}
@@ -49,12 +50,19 @@
 </a>
 {% endfor %}
 
+<section class="myteams js-only" id="myteams" aria-labelledby="mt-title" hidden>
+  <div class="mt-head"><h2 id="mt-title">{{ icon('star', 17, 2.4) }}{{ t.my_teams }}</h2><a class="sb-more" href="{{ root }}compte.html">{{ t.my_teams_manage }}{{ icon('chev-right', 14, 2.6) }}</a></div>
+  <div class="mt-list"></div>
+  <p class="mt-none" hidden>{{ t.my_teams_none }}</p>
+</section>
+
 <div id="list">
 {% for g in groups %}
   <section class="lg" data-league="{{ g.code }}" aria-labelledby="lg-{{ g.code }}">
     <div class="lg-head">
       {{ league_logo(g, 'lg32') }}
       <div class="lg-name"><h2 id="lg-{{ g.code }}">{{ g.name }}</h2><small>{{ g.country }}</small></div>
+      <button class="lg-fav js-only" type="button" data-fav-league="{{ g.code }}" aria-pressed="false" aria-label="{{ t.fav_lg.format(n=g.name) }}" title="{{ t.fav_lg.format(n=g.name) }}">{{ icon('star', 18, 2.2) }}</button>
       <button class="see-all js-only" type="button" data-league="{{ g.code }}">{{ t.see_all }}</button>
     </div>
     <div class="cards">

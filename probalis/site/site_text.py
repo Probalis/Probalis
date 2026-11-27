@@ -70,7 +70,8 @@ SITE = {
                   "vaut mieux éviter. Puis au plus 3 paris par match, de types différents et à une cote d'au moins 1,30 (« Plus de 2,5 buts ? OUI, "
                   "64 % »), le plus sûr mis en avant, et les raisons chiffrées du calcul. Plus de 90 paris par match, corners et cartons compris quand les chiffres existent, chacun avec "
                   "sa chance en mots simples et sa cote juste, un onglet « Cotes » pour savoir si la cote de ton bookmaker est un "
-                  "bon prix. Et pour tout le monde : la forme des deux équipes, comparées en barres, et leurs derniers face-à-face."},
+                  "bon prix. Et pour tout le monde : la forme des deux équipes, comparées en barres, et leurs derniers face-à-face. "
+                  "Touche « Suivre » sous une équipe : ses matchs passent en haut de la liste, sur tous tes appareils."},
             {"tab": "Onglet Matchs · Match", "shot": "live",
              "h3": "Le match en direct",
              "p": "Minute et score sur la liste des matchs. Dans la fiche, l'onglet « Match » : les temps forts (buts, cartons, "
@@ -84,7 +85,9 @@ SITE = {
             {"tab": "Onglet Ticket", "shot": "ticket",
              "h3": "Ton coupon, passé au scanner",
              "p": "Ajoute tes matchs : Probalis calcule la vraie chance que ton ticket passe, repère le maillon faible et te propose "
-                  "un remplaçant. Entre la cote de ton bookmaker : tu sais tout de suite si elle vaut le coup."},
+                  "un remplaçant. Entre la cote de ton bookmaker : tu sais tout de suite si elle vaut le coup. Ou laisse le "
+                  "générateur faire ton coupon : aujourd'hui, demain, sur 3 ou 7 jours ou aux dates de ton choix, avec le nombre "
+                  "de matchs ou la cote que tu veux, et seulement tes compétitions ou tes types de pari si tu le souhaites."},
             {"tab": "Onglet Historique", "shot": "history",
              "h3": "Nos résultats, sans maquillage",
              "p": "Les analyses et les listes sont enregistrées avant les matchs, puis jugées pendant le match dès que c'est joué, "
@@ -142,7 +145,7 @@ SITE = {
         "pass_best": "Le plus avantageux",
         "save_note": "Remises calculées par jour, par rapport au pass 30 jours.",
         "prem_items": ["Tous les matchs, avec le mot de Probalis et leurs paris du match (OUI / NON)", "Les 5 paris de chaque niveau et les coupons du jour",
-                       "Ton coupon analysé jusqu'à 10 matchs", "Sans pub"],
+                       "Ton coupon analysé jusqu'à 10 matchs", "Le générateur de coupons, sur un ou plusieurs jours", "Sans pub"],
         "prem_note": "Pass sans abonnement : tu paies une fois, rien ne se renouvelle tout seul. "
                      "Le paiement par mobile money et carte ouvre très bientôt.",
         "prem_note_wa": "Pass sans abonnement : tu paies une fois, rien ne se renouvelle tout seul. "
@@ -306,7 +309,8 @@ SITE = {
                   "Then up to 3 picks per match, of different kinds and at odds of at least 1.30 (“Over 2.5 goals? YES, 64%”), "
                   "the most reliable one up front, and the reasons behind the numbers. More than 90 bets per match, corners and cards included when the figures exist, each with its "
                   "chance in plain words and its fair odds, plus an “Odds” tab to see if your bookmaker's price is a good one. "
-                  "And for everyone: both teams' form, compared in bars, and their latest head-to-heads."},
+                  "And for everyone: both teams' form, compared in bars, and their latest head-to-heads. "
+                  "Tap “Follow” under a team: its matches go to the top of the list, on all your devices."},
             {"tab": "Matches tab · Match", "shot": "live",
              "h3": "The match, live",
              "p": "Minute and score on the match list. On the match page, the “Match” tab: key events (goals, cards, "
@@ -320,7 +324,9 @@ SITE = {
             {"tab": "Slip tab", "shot": "ticket",
              "h3": "Your slip, scanned",
              "p": "Add your matches: Probalis works out the real chance your slip wins, finds the weakest link and suggests a "
-                  "replacement. Enter your bookmaker's odds: you know at once whether they're worth it."},
+                  "replacement. Enter your bookmaker's odds: you know at once whether they're worth it. Or let the generator "
+                  "build your accumulator: today, tomorrow, over 3 or 7 days or on the dates you pick, with the number of matches "
+                  "or the odds you want, and only your competitions or bet types if you like."},
             {"tab": "History tab", "shot": "history",
              "h3": "Our results, unvarnished",
              "p": "Analyses and lists are saved before kick-off, then judged during the match once it's decided, otherwise "
@@ -375,7 +381,7 @@ SITE = {
         "pass_best": "Best value",
         "save_note": "Discounts worked out per day, compared with the 30-day pass.",
         "prem_items": ["Every match, with Probalis's take and its match picks (YES / NO)", "All 5 bets of each level and today's accumulators",
-                       "Your slip analysed up to 10 matches", "No ads"],
+                       "Your slip analysed up to 10 matches", "The accumulator generator, over one or more days", "No ads"],
         "prem_note": "A pass, not a subscription: you pay once and nothing renews by itself. "
                      "Mobile money and card payments open very soon.",
         "prem_note_wa": "A pass, not a subscription: you pay once and nothing renews by itself. "

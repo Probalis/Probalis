@@ -617,10 +617,10 @@ html.premium .tabbar a[data-tab="compte"][aria-current="page"]::after { box-shad
 }
 
 /* ---------- Chargement façon appli : barre, squelettes, bandeaux réseau ---------- */
-:root { --sk-shine: rgba(255, 255, 255, .7); --gold-bg: #FEF3C7; --gold-ink: #92400E; --gold: #FACC15; }
-:root[data-theme="dark"] { --sk-shine: rgba(255, 255, 255, .07); --gold-bg: rgba(250, 204, 21, .13); --gold-ink: #FDE68A; }
+:root { --sk-shine: rgba(255, 255, 255, .7); --gold-bg: #FEF3C7; --gold-ink: #92400E; --gold: #FACC15; --star: #D97706; }
+:root[data-theme="dark"] { --sk-shine: rgba(255, 255, 255, .07); --gold-bg: rgba(250, 204, 21, .13); --gold-ink: #FDE68A; --star: #FACC15; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --sk-shine: rgba(255, 255, 255, .07); --gold-bg: rgba(250, 204, 21, .13); --gold-ink: #FDE68A; }
+  :root:not([data-theme="light"]) { --sk-shine: rgba(255, 255, 255, .07); --gold-bg: rgba(250, 204, 21, .13); --gold-ink: #FDE68A; --star: #FACC15; }
 }
 
 main:focus { outline: none; }
@@ -1182,7 +1182,70 @@ html.signed .lock-anon, html:not(.signed) .lock-signed { display: none; }
 .quick { display: flex; gap: 8px; }
 .quick .chip { padding: 0 16px; font-family: var(--font-num); }
 .auto-lock { margin-top: 12px; }
-html:not(.premium) .tk-form, html:not(.premium) #tg-out, html:not(.premium) #ct-out { display: none; }
+html:not(.premium) .tk-form, html:not(.premium) #gen-out { display: none; }
+
+/* Générateur de coupons (mise à niveau 4) : période, objectif, réglages */
+.tk-form.gen { gap: 0; padding-top: 2px; }
+.gen .gf { padding: 14px 0; border-bottom: 1px solid var(--divider); }
+.gen .gf-t { display: flex; align-items: center; gap: 7px; margin: 0 0 10px; font-size: 14px; font-weight: 800; color: var(--ink); }
+.gen .gf-t svg { color: var(--green-ink); }
+.gen-chips { flex-wrap: wrap; }
+.gen-chips .chip { height: 38px; gap: 6px; padding: 0 14px; font-family: inherit; }
+.gen-range { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.gen-range[hidden], .gen .gg[hidden], .gm-n[hidden], .mt-none[hidden], .teams-none[hidden] { display: none; }
+.gf-sum { margin: 10px 0 0; font-size: 12.5px; font-weight: 700; color: var(--ink-2); }
+.gen .gg { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.gf-sub { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; margin: 2px 0 0; font-size: 12.5px; font-weight: 800; color: var(--ink-2); }
+.gf-sub small { font-size: 11.5px; font-weight: 600; color: var(--muted); }
+.gf-note { margin: 0; font-size: 12px; line-height: 1.45; color: var(--ink-2); }
+.gen-more summary { display: flex; align-items: center; gap: 8px; min-height: 28px; list-style: none; cursor: pointer; font-size: 14px; font-weight: 800; }
+.gen-more summary::-webkit-details-marker { display: none; }
+.gen-more summary > svg:first-child { color: var(--green-ink); }
+.gen-more summary > svg:last-child { margin-left: auto; color: var(--ink-2); transition: transform .2s; }
+.gen-more[open] summary > svg:last-child { transform: rotate(180deg); }
+.gm-n { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+  background: var(--sel-bg); color: var(--sel-ink); font-size: 11px; font-weight: 800; }
+.gen-more .gf-sub { margin-top: 16px; }
+.gm-chips { display: flex; flex-wrap: wrap; gap: 8px; max-height: 200px; margin-top: 8px; padding: 2px; overflow-y: auto; }
+.gm-chips .chip { height: 36px; gap: 6px; padding: 0 12px; font-size: 12.5px; }
+.gm-chips .note { margin: 0; }
+.gm-min { margin-top: 16px; }
+.gm-favs { margin-top: 4px; padding-bottom: 0; border-bottom: 0; }
+.gm-favs b { display: flex; align-items: center; gap: 6px; }
+.gm-favs b svg { flex: none; color: var(--star); fill: currentColor; }
+#gen-go { margin-top: 16px; }
+.dc-per { margin: 6px 0 0; font-size: 12px; font-weight: 700; color: var(--ink-2); }
+
+/* Favoris : « Suivre » (page d'un match), étoiles des championnats, « Mes favoris », « Mes équipes », compte */
+.follow { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px; border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px; background: var(--night-glass); color: var(--night-ink); font-size: 12px; font-weight: 700; }
+.follow svg { flex: none; }
+.follow.on { border-color: transparent; background: var(--gold-bg); color: var(--gold-ink); }
+.follow.on svg { fill: currentColor; }
+.lg-fav { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: none; color: var(--muted); }
+.lg-fav[aria-pressed="true"] { color: var(--star); }
+.lg-fav[aria-pressed="true"] svg { fill: currentColor; }
+.tm-star { flex: none; display: inline-grid; color: var(--star); }
+.tm-star svg { width: 13px; height: 13px; fill: currentColor; }
+.favs-chip { padding-right: 12px; }
+.favs-chip .chip-ic { background: var(--star); color: #FFFFFF; }
+.favs-chip .chip-ic svg { fill: currentColor; }
+.myteams { margin-top: 16px; padding: 14px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); }
+.mt-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.mt-head h2 { display: flex; align-items: center; gap: 7px; font-family: var(--font-num); font-size: 16px; font-weight: 700; }
+.mt-head h2 svg { color: var(--star); fill: currentColor; }
+.mt-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.mt-list:empty { display: none; }
+.mt-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px; background: var(--chip); color: inherit; }
+.mt-row .time { flex-direction: column; gap: 2px; min-width: 52px; }
+.mt-row .time .dd { display: block; font-size: 11.5px; }
+.mt-row .mc-teams { gap: 7px; }
+.mt-none { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-2); }
+.fav-chip.team { gap: 6px; padding: 0 10px 0 12px; }
+.fav-chip.team svg { flex: none; width: 14px; height: 14px; }
+.fav-chip.team svg:first-child { color: var(--star); fill: currentColor; }
+.fav-chip.team svg:last-child { color: var(--ink-2); }
+.fav-chip.team[disabled] { opacity: .5; }
 html.js:not(.signed) .tk-an :is(.an-top, .an-grid, .wk-box, .same-box, .verdict),
 .tk-an.over :is(.an-top, .an-grid, .wk-box, .same-box, .verdict) {
   position: relative; user-select: none; -webkit-user-select: none; pointer-events: none;
@@ -1707,3 +1770,12 @@ html.signed .sb-anon { display: none; }
 .lv-pl .mk { flex: none; width: 18px; text-align: center; font-weight: 800; }
 .lv-pl li.out .mk { color: #EF4444; }
 .lv-pl li.in .mk { color: var(--green-ink); }
+
+/* Générateur sur grand écran : les réglages à gauche, le coupon à droite (il reste visible) */
+@media (min-width: 1100px) {
+  .tk-panel[data-panel="gen"]:not([hidden]) { display: grid; grid-template-columns: minmax(0, 560px) minmax(320px, 1fr); column-gap: 28px; align-items: start; }
+  .tk-panel[data-panel="gen"] > * { grid-column: 1 / -1; }
+  .tk-panel[data-panel="gen"] > .gen { grid-column: 1; }
+  .tk-panel[data-panel="gen"] > #gen-out { grid-column: 2; grid-row: 2 / span 4; position: sticky; top: 20px; }
+  .tk-panel[data-panel="gen"] > #gen-out > :first-child { margin-top: 12px; }
+}

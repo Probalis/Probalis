@@ -77,6 +77,10 @@
         <button class="fav-chip" type="button" data-league="{{ lg.code }}" aria-pressed="false">{{ league_logo(lg) }}<span>{{ lg.name }}</span></button>
       {% endfor %}{% endfor %}
       </div>
+      <h3 class="sub">{{ icon('star', 16, 2.2) }}{{ t.teams_title }}</h3>
+      <p class="note">{{ t.teams_help }}</p>
+      <div class="favs" id="fav-teams"></div>
+      <p class="note teams-none" id="fav-teams-none">{{ t.teams_none }}</p>
     </section>
 
     <section class="card" aria-labelledby="resp-title">

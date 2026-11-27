@@ -18,9 +18,9 @@
   </div>
   <div class="hero-teams">
     <h1 class="sr-only">{{ m.home.name }} – {{ m.away.name }}</h1>
-    <div class="side"><span class="disc xl">{{ crest(m.home_crest, big=true, eager=true) }}</span><span class="nm">{{ m.home.name }}</span></div>
+    <div class="side"><span class="disc xl">{{ crest(m.home_crest, big=true, eager=true) }}</span><span class="nm">{{ m.home.name }}</span><button class="follow js-only" type="button" data-follow="{{ m.home.name }}">{{ icon('star', 14, 2.4) }}<span>{{ t.follow }}</span></button></div>
     <div class="hero-when"><time class="big" data-ko="{{ m.kickoff }}">{{ m.kickoff[11:16] }}</time><small data-dmed="{{ m.kickoff }}">{{ m.day_med }}</small>{% if m.espn %}<b class="big lv-sc" hidden></b><small class="lv-cl" hidden></small>{% endif %}</div>
-    <div class="side"><span class="disc xl">{{ crest(m.away_crest, big=true, eager=true) }}</span><span class="nm">{{ m.away.name }}</span></div>
+    <div class="side"><span class="disc xl">{{ crest(m.away_crest, big=true, eager=true) }}</span><span class="nm">{{ m.away.name }}</span><button class="follow js-only" type="button" data-follow="{{ m.away.name }}">{{ icon('star', 14, 2.4) }}<span>{{ t.follow }}</span></button></div>
   </div>
   {{ bar3(m, big=true) }}
   {{ pcts(m, (t.home_win.format(team=m.home.name), t.draw_long, t.home_win.format(team=m.away.name)), big=true) }}

@@ -236,7 +236,7 @@
     if (state && !!state.demo !== demo) state = null;  // on est passé du mode démo au vrai mode (ou l'inverse)
 
     var defaults = function () {
-      return { premium_until: null, email_news: false, email_reminders: true, favorite_leagues: [], lang: lang, country: null,
+      return { premium_until: null, email_news: false, email_reminders: true, favorite_leagues: [], favorite_teams: [], lang: lang, country: null,
         is_adult: false, welcome_sent_at: null, tz: null, free_day: null, free_match: null,
         bonus_analyses: 0, extra_matches: [], ref_code: null, role: 'member', push_daily: true };
     };
@@ -496,6 +496,37 @@
     };
   })();
 
+  // ---------- Favoris : équipes suivies et championnats favoris, enregistrés dans le compte (tous les appareils) ----------
+  var Favs = {
+    q: Promise.resolve(),
+    prof: function () { var s = Acct.get(); return s && s.user ? s.profile || {} : null; },
+    teams: function () { var p = Favs.prof(); return (p && p.favorite_teams) || []; },
+    leagues: function () { var p = Favs.prof(); return (p && p.favorite_leagues) || []; },
+    // on : true pour suivre, false pour ne plus suivre. Les changements partent l'un après l'autre (rien ne se perd
+    // quand on touche plusieurs étoiles très vite). Renvoie true si c'est enregistré.
+    set: function (kind, v, on) {
+      if (!Favs.prof()) { toast(T.fav_signin); return Promise.resolve(false); }
+      var k = kind === 'team' ? 'favorite_teams' : 'favorite_leagues';
+      var run = function () {
+        var p = Favs.prof();
+        if (!p) return false;
+        var list = (p[k] || []).slice();
+        var i = list.indexOf(v);
+        if (on ? i >= 0 : i < 0) return true;
+        if (on && list.length >= 50) { toast(T.fav_full); return false; }
+        if (on) list.push(v); else list.splice(i, 1);
+        var patch = {};
+        patch[k] = list;
+        return Acct.api.update(patch).then(function () {
+          toast(on ? (kind === 'team' ? fmt(T.fav_team_on, { n: v }) : T.fav_lg_on) : T.fav_off);
+          return true;
+        }, function () { toast(T.error); return false; });
+      };
+      Favs.q = Favs.q.then(run, run);
+      return Favs.q;
+    }
+  };
+
   // =====================================================================================================
   // Initialisation d'une page (au premier chargement, puis après chaque changement de page)
   // =====================================================================================================
@@ -548,7 +579,11 @@
     var groups = $$('section.lg', list);
     var ad = list.querySelector('.ad');
     var feats = $$('.featured', scope);
-    var chips = $$('#chips .chip', scope);
+    var chips = $$('#chips .chip:not(.favs-chip)', scope);
+    var favChip = scope.querySelector('#chips .favs-chip');
+    var mt = scope.querySelector('#myteams');
+    var mtList = mt && mt.querySelector('.mt-list');
+    var mtNone = mt && mt.querySelector('.mt-none');
     var daysEl = scope.querySelector('#days');
     var weekBtn = daysEl.querySelector('.week');
     var empty = scope.querySelector('#empty');
@@ -570,16 +605,32 @@
 
     cards.forEach(function (c) {
       c._d = dayKey(new Date(c.dataset.ko));
-      c._n = fold($$('.team .nm', c).map(function (n) { return n.textContent; }).join(' '));
+      c._t = $$('.team .nm', c).map(function (n) { return n.textContent.trim(); });
+      c._n = fold(c._t.join(' '));
     });
-    feats.forEach(function (f) { f._d = dayKey(new Date(f.dataset.ko)); });
+    feats.forEach(function (f) {
+      f._d = dayKey(new Date(f.dataset.ko));
+      f._t = $$('.side .nm', f).map(function (n) { return n.textContent.trim(); });
+    });
+    // Championnats favoris en premier (liste et pastilles), une fois à l'arrivée sur la page : rien ne bouge sous le doigt
+    var favL0 = Favs.leagues();
+    if (favL0.length) {
+      groups.filter(function (g) { return favL0.indexOf(g.dataset.league) >= 0; }).reverse()
+        .forEach(function (g) { list.insertBefore(g, list.firstChild); });
+      groups = $$('section.lg', list);
+      var chipBox = scope.querySelector('#chips');
+      var after = favChip || chips[0];
+      chips.filter(function (ch) { return favL0.indexOf(ch.dataset.league) >= 0; }).reverse()
+        .forEach(function (ch) { chipBox.insertBefore(ch, after.nextSibling); });
+    }
     var days = cards.map(function (c) { return c._d; })
       .filter(function (d, i, a) { return d >= today && a.indexOf(d) === i; }).sort();
 
     var sel = [];
     try { sel = JSON.parse(local.get('leagues') || '[]').filter(function (c) { return known.indexOf(c) >= 0; }); } catch (e) {}
     var saved = session.get('day');
-    var state = { day: saved === 'all' || days.indexOf(saved) >= 0 ? saved : (days[0] || 'all'), sel: sel, q: '' };
+    var state = { day: saved === 'all' || days.indexOf(saved) >= 0 ? saved : (days[0] || 'all'), sel: sel, q: '',
+      fav: session.get('mfav') === '1' };
     // Choisir un jour ou un championnat met fin à la recherche d'équipe
     var clearQ = function () { state.q = ''; if (qIn) qIn.value = ''; };
 
@@ -604,9 +655,34 @@
     var inSel = function (code, s) { s = s || state.sel; return !s.length || s.indexOf(code) >= 0; };
     var onDay = function (d) { return d >= today && (state.day === 'all' || d === state.day); };
     var plural = function (n) { return n === 1 ? T.one_match : fmt(T.n_matches, { n: n }); };
-    var save = function () { local.set('leagues', JSON.stringify(state.sel)); session.set('day', state.day); };
+    var save = function () {
+      local.set('leagues', JSON.stringify(state.sel));
+      session.set('day', state.day);
+      session.set('mfav', state.fav ? '1' : '0');
+    };
+    // Favoris du compte : équipes suivies (noms) et championnats favoris (codes)
+    var favT = [], favL = [];
+    var hasTeam = function (el) { return el._t.some(function (n) { return favT.indexOf(n) >= 0; }); };
+    var isFav = function (el) { return favL.indexOf(el.dataset.league) >= 0 || hasTeam(el); };
+    var pass = function (el) { return state.fav ? isFav(el) : inSel(el.dataset.league); };
+    // « Mes équipes » : une ligne par match (heure, équipes), vers la page du match
+    var mtRow = function (c) {
+      var a = doc.createElement('a');
+      a.className = 'mt-row';
+      a.href = c.getAttribute('href');
+      a.appendChild(c.querySelector('.time').cloneNode(true));
+      var tm = c.querySelector('.mc-teams').cloneNode(true);
+      $$('.sc', tm).forEach(function (x) { x.remove(); });
+      a.appendChild(tm);
+      initImages(a);  // logos copiés avant d'être chargés : on suit leur chargement
+      return a;
+    };
 
     var render = function () {
+      favT = Favs.teams();
+      favL = Favs.leagues();
+      var hasFav = !!(favT.length || favL.length);
+      if (!hasFav) state.fav = false;
       pills.forEach(function (p) {
         var on = p.dataset.day === state.day;
         p.classList.toggle('on', on);
@@ -616,7 +692,7 @@
       cards.forEach(function (c) { if (onDay(c._d)) counts[c.dataset.league] = (counts[c.dataset.league] || 0) + 1; });
       chips.forEach(function (ch) {
         var code = ch.dataset.league;
-        var on = code ? state.sel.indexOf(code) >= 0 : !state.sel.length;
+        var on = code ? state.sel.indexOf(code) >= 0 : !state.sel.length && !state.fav;
         if (code) {
           var n = counts[code] || 0;
           ch.hidden = !n && !on;
@@ -625,16 +701,49 @@
         ch.classList.toggle('on', on);
         ch.setAttribute('aria-pressed', on);
       });
+      if (favChip) {
+        favChip.hidden = !hasFav;
+        favChip.classList.toggle('on', state.fav);
+        favChip.setAttribute('aria-pressed', state.fav);
+        favChip.querySelector('.count').textContent = cards.filter(function (c) { return onDay(c._d) && isFav(c); }).length;
+      }
       var shown = 0;
       // Recherche : toute la semaine et tous les championnats, seulement les matchs de l'équipe cherchée
       cards.forEach(function (c) {
-        var v = state.q ? c._d >= today && c._n.indexOf(state.q) >= 0 : onDay(c._d) && inSel(c.dataset.league);
+        var v = state.q ? c._d >= today && c._n.indexOf(state.q) >= 0 : onDay(c._d) && pass(c);
         c.hidden = !v;
         if (v) shown++;
+        // Étoile à côté des équipes suivies
+        $$('.team', c).forEach(function (tm, i) {
+          var on = favT.indexOf(c._t[i]) >= 0;
+          tm.classList.toggle('fav', on);
+          if (on && !tm.querySelector('.tm-star')) {
+            var st = doc.createElement('i');
+            st.className = 'tm-star';
+            st.setAttribute('aria-hidden', 'true');
+            st.innerHTML = IC_STAR;
+            tm.querySelector('.nm').insertAdjacentElement('afterend', st);
+          }
+        });
       });
+      // « Mes équipes » en haut : les matchs des équipes suivies, pour le jour choisi (ou la semaine)
+      if (mt) {
+        var mine = favT.length && !state.q && !state.fav ? cards.filter(function (c) { return onDay(c._d) && hasTeam(c); })
+          .sort(function (a, b) { return a.dataset.ko < b.dataset.ko ? -1 : a.dataset.ko > b.dataset.ko ? 1 : 0; }) : [];
+        mt.hidden = !favT.length || !!state.q || state.fav;
+        var mk = mine.map(function (c) { return c.getAttribute('href'); }).join('|');
+        if (mt._k !== mk) {
+          mt._k = mk;
+          mtList.textContent = '';
+          mine.slice(0, 12).forEach(function (c) { mtList.appendChild(mtRow(c)); });
+        }
+        mtNone.hidden = mine.length > 0;
+      }
       list.classList.toggle('searching', !!state.q);
       groups.forEach(function (g) {
         g.hidden = !g.querySelector('.mcard:not([hidden])');
+        var lf = g.querySelector('.lg-fav');
+        if (lf) lf.setAttribute('aria-pressed', favL.indexOf(g.dataset.league) >= 0);
         var sa = g.querySelector('.see-all');
         if (sa) sa.hidden = state.day === 'all' && state.sel.length === 1 && state.sel[0] === g.dataset.league;
       });
@@ -646,7 +755,7 @@
       }
       list.classList.toggle('week', state.day === 'all' || !!state.q);
       // À la une : la plus belle affiche parmi les matchs affichés, grands championnats d'abord
-      var pool = feats.filter(function (f) { f.hidden = true; return onDay(f._d) && inSel(f.dataset.league); });
+      var pool = feats.filter(function (f) { f.hidden = true; return onDay(f._d) && pass(f); });
       var prime = pool.filter(function (f) { return f.dataset.prime === '1'; });
       var best = null;
       (prime.length ? prime : pool).forEach(function (f) {
@@ -680,14 +789,29 @@
       var ch = e.target.closest('.chip');
       if (!ch) return;
       clearQ();
-      var code = ch.dataset.league;
-      state.sel = !code || (state.sel.length === 1 && state.sel[0] === code) ? [] : [code];
+      if (ch === favChip) {
+        state.fav = !state.fav;
+        state.sel = [];
+      } else {
+        state.fav = false;
+        var code = ch.dataset.league;
+        state.sel = !code || (state.sel.length === 1 && state.sel[0] === code) ? [] : [code];
+      }
       save();
       render();
     });
     list.addEventListener('click', function (e) {
+      var f = e.target.closest('.lg-fav');
+      if (f) {
+        if (!Favs.prof()) { toast(T.fav_signin); return; }
+        var on = f.getAttribute('aria-pressed') !== 'true';
+        f.setAttribute('aria-pressed', on);
+        Favs.set('league', f.dataset.favLeague, on).then(function (ok) { if (!ok) render(); });
+        return;
+      }
       var b = e.target.closest('.see-all');
       if (!b) return;
+      state.fav = false;
       state.sel = [b.dataset.league];
       state.day = 'all';
       save();
@@ -696,6 +820,7 @@
     });
     scope.querySelector('#reset-filter').addEventListener('click', function () {
       state.sel = [];
+      state.fav = false;
       state.q = '';
       if (qIn) qIn.value = '';
       save();
@@ -742,6 +867,7 @@
     });
     applyBtn.addEventListener('click', function () {
       state.sel = checked();
+      state.fav = false;
       save();
       render();
       if (sheet.close) sheet.close(); else sheet.removeAttribute('open');
@@ -751,6 +877,32 @@
     render();
     var on = daysEl.querySelector('.day.on');
     if (on && on.offsetLeft > daysEl.clientWidth - 60) daysEl.scrollLeft = on.offsetLeft - 20;
+    Acct.on(render, function () { return list.isConnected; });
+  };
+
+  // ---------- Page d'un match : « Suivre » sous chaque équipe (équipes suivies, enregistrées dans le compte) ----------
+  var initFollow = function (scope) {
+    var btns = $$('button[data-follow]', scope);
+    if (!btns.length) return;
+    var show = function (b, on) {
+      b.classList.toggle('on', on);
+      b.querySelector('span').textContent = on ? T.followed : T.follow;
+      b.setAttribute('aria-label', fmt(on ? T.unfollow_team : T.follow_team, { n: b.dataset.follow }));
+    };
+    var render = function () {
+      var fav = Favs.teams();
+      btns.forEach(function (b) { show(b, fav.indexOf(b.dataset.follow) >= 0); });
+    };
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!Favs.prof()) { toast(T.fav_signin); return; }
+        var on = !b.classList.contains('on');
+        show(b, on);
+        Favs.set('team', b.dataset.follow, on).then(function (ok) { if (!ok) render(); });
+      });
+    });
+    render();
+    Acct.on(render, function () { return btns[0].isConnected; });
   };
 
   // ---------- Page match : onglets ----------
@@ -920,7 +1072,17 @@
         else if (p[k]) el.value = p[k];
       });
       var fav = p.favorite_leagues || [];
-      $$('.fav-chip', box).forEach(function (b) { b.setAttribute('aria-pressed', fav.indexOf(b.dataset.league) >= 0); });
+      $$('.fav-chip[data-league]', box).forEach(function (b) { b.setAttribute('aria-pressed', fav.indexOf(b.dataset.league) >= 0); });
+      var ft = p.favorite_teams || [];
+      var tb = box.querySelector('#fav-teams');
+      if (tb) {
+        tb.innerHTML = ft.map(function (n) {
+          var lbl = esc(fmt(T.unfollow_team, { n: n }));
+          return '<button class="fav-chip team" type="button" data-team="' + esc(n) + '" aria-label="' + lbl + '" title="' + lbl + '">' +
+            IC_STAR + '<span>' + esc(n) + '</span>' + IC_X + '</button>';
+        }).join('');
+        box.querySelector('#fav-teams-none').hidden = ft.length > 0;
+      }
       var adm = box.querySelector('#admin-link');
       if (adm) adm.hidden = p.role !== 'admin';
     };
@@ -1034,9 +1196,16 @@
       b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true');
       clearTimeout(saveTimer);
       saveTimer = setTimeout(function () {
-        var list = $$('.fav-chip[aria-pressed="true"]', box).map(function (x) { return x.dataset.league; });
+        var list = $$('.fav-chip[data-league][aria-pressed="true"]', box).map(function (x) { return x.dataset.league; });
         savePatch({ favorite_leagues: list });
       }, 700);
+    });
+    var ftb = box.querySelector('#fav-teams');
+    if (ftb) ftb.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-team]');
+      if (!b) return;
+      b.disabled = true;
+      Favs.set('team', b.dataset.team, false).then(function (ok) { if (!ok) b.disabled = false; });
     });
     var dp = box.querySelector('#demo-premium');
     if (dp) dp.addEventListener('change', function () {
@@ -1437,6 +1606,7 @@
   };
   var IC_X = svg('<path d="M6 6l12 12M18 6 6 18"/>', 18, 2.6);
   var IC_PLUS = svg('<path d="M12 5v14M5 12h14"/>', 18, 2.6);
+  var IC_STAR = svg('<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/>', 14, 2.2);
   var RING_C = 2 * Math.PI * 23;
   var ringHtml = function (p, cls) {
     var shown = Math.min(p, 0.99);
@@ -1540,16 +1710,19 @@
     var now = Date.now();
     return data.matches.filter(function (m) { return (!day || m.d === day) && new Date(m.k).getTime() > now; });
   };
-  var tierPicks = function (ms, range, n) {
+  // keep : filtre des paris (types, cote minimale) ; free : pas de limite par type (l'utilisateur a choisi ses types)
+  var tierPicks = function (ms, range, n, keep, free) {
     var pool = [];
     ms.forEach(function (m) {
       if (!m.e) return;
       candsOf(m).forEach(function (c) {
-        if (c.p >= range[0] && c.p <= range[1]) pool.push({ s: c.p + (m.q === 'high' ? 0.015 : 0) - (c.sel === '12' ? 0.01 : 0), c: c });
+        if (c.p >= range[0] && c.p <= range[1] && (!keep || keep(c))) {
+          pool.push({ s: c.p + (m.q === 'high' ? 0.015 : 0) - (c.sel === '12' ? 0.01 : 0), c: c });
+        }
       });
     });
     pool.sort(function (a, b) { return b.s - a.s; });
-    var used = {}, fam = {}, out = [], max = Math.max(2, Math.ceil(n * 0.4));
+    var used = {}, fam = {}, out = [], max = free ? n : Math.max(2, Math.ceil(n * 0.4));
     for (var i = 0; i < pool.length && out.length < n; i++) {
       var c = pool[i].c, f = FAM[c.key];
       if (used[c.mid] || (fam[f] || 0) >= max) continue;
@@ -1611,12 +1784,12 @@
     return out.sort(bySafe);
   };
   // Le moins de matchs possible, avec chaque sélection à 50 % ou plus
-  var autoCoupon = function (ms, target) {
+  var autoCoupon = function (ms, target, keep) {
     var pool = [], conf = {};
     ms.forEach(function (m) {
       if (!m.e) return;
       conf[m.id] = m.q;
-      candsOf(m).forEach(function (c) { if (c.p >= 0.4 && c.p <= 0.9) pool.push(c); });
+      candsOf(m).forEach(function (c) { if (c.p >= 0.4 && c.p <= 0.9 && (!keep || keep(c))) pool.push(c); });
     });
     var chosen = null;
     for (var k = 2; k <= MAX_LEGS; k++) {
@@ -1780,7 +1953,8 @@
     var panels = $$('.tk-panel', box);
     var alive = function () { return box.isConnected; };
     var mode = session.get('tkmode');
-    if (['mine', 'target', 'count'].indexOf(mode) < 0) mode = 'mine';
+    if (mode === 'target' || mode === 'count') mode = 'gen';  // anciens modes, réunis dans le générateur
+    if (['mine', 'gen'].indexOf(mode) < 0) mode = 'mine';
     var showMode = function () {
       modes.forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.mode === mode); });
       panels.forEach(function (p) { p.hidden = p.dataset.panel !== mode; });
@@ -1972,14 +2146,15 @@
       if (c) Coupon.add(legOf(c));
     });
 
-    // --- Cote cible et nombre de matchs (Premium) ---
+    // --- Générateur (Premium) : un ou plusieurs jours, nombre de matchs ou cote visée, filtres ---
     var autoReady = false;
-    var couponCard = function (legs, out) {
-      if (!legs || !legs.length) { out.innerHTML = '<p class="empty">' + esc(T.tk_none) + '</p>'; return; }
+    var couponCard = function (legs, out, sub, none) {
+      if (!legs || !legs.length) { out.innerHTML = '<p class="empty">' + esc(none || T.tk_none) + '</p>'; return; }
       var st = Coupon.stats(legs);
       out.innerHTML = '<article class="dcoupon">' +
         '<div class="dc-head"><span class="dc-target">≈ ' + oddsTxt(st.book) + '</span><span class="dc-meta">' +
         esc((legs.length === 1 ? T.tk_1 : fmt(T.tk_n, { n: legs.length })) + ' · ' + fmt(T.tk_kc, { p: pctTxt(st.p) })) + '</span></div>' +
+        (sub ? '<p class="dc-per">' + esc(sub) + '</p>' : '') +
         '<ol class="dc-legs">' + legs.map(function (c) {
           return '<li><span class="dc-l"><b>' + esc(c.l) + '</b><small>' + esc(c.h + ' – ' + c.a + ' · ' + whenTxt(c.ko)) + '</small></span>' +
             '<span class="dc-p">' + pctTxt(c.p) + '</span></li>';
@@ -1990,49 +2165,212 @@
         '<div class="same-box"><h3>' + esc(T.tk_same_title) + '</h3><p>' + esc(T.tk_same_text) + '</p><ul class="same">' +
         sameOdds(st.book, legs.length) + '</ul></div></article>';
     };
+    var gen = $('#gen');
+    var gout = $('#gen-out');
+    // Types de pari du générateur -> familles (FAM)
+    var GFAM = { result: ['result', 'dc'], goals: ['goals'], btts: ['btts'], team: ['team'], corners: ['corners'], cards: ['cards'] };
+    var G = { per: '', from: '', to: '', goal: 'count', n: 3, tier: 'safe', odds: '3', lcs: [], fams: [], min: 0, favs: false };
+    try {
+      var g0 = JSON.parse(session.get('tkgen') || 'null');
+      if (g0 && typeof g0 === 'object') {
+        Object.keys(G).forEach(function (k) {
+          if (g0[k] !== undefined && typeof g0[k] === typeof G[k] && Array.isArray(g0[k]) === Array.isArray(G[k])) G[k] = g0[k];
+        });
+      }
+    } catch (e) {}
+    if (!TIER_RANGE[G.tier]) G.tier = 'safe';
+    if (!(G.n >= 2 && G.n <= MAX_LEGS)) G.n = 3;
+    if (G.goal !== 'odds') G.goal = 'count';
+    G.fams = G.fams.filter(function (f) { return GFAM[f]; });
+    var gdata = null, gdays = [];
+    var gsave = function () { session.set('tkgen', JSON.stringify(G)); };
+    var addKey = function (k, n) { var d = fromKey(k); d.setDate(d.getDate() + n); return dayKey(d); };
+    var medDay = function (d) { return F.med.format(fromKey(d)); };  // « Du sam. 28 nov. au … » (minuscule au milieu de la phrase)
+    // Jours de la période choisie, parmi ceux qui ont encore des matchs à venir
+    var perDays = function () {
+      var today = dayKey(new Date()), a = today, b = today;
+      if (G.per === 'tomorrow') a = b = addKey(today, 1);
+      else if (G.per === '3' || G.per === '7') b = addKey(today, +G.per - 1);
+      else if (G.per === 'custom' && G.from && G.to) { a = G.from < G.to ? G.from : G.to; b = G.from < G.to ? G.to : G.from; }
+      return { a: a, b: b, days: gdays.filter(function (d) { return d >= a && d <= b; }) };
+    };
+    var perTxt = function (r) {
+      var today = dayKey(new Date());
+      if (r.a === r.b) return r.a === today ? T.tk_today : r.a === addKey(today, 1) ? T.tk_tomorrow : cap(F.long.format(fromKey(r.a)));
+      return fmt(T.gen_range, { a: medDay(r.a), b: medDay(r.b) });
+    };
+    var lcOf = function (m) { return m.lc || m.lg; };
+    // Matchs fiables de la période, puis favoris et compétitions choisies
+    var genPool = function (withLg) {
+      var r = perDays(), ft = Favs.teams(), fl = Favs.leagues();
+      return openMatches(gdata).filter(function (m) {
+        if (!m.e || r.days.indexOf(m.d) < 0) return false;
+        if (G.favs && ft.indexOf(m.h) < 0 && ft.indexOf(m.a) < 0 && fl.indexOf(lcOf(m)) < 0) return false;
+        return !withLg || !G.lcs.length || G.lcs.indexOf(lcOf(m)) >= 0;
+      });
+    };
+    // Paris gardés : types choisis, cote bookmaker estimée d'au moins la cote minimale
+    var keepCand = function (c) {
+      if (G.fams.length && !G.fams.some(function (f) { return GFAM[f].indexOf(FAM[c.key]) >= 0; })) return false;
+      return !G.min || c.fair / (1 + MARGIN) >= G.min - 1e-9;
+    };
+    var nOf = function (n) { return n ? (n === 1 ? T.tk_1 : fmt(T.tk_n, { n: n })) : T.gen_zero; };
+    var renderGen = function () {
+      if (!gdata) return;
+      var today = dayKey(new Date());
+      if (!G.per) G.per = gdays.indexOf(today) >= 0 || !gdays.length ? 'today' : 'tomorrow';
+      if (G.per === 'custom') {
+        if (gdays.indexOf(G.from) < 0) G.from = gdays[0] || today;
+        if (gdays.indexOf(G.to) < 0) G.to = gdays[Math.min(gdays.length - 1, gdays.indexOf(G.from) + 6)] || G.from;
+      }
+      var fl = Favs.leagues();
+      var hasFav = !!(Favs.teams().length || fl.length);
+      if (!hasFav) G.favs = false;
+      $$('#gp-quick .chip', gen).forEach(function (b) {
+        var on = b.dataset.per === G.per;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', on);
+      });
+      $('#gp-range').hidden = G.per !== 'custom';
+      var opts = gdays.map(function (d) { return '<option value="' + d + '">' + esc(cap(F.long.format(fromKey(d)))) + '</option>'; }).join('');
+      ['#gp-from', '#gp-to'].forEach(function (id, i) {
+        var sel = $(id);
+        if (sel._o !== opts) { sel.innerHTML = opts; sel._o = opts; }
+        sel.value = i ? G.to : G.from;
+      });
+      var ms = genPool(false);
+      $('#gp-sum').textContent = perTxt(perDays()) + ' · ' + nOf(genPool(true).length);
+      $$('#gg-seg button', gen).forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.goal === G.goal); });
+      $$('.gg', gen).forEach(function (p) { p.hidden = p.dataset.goal !== G.goal; });
+      $('#gg-n').value = String(G.n);
+      $$('#gl-tier button', gen).forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.tier === G.tier); });
+      if (doc.activeElement !== $('#gg-odds')) $('#gg-odds').value = G.odds;
+      // Compétitions de la période : favoris d'abord, puis les plus fournies
+      var lgs = {};
+      ms.forEach(function (m) { var k = lcOf(m); if (!lgs[k]) lgs[k] = { k: k, name: m.lg, n: 0 }; lgs[k].n++; });
+      G.lcs.forEach(function (k) {
+        if (lgs[k]) return;
+        var m0 = gdata.matches.filter(function (m) { return lcOf(m) === k; })[0];
+        lgs[k] = { k: k, name: m0 ? m0.lg : k, n: 0 };
+      });
+      var lgl = Object.keys(lgs).map(function (k) { return lgs[k]; }).sort(function (x, y) {
+        return (fl.indexOf(y.k) >= 0) - (fl.indexOf(x.k) >= 0) || y.n - x.n || (x.name < y.name ? -1 : 1);
+      });
+      $('#gm-lg').innerHTML = lgl.map(function (l) {
+        var on = G.lcs.indexOf(l.k) >= 0;
+        return '<button class="chip' + (on ? ' on' : '') + '" type="button" data-lc="' + esc(l.k) + '" aria-pressed="' + on + '">' +
+          esc(l.name) + '<span class="count">' + l.n + '</span></button>';
+      }).join('') || '<p class="note">' + esc(T.gen_no_match) + '</p>';
+      $$('#gm-fam .chip', gen).forEach(function (b) {
+        var on = G.fams.indexOf(b.dataset.fam) >= 0;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', on);
+      });
+      $('#gm-min').value = G.min ? G.min.toFixed(2) : '0';
+      var fs = $('#gm-favs');
+      fs.checked = G.favs;
+      fs.disabled = !hasFav;
+      $('#gm-favs-help').textContent = hasFav ? T.gen_favs_help : T.gen_favs_empty;
+      var nf = (G.lcs.length ? 1 : 0) + (G.fams.length ? 1 : 0) + (G.min ? 1 : 0) + (G.favs ? 1 : 0);
+      var badge = $('#gm-n');
+      badge.hidden = !nf;
+      badge.textContent = nf;
+      gsave();
+    };
+    // Un réglage change : l'ancien coupon n'est plus le bon
+    var changed = function () { gout.textContent = ''; renderGen(); };
     var prepAuto = function () {
       if (autoReady) return;
       autoReady = true;
       withData(function (d) {
-        fillDays($('#tg-day'), d);
-        fillDays($('#ct-day'), d);
-      });
+        gdata = d;
+        gdays = [];
+        openMatches(d).forEach(function (m) { if (gdays.indexOf(m.d) < 0) gdays.push(m.d); });
+        gdays.sort();
+        renderGen();
+      }, gout);
     };
-    $('#tg-quick').addEventListener('click', function (e) {
-      var b = e.target.closest('button[data-odds]');
-      if (!b) return;
-      $('#tg-odds').value = b.dataset.odds;
-      $('#tg-go').click();
-    });
-    $('#tg-go').addEventListener('click', function () {
-      var out = $('#tg-out');
-      var target = parseFloat($('#tg-odds').value.trim().replace(',', '.'));
-      if (!isFinite(target) || target < 1.5 || target > 100) {
-        out.innerHTML = '<p class="empty">' + esc(T.tk_bad_target) + '</p>';
-        return;
+    var generate = function () {
+      if (!gdata) { autoReady = false; prepAuto(); return; }
+      var target = 0;
+      if (G.goal === 'odds') {
+        target = parseFloat(String(G.odds).trim().replace(',', '.'));
+        if (!isFinite(target) || target < 1.5 || target > 100) { gout.innerHTML = '<p class="empty">' + esc(T.tk_bad_target) + '</p>'; return; }
       }
-      withData(function (d) { couponCard(autoCoupon(openMatches(d, $('#tg-day').value), target), out); }, out);
+      gout.innerHTML = '<p class="note">' + esc(T.gen_calc) + '</p>';
+      setTimeout(function () {
+        if (!alive()) return;
+        var ms = genPool(true);
+        var sub = perTxt(perDays());
+        if (!ms.length) couponCard(null, gout, '', T.gen_no_match);
+        else if (G.goal === 'odds') couponCard(autoCoupon(ms, target, keepCand), gout, sub, T.gen_none_odds);
+        else {
+          var legs = tierPicks(ms, TIER_RANGE[G.tier], G.n, keepCand, G.fams.length > 0);
+          if (legs.length < G.n) couponCard(null, gout, '', legs.length ? fmt(T.gen_few, { k: legs.length, n: G.n }) : T.gen_few0);
+          else couponCard(legs, gout, sub);
+        }
+        markAdded(box);
+        if (gout.getBoundingClientRect().top > win.innerHeight - 120) {
+          gout.scrollIntoView({ block: 'nearest', behavior: reduced.matches ? 'auto' : 'smooth' });
+        }
+      }, 30);
+    };
+    $('#gp-quick').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-per]');
+      if (!b) return;
+      G.per = b.dataset.per;
+      changed();
     });
-    var ctTier = 'safe';
-    $('#ct-tier').addEventListener('click', function (e) {
+    ['#gp-from', '#gp-to'].forEach(function (id, i) {
+      $(id).addEventListener('change', function (e) { if (i) G.to = e.target.value; else G.from = e.target.value; changed(); });
+    });
+    $('#gg-seg').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-goal]');
+      if (!b) return;
+      G.goal = b.dataset.goal;
+      changed();
+    });
+    $('#gg-n').addEventListener('change', function (e) { G.n = +e.target.value; changed(); });
+    $('#gl-tier').addEventListener('click', function (e) {
       var b = e.target.closest('button[data-tier]');
       if (!b) return;
-      ctTier = b.dataset.tier;
-      $$('button', $('#ct-tier')).forEach(function (x) { x.setAttribute('aria-pressed', x === b); });
+      G.tier = b.dataset.tier;
+      changed();
     });
-    $('#ct-go').addEventListener('click', function () {
-      var out = $('#ct-out');
-      var n = +$('#ct-n').value;
-      withData(function (d) {
-        var legs = tierPicks(openMatches(d, $('#ct-day').value), TIER_RANGE[ctTier], n);
-        couponCard(legs.length === n ? legs : null, out);
-      }, out);
+    $('#gg-odds').addEventListener('input', function (e) { G.odds = e.target.value; gout.textContent = ''; gsave(); });
+    $('#gg-odds').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); generate(); } });
+    $('#gg-quick').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-odds]');
+      if (!b) return;
+      G.odds = b.dataset.odds;
+      $('#gg-odds').value = G.odds;
+      gsave();
+      generate();
     });
+    $('#gm-lg').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-lc]');
+      if (!b) return;
+      var k = b.dataset.lc, i = G.lcs.indexOf(k);
+      if (i >= 0) G.lcs.splice(i, 1); else G.lcs.push(k);
+      changed();
+      var nb = $$('#gm-lg .chip', gen).filter(function (x) { return x.dataset.lc === k; })[0];
+      if (nb) nb.focus();
+    });
+    $('#gm-fam').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-fam]');
+      if (!b) return;
+      var i = G.fams.indexOf(b.dataset.fam);
+      if (i >= 0) G.fams.splice(i, 1); else G.fams.push(b.dataset.fam);
+      changed();
+    });
+    $('#gm-min').addEventListener('change', function (e) { G.min = parseFloat(e.target.value) || 0; changed(); });
+    $('#gm-favs').addEventListener('change', function (e) { G.favs = e.target.checked; changed(); });
+    $('#gen-go').addEventListener('click', generate);
 
     showMode();
     renderMine();
     Coupon.on(function () { renderMine(); markAdded(box); }, alive);
-    Acct.on(function () { renderMine(); if (mode !== 'mine' && Acct.premium()) prepAuto(); }, alive);
+    Acct.on(function () { renderMine(); if (mode !== 'mine' && Acct.premium()) prepAuto(); renderGen(); }, alive);
   };
 
 
@@ -2741,6 +3079,7 @@
     initImages(scope);
     initPrices(scope);
     initHome(scope);
+    initFollow(scope);
     initTabs(scope);
     Live.start(scope);
     initCompare(scope);

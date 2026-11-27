@@ -10,8 +10,7 @@
 <div class="tk js-only" id="tk" data-src="/lk/data/ticket-{{ lang }}.json">
   <div class="seg modes" id="tk-modes" role="group" aria-label="{{ t.mode_label }}">
     <button type="button" data-mode="mine" aria-pressed="true">{{ icon('pen', 16, 2.4) }}<span>{{ t.mode_mine }}</span></button>
-    <button type="button" data-mode="target" aria-pressed="false">{{ icon('target', 16, 2.4) }}<span>{{ t.mode_target }}</span></button>
-    <button type="button" data-mode="count" aria-pressed="false">{{ icon('hash', 16, 2.4) }}<span>{{ t.mode_count }}</span></button>
+    <button type="button" data-mode="gen" aria-pressed="false">{{ icon('zap', 16, 2.4) }}<span>{{ t.mode_gen }}</span></button>
   </div>
 
   {# ---- Mon coupon ---- #}
@@ -60,50 +59,68 @@
     </section>
   </section>
 
-  {# ---- Cote cible ---- #}
-  <section class="tk-panel" data-panel="target" aria-label="{{ t.mode_target }}" hidden>
-    <p class="tier-help">{{ t.mode_target_help }}</p>
+  {# ---- Générateur (Premium) : un ou plusieurs jours, nombre de matchs ou cote visée, filtres ---- #}
+  <section class="tk-panel" data-panel="gen" aria-label="{{ t.mode_gen }}" hidden>
+    <p class="tier-help">{{ t.mode_gen_help }}</p>
     <section class="lock-card auto-lock">
       <span class="lock-ic">{{ icon('lock', 20, 2.2) }}</span>
-      <h3>{{ t.mode_target }}</h3>
+      <h3>{{ t.mode_gen }}</h3>
       <p>{{ t.auto_lock }}</p>
       <a class="btn" href="{{ root }}premium.html">{{ icon('crown', 18, 2.2) }}{{ t.lock_cta }}</a>
     </section>
-    <div class="card tk-form">
-      <div class="cmp-grid">
-        <label class="field">{{ t.pick_day }}<select id="tg-day"></select></label>
-        <label class="field">{{ t.target_label }}<input id="tg-odds" type="text" inputmode="decimal" autocomplete="off" value="3" maxlength="6"></label>
+    <div class="card tk-form gen" id="gen">
+      <div class="gf">
+        <h3 class="gf-t" id="gp-t">{{ icon('calendar', 16, 2.2) }}{{ t.gen_period }}</h3>
+        <div class="quick gen-chips" id="gp-quick" role="group" aria-labelledby="gp-t">
+          <button class="chip" type="button" data-per="today" aria-pressed="false">{{ t.tk_today }}</button>
+          <button class="chip" type="button" data-per="tomorrow" aria-pressed="false">{{ t.tk_tomorrow }}</button>
+          <button class="chip" type="button" data-per="3" aria-pressed="false">{{ t.gen_3d }}</button>
+          <button class="chip" type="button" data-per="7" aria-pressed="false">{{ t.gen_7d }}</button>
+          <button class="chip" type="button" data-per="custom" aria-pressed="false">{{ icon('calendar', 15, 2.2) }}{{ t.gen_custom }}</button>
+        </div>
+        <div class="gen-range" id="gp-range" hidden>
+          <label class="field">{{ t.gen_from }}<select id="gp-from"></select></label>
+          <label class="field">{{ t.gen_to }}<select id="gp-to"></select></label>
+        </div>
+        <p class="gf-sum" id="gp-sum"></p>
       </div>
-      <div class="quick" id="tg-quick">
-      {% for o in (2, 3, 5, 10) %}<button class="chip" type="button" data-odds="{{ o }}">{{ o }}</button>{% endfor %}
+      <div class="gf">
+        <h3 class="gf-t" id="gg-t">{{ icon('target', 16, 2.2) }}{{ t.gen_goal }}</h3>
+        <div class="seg" id="gg-seg" role="group" aria-labelledby="gg-t">
+          <button type="button" data-goal="count" aria-pressed="true">{{ icon('hash', 16, 2.4) }}<span>{{ t.count_label }}</span></button>
+          <button type="button" data-goal="odds" aria-pressed="false">{{ icon('target', 16, 2.4) }}<span>{{ t.gen_odds }}</span></button>
+        </div>
+        <div class="gg" data-goal="count">
+          <label class="field">{{ t.count_label }}<select id="gg-n">{% for n in range(2, 11) %}<option value="{{ n }}"{% if n == 3 %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></label>
+          <h4 class="gf-sub" id="gl-t">{{ t.level_label }}</h4>
+          <div class="seg tiers" id="gl-tier" role="group" aria-labelledby="gl-t">
+          {% for k in tiers %}
+            <button type="button" data-tier="{{ k }}" aria-pressed="{{ 'true' if loop.first else 'false' }}"><i class="tdot {{ k }}" aria-hidden="true"></i>{{ t['tier_' ~ k] }}</button>
+          {% endfor %}
+          </div>
+        </div>
+        <div class="gg" data-goal="odds" hidden>
+          <label class="field">{{ t.target_label }}<input id="gg-odds" type="text" inputmode="decimal" autocomplete="off" value="3" maxlength="6"></label>
+          <div class="quick" id="gg-quick">
+          {% for o in (2, 3, 5, 10) %}<button class="chip" type="button" data-odds="{{ o }}">{{ o }}</button>{% endfor %}
+          </div>
+          <p class="gf-note">{{ t.gen_odds_note }}</p>
+        </div>
       </div>
-      <button class="btn" type="button" id="tg-go">{{ icon('target', 18, 2.4) }}{{ t.build_btn }}</button>
+      <details class="gf gen-more" id="gen-more">
+        <summary>{{ icon('sliders', 16, 2.2) }}<span>{{ t.gen_more }}</span><b class="gm-n" id="gm-n" hidden></b>{{ icon('chev-down', 16, 2.4) }}</summary>
+        <h4 class="gf-sub">{{ t.gen_leagues }}<small>{{ t.gen_none_f }}</small></h4>
+        <div class="gm-chips" id="gm-lg"></div>
+        <h4 class="gf-sub">{{ t.gen_types }}<small>{{ t.gen_none_m }}</small></h4>
+        <div class="gm-chips" id="gm-fam">
+        {% for f in ('result', 'goals', 'btts', 'team', 'corners', 'cards') %}<button class="chip" type="button" data-fam="{{ f }}" aria-pressed="false">{{ t['fam_' ~ f] }}</button>{% endfor %}
+        </div>
+        <label class="field gm-min">{{ t.gen_min }}<select id="gm-min"><option value="0">{{ t.gen_min_none }}</option>{% for o in ('1.20', '1.30', '1.40', '1.50') %}<option value="{{ o }}">{{ o.replace('.', ',') if lang == 'fr' else o }}</option>{% endfor %}</select></label>
+        <label class="switch-row gm-favs"><span><b>{{ icon('star', 15, 2.4) }}{{ t.gen_favs }}</b><small id="gm-favs-help">{{ t.gen_favs_help }}</small></span><input type="checkbox" class="switch" id="gm-favs"></label>
+      </details>
+      <button class="btn" type="button" id="gen-go">{{ icon('zap', 18, 2.4) }}{{ t.gen_btn }}</button>
     </div>
-    <div id="tg-out" aria-live="polite"></div>
-  </section>
-
-  {# ---- Nombre de matchs ---- #}
-  <section class="tk-panel" data-panel="count" aria-label="{{ t.mode_count }}" hidden>
-    <p class="tier-help">{{ t.mode_count_help }}</p>
-    <section class="lock-card auto-lock">
-      <span class="lock-ic">{{ icon('lock', 20, 2.2) }}</span>
-      <h3>{{ t.mode_count }}</h3>
-      <p>{{ t.auto_lock }}</p>
-      <a class="btn" href="{{ root }}premium.html">{{ icon('crown', 18, 2.2) }}{{ t.lock_cta }}</a>
-    </section>
-    <div class="card tk-form">
-      <div class="cmp-grid">
-        <label class="field">{{ t.pick_day }}<select id="ct-day"></select></label>
-        <label class="field">{{ t.count_label }}<select id="ct-n">{% for n in range(2, 11) %}<option value="{{ n }}"{% if n == 3 %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></label>
-      </div>
-      <div class="seg tiers" id="ct-tier" role="group" aria-label="{{ t.level_label }}">
-      {% for k in tiers %}
-        <button type="button" data-tier="{{ k }}" aria-pressed="{{ 'true' if loop.first else 'false' }}"><i class="tdot {{ k }}" aria-hidden="true"></i>{{ t['tier_' ~ k] }}</button>
-      {% endfor %}
-      </div>
-      <button class="btn" type="button" id="ct-go">{{ icon('hash', 18, 2.4) }}{{ t.build_btn }}</button>
-    </div>
-    <div id="ct-out" aria-live="polite"></div>
+    <div id="gen-out" aria-live="polite"></div>
   </section>
 
   <p class="note pct-note">{{ icon('info', 15, 2.2) }}<span>{{ t.ticket_note }} {{ t.est_note }}</span></p>

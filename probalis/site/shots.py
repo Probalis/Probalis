@@ -44,7 +44,7 @@ HELPER = """<!doctype html><meta charset="utf-8"><title>shot</title><script>
   var until = new Date(Date.now() + 30 * 864e5).toISOString();
   localStorage.setItem('pb-acct', JSON.stringify({ demo: true, t: Date.now(),
     user: { id: 'demo', email: 'demo@probalis.app', name: lang === 'fr' ? 'Démo' : 'Demo', avatar: null },
-    profile: { premium_until: until, email_news: false, email_reminders: true, favorite_leagues: [], lang: lang,
+    profile: { premium_until: until, email_news: false, email_reminders: true, favorite_leagues: [], favorite_teams: [], lang: lang,
       country: null, is_adult: true, welcome_sent_at: new Date().toISOString(), tz: null, free_day: null, free_match: null } }));
   localStorage.setItem('theme', q.get('theme') || 'light');
   localStorage.setItem('lang', lang);

@@ -859,7 +859,7 @@ def _ticket_data(matches: list[dict], lang: str, now: datetime) -> dict:
         home, away = m["home"]["name"], m["away"]["name"]
         hc, ac = _crest(m["home"]), _crest(m["away"])
         out.append({"id": m["id"], "s": m["slug"], "k": m["kickoff"], "d": picks.day_key(m["kickoff"]),
-                    "lg": lg.name_fr if lang == "fr" else lg.name_en, "h": home, "a": away,
+                    "lg": lg.name_fr if lang == "fr" else lg.name_en, "lc": m["league"], "h": home, "a": away,
                     "hc": [hc["initials"], hc["color"], hc["img"]], "ac": [ac["initials"], ac["color"], ac["img"]],
                     "q": m.get("confidence"), "e": 1 if picks.eligible(m) else 0,
                     "c": [[c["key"], c["line"], c["sel"], c["p"], c["fair"],

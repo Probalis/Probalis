@@ -485,6 +485,8 @@ _EXTRA = {
                      ["E-mail la veille des grands chocs", 1, 1],
                      ["Aucune publicité", 0, 1],
                      ["Les 5 paris les plus sûrs du jour (3 niveaux), coupons du jour, constructeur de coupons complet", "N°1 de chaque liste", "Tout"],
+                     ["Générateur de coupons : un ou plusieurs jours, nombre de matchs ou cote visée, filtres", 0, 1],
+                     ["Équipes suivies et championnats favoris, sur tous tes appareils (avec un compte)", 1, 1],
                      ["Alertes personnalisées (bientôt)", 0, 1]],
         "plans_title": "Choisis ton pass",
         "plan_week": "Pass 7 jours", "plan_month": "Pass 30 jours", "plan_quarter": "Pass 3 mois", "plan_half": "Pass 6 mois",
@@ -614,6 +616,8 @@ _EXTRA = {
                      ["Email the day before big matches", 1, 1],
                      ["No ads", 0, 1],
                      ["The 5 safest bets of the day (3 levels), daily accumulators, full accumulator builder", "#1 of each list", "Everything"],
+                     ["Accumulator generator: one or more days, number of matches or target odds, filters", 0, 1],
+                     ["Followed teams and favourite competitions, on all your devices (with an account)", 1, 1],
                      ["Personal alerts (coming soon)", 0, 1]],
         "plans_title": "Pick your pass",
         "plan_week": "7-day pass", "plan_month": "30-day pass", "plan_quarter": "3-month pass", "plan_half": "6-month pass",
@@ -1232,6 +1236,79 @@ _DESK = {
 }
 _DESK_JS = ("side_tk_empty", "side_tk_chance", "side_tk_odds", "q_placeholder", "q_none", "q_clear")
 
+# Mise à niveau 4 (27/11/2026) : générateur de coupons sur un ou plusieurs jours, équipes suivies, favoris
+_MN4 = {
+    "fr": {
+        "mode_gen": "Générateur",
+        "mode_gen_help": "Choisis la période, le nombre de matchs ou la cote : l'appli construit le coupon le plus solide, sur un ou plusieurs jours.",
+        "auto_lock": "Le générateur de coupons (un ou plusieurs jours, nombre de matchs ou cote visée) est réservé à Premium.",
+        "tk_tomorrow": "Demain", "gen_period": "Période", "gen_3d": "3 jours", "gen_7d": "7 jours", "gen_custom": "Dates au choix",
+        "gen_from": "Du", "gen_to": "Au", "gen_goal": "Objectif", "gen_odds": "Cote visée",
+        "gen_odds_note": "À cote égale, moins de matchs = plus de chance : l'appli prend le moins de matchs possible.",
+        "gen_more": "Plus de réglages", "gen_leagues": "Compétitions", "gen_types": "Types de pari",
+        "gen_none_f": "aucune choisie : toutes", "gen_none_m": "aucun choisi : tous",
+        "fam_corners": "Corners", "fam_cards": "Cartons",
+        "gen_min": "Cote minimale par match (bookmaker)", "gen_min_none": "Aucune",
+        "gen_favs": "Seulement mes favoris", "gen_favs_help": "Tes équipes suivies et tes championnats favoris.",
+        "gen_btn": "Générer le coupon",
+        "follow": "Suivre", "fav_chip": "Mes favoris", "fav_lg": "Championnat favori : {n}",
+        "my_teams": "Mes équipes", "my_teams_manage": "Gérer", "my_teams_none": "Pas de match de tes équipes ce jour-là.",
+        "teams_title": "Équipes suivies",
+        "teams_help": "Leurs matchs passent en haut de la page Matchs, sur tous tes appareils. Pour suivre une équipe : le bouton « Suivre » sous son nom, sur la page d'un match.",
+        "teams_none": "Aucune équipe suivie pour l'instant.",
+        "fav_help": "Ils passent en premier sur la page Matchs. Les alertes des grands chocs ne concernent qu'eux (aucun choisi : tous les championnats).",
+    },
+    "en": {
+        "mode_gen": "Generator",
+        "mode_gen_help": "Pick the period, the number of matches or the odds: the app builds the most solid accumulator, over one or more days.",
+        "auto_lock": "The accumulator generator (one or more days, number of matches or target odds) is for Premium members.",
+        "tk_tomorrow": "Tomorrow", "gen_period": "Period", "gen_3d": "3 days", "gen_7d": "7 days", "gen_custom": "Pick dates",
+        "gen_from": "From", "gen_to": "To", "gen_goal": "Goal", "gen_odds": "Target odds",
+        "gen_odds_note": "At equal odds, fewer matches = more chance: the app uses as few matches as possible.",
+        "gen_more": "More settings", "gen_leagues": "Competitions", "gen_types": "Bet types",
+        "gen_none_f": "none selected: all", "gen_none_m": "none selected: all",
+        "fam_corners": "Corners", "fam_cards": "Cards",
+        "gen_min": "Minimum odds per match (bookmaker)", "gen_min_none": "None",
+        "gen_favs": "Only my favourites", "gen_favs_help": "Your followed teams and favourite competitions.",
+        "gen_btn": "Generate the accumulator",
+        "follow": "Follow", "fav_chip": "My favourites", "fav_lg": "Favourite competition: {n}",
+        "my_teams": "My teams", "my_teams_manage": "Manage", "my_teams_none": "None of your teams plays that day.",
+        "teams_title": "Followed teams",
+        "teams_help": "Their matches go to the top of the Matches page, on all your devices. To follow a team: the “Follow” button under its name, on a match page.",
+        "teams_none": "No team followed yet.",
+        "fav_help": "They come first on the Matches page. Big-match alerts only cover them (none selected: every competition).",
+    },
+}
+_MN4_JS = {
+    "fr": {
+        "followed": "Suivie", "follow_team": "Suivre {n}", "unfollow_team": "Ne plus suivre {n}",
+        "fav_signin": "Connecte-toi (gratuit) pour suivre tes équipes et tes championnats.",
+        "fav_full": "50 favoris au maximum.", "fav_team_on": "Tu suis maintenant {n}",
+        "fav_lg_on": "Championnat ajouté à tes favoris", "fav_off": "Retiré de tes favoris",
+        "gen_range": "Du {a} au {b}", "gen_zero": "aucun match à venir",
+        "gen_few0": "Aucun pari ne correspond à ces réglages. Allonge la période, change de niveau ou enlève un filtre.",
+        "gen_few": "Avec ces réglages, on ne trouve que {k} des {n} paris demandés. Allonge la période, change de niveau ou enlève un filtre.",
+        "gen_none_odds": "Impossible d'atteindre cette cote avec ces réglages. Allonge la période, enlève un filtre ou essaie une autre cote.",
+        "gen_no_match": "Aucun match à venir sur cette période avec ces réglages.",
+        "gen_favs_empty": "Suis d'abord des équipes (bouton « Suivre » sur la page d'un match) ou choisis des championnats favoris dans ton compte.",
+        "gen_calc": "Calcul du coupon…",
+    },
+    "en": {
+        "followed": "Following", "follow_team": "Follow {n}", "unfollow_team": "Unfollow {n}",
+        "fav_signin": "Sign in (free) to follow your teams and competitions.",
+        "fav_full": "50 favourites at most.", "fav_team_on": "You now follow {n}",
+        "fav_lg_on": "Competition added to your favourites", "fav_off": "Removed from your favourites",
+        "gen_range": "{a} to {b}", "gen_zero": "no upcoming match",
+        "gen_few0": "No bet matches these settings. Widen the period, change the level or remove a filter.",
+        "gen_few": "With these settings, only {k} of the {n} bets you asked for can be found. Widen the period, change the level or remove a filter.",
+        "gen_none_odds": "These odds can't be reached with these settings. Widen the period, remove a filter or try other odds.",
+        "gen_no_match": "No upcoming match in this period with these settings.",
+        "gen_favs_empty": "First follow some teams (“Follow” button on a match page) or pick favourite competitions in your account.",
+        "gen_calc": "Building the accumulator…",
+    },
+}
+_MN4_UI_JS = ("follow", "gen_favs_help")
+
 for _lang in LANGS:
     UI[_lang].update(_DESK[_lang])
     _JS[_lang].update({k: _DESK[_lang][k] for k in _DESK_JS})
@@ -1242,6 +1319,9 @@ for _lang in LANGS:
     _JS[_lang].update(_BETS_JS[_lang])
     UI[_lang].update(_LIVE[_lang])
     _JS[_lang].update(_LIVE_JS[_lang])
+    UI[_lang].update(_MN4[_lang])
+    _JS[_lang].update({k: _MN4[_lang][k] for k in _MN4_UI_JS})
+    _JS[_lang].update(_MN4_JS[_lang])
 
 
 def pick_label(key: str, sel: str, line: float | None, lang: str, home: str, away: str) -> str:
