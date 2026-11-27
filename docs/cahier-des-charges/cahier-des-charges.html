@@ -92,7 +92,7 @@ tr:nth-child(even) td { background: #FAFBFC; }
     décrit tout le projet : ce qu'il fait, comment il fonctionne, ce qui a été décidé et ce qui reste à faire, pour
     que n'importe qui (une personne ou une autre intelligence artificielle) puisse reprendre le travail sans rien perdre.</p>
   <div class="meta">
-    <div><b>Version</b>1.7 · 22 novembre 2026</div>
+    <div><b>Version</b>1.11 · 27 novembre 2026</div>
     <div><b>Application</b>probalis.pages.dev</div>
     <div><b>Dossier de travail</b>D:\Projets\Probalis</div>
   </div>
@@ -130,6 +130,12 @@ tr:nth-child(even) td { background: #FAFBFC; }
     <tr><td>Mise à jour automatique (6 fois par jour en semaine, toutes les heures le week-end)</td><td><span class="tag ok">En marche</span></td><td>Depuis le 21/11/2026 : GitHub Actions dans l'organisation <code>Probalis</code> calcule et met le site en ligne (historique intact). Depuis le 22/11/2026, c'est le minuteur Cloudflare <code>probalis-horloge</code> qui le lance aux bonnes heures (l'horloge de GitHub ne lançait presque rien : 1 calcul sur 9) ; premier lancement vérifié à 7 h 05 pile (calcul réussi, site mis à jour à 7 h 07). Rythme et réglages en 7.5</td></tr>
     <tr><td>Paris réglés pendant le match</td><td><span class="tag ok">Fait</span></td><td>Depuis le 22/11/2026 : un pari ou un verdict déjà gagné ou perdu d'avance (score en direct de TheSportsDB) est réglé tout de suite, dans l'historique et sur la fiche du match (voir 5.6)</td></tr>
     <tr><td>Cotes des coupes d'Europe (The Odds API)</td><td><span class="tag ok">En ligne</span></td><td>Depuis le 22/11/2026 (commit e243838, calcul lancé à la main à 2 h 40) : Ligue des champions, Ligue Europa, Ligue Conférence, Ligue des champions féminine, Frauen-Bundesliga et Ligue saoudienne calées sur les vraies cotes quand leur match est à moins de 3 jours. Vérifié sur le site : fiche Arsenal – Borussia Dortmund « Calé sur les cotes », bas des pages et FAQ de la vitrine qui citent The Odds API</td></tr>
+    <tr><td>Paris du match : au plus 3 par match, cote de 1,30 ou plus</td><td><span class="tag todo">Prêt</span></td><td>Le 27/11/2026, demandé par le
+      porteur du projet : la fiche ne montre plus que 3 paris au plus, de types différents, à une cote estimée d'au moins 1,30 (voir 3.1 et 5.4).
+      Testé sur 2025/26 ; vérifié dans le navigateur ; pas encore envoyé sur GitHub ni en ligne (part avec la mise à niveau 1)</td></tr>
+    <tr><td>Match en direct (ESPN) : mise à niveau 1</td><td><span class="tag todo">Prêt</span></td><td>Le 26/11/2026 : minute et score sur la liste des matchs,
+      onglet « Match » de la fiche (temps forts, statistiques face à face, compositions), corners et cartons réglés environ 2 h après le match,
+      coupes d'Europe, Arabie saoudite et football féminin compris (voir 3.1, 5.2, 5.6). Tests réussis, vérifié dans le navigateur ; pas encore envoyé sur GitHub ni en ligne</td></tr>
     <tr><td>Paiement en ligne (Stripe, Flutterwave)</td><td><span class="tag todo">À faire</span></td><td>Prêt en mode démo, pas branché</td></tr>
     <tr><td>Nom de domaine, e-mails professionnels</td><td><span class="tag todo">À faire</span></td><td>E-mails envoyés par Gmail en attendant</td></tr>
   </table>
@@ -233,11 +239,26 @@ tr:nth-child(even) td { background: #FAFBFC; }
 
   <h3>3.1 Matchs</h3>
   <p>La liste des matchs d'aujourd'hui à J+8, rangés par compétition, avec le pourcentage 1-N-2 (flouté pour un compte gratuit),
-    et un match « à la une ». Chaque match ouvre sa <strong>fiche</strong> :</p>
+    et un match « à la une ». <strong>Match en cours</strong> (depuis le 26/11/2026) : la carte montre la minute (pastille verte qui pulse,
+    « MT » à la mi-temps) et le score, mis à jour chaque minute ; match fini : « Fin » et le score final. Chaque match ouvre sa <strong>fiche</strong> :</p>
   <table>
     <tr><th style="width:30%">Bloc de la fiche</th><th style="width:12%">Accès</th><th>Ce qu'il montre</th></tr>
-    <tr><td>En-tête</td><td><span class="tag free">Gratuit</span></td><td>Logos, heure, barre 1-N-2 (chiffres Premium), « Calé sur les cotes » ou « Modèle seul », niveau de confiance</td></tr>
-    <tr><td>Verdicts OUI / NON</td><td><span class="tag prem">Premium</span></td><td>« Plus de 2,5 buts ? OUI · 64 % ». Le plus sûr est mis en avant avec sa preuve (« ce type de verdict s'est vérifié X fois sur Y en 2025/26 »). Sous 55 % : « serré », pas de verdict.</td></tr>
+    <tr><td>En-tête</td><td><span class="tag free">Gratuit</span></td><td>Logos, heure, barre 1-N-2 (chiffres Premium), « Calé sur les cotes » ou « Modèle seul », niveau de confiance. Pendant et après le match : le score et la minute à la place de l'heure</td></tr>
+    <tr><td>Onglet « Match » (direct)</td><td><span class="tag free">Gratuit</span></td><td>Depuis le 26/11/2026, juste après « Résumé » : <strong>temps forts</strong> (buts avec passeur, penalty ou contre son camp,
+      cartons jaunes et rouges, 2e jaune, remplacements, mi-temps), <strong>statistiques</strong> face à face en barres (possession, tirs, tirs cadrés,
+      corners, fautes, cartons, hors-jeu, arrêts, passes, passes réussies), <strong>compositions</strong> (schéma, onze de départ avec poste, remplaçants,
+      entrées et sorties). Mis à jour chaque minute pendant le match ; compositions environ 1 h avant. Source ESPN (voir 5.2). L'onglet n'apparaît
+      que pour un match relié à ESPN, donc en général à partir de 2 jours avant le coup d'envoi (<code>espn.WINDOW</code>) ; plus de 2 h avant, il dit
+      « Le direct commence au coup d'envoi ». Sur ordinateur, la carte prend toute la largeur. La page d'un match
+      passé (« Ce que disait l'analyse ») a la même carte « Le match »</td></tr>
+    <tr><td>Les paris du match (verdicts OUI / NON)</td><td><span class="tag prem">Premium</span></td><td>Depuis le 27/11/2026 : <strong>au plus 3 paris</strong>
+      par match, de types différents (résultat, buts, les deux équipes marquent, une équipe marque, corners ou cartons : au plus un des deux),
+      chacun avec au moins 60 % de chance et une <strong>cote estimée d'au moins 1,30</strong> chez le bookmaker (cote juste divisée par 1,05).
+      Exemple : « Plus de 3,5 buts ? NON · 68 % · cote ≈ 1,41 ». Le premier, le plus sûr, est mis en avant avec sa preuve (« ce type de verdict
+      s'est vérifié X fois sur Y en 2025/26 ») ; la note donne le bilan de la règle sur 2025/26. Les autres verdicts (souvent à 1,05–1,20) ne sont
+      plus montrés, sur décision du porteur du projet (ils embrouillaient le choix) ; les chances de tous les marchés restent dans les autres
+      onglets de la fiche. Aucun pari ne passe la règle (rare, environ 1 match sur 250) : message « Aucun pari assez sûr à une cote de 1,30 ou
+      plus ». Avant le 27/11/2026 : une dizaine de verdicts par match, « serré » sous 55 %, le plus sûr toutes cotes confondues.</td></tr>
     <tr><td>Pourquoi</td><td><span class="tag prem">Premium</span></td><td>3 à 5 raisons chiffrées du calcul (attaque, défense, occasions créées, forme, terrain, avis des cotes)</td></tr>
     <tr><td>Forme et face-à-face</td><td><span class="tag free">Gratuit</span></td><td>5 derniers matchs de chaque équipe (toutes compétitions suivies, V/N/D, buts marqués et encaissés) et leurs 5 dernières rencontres</td></tr>
     <tr><td>Buts attendus, scores probables, marchés clés</td><td><span class="tag prem">Premium</span></td><td>Buts attendus de chaque équipe, 3 scores les plus probables, paris principaux avec cote juste</td></tr>
@@ -270,10 +291,13 @@ tr:nth-child(even) td { background: #FAFBFC; }
   <ul>
     <li><strong>Paris du jour, le bilan :</strong> chaque liste est <em>figée</em> avant les matchs puis réglée toute seule avec le score final,
       ou <strong>dès qu'un pari est joué d'avance pendant le match</strong> (badge « Gagné · en cours » / « Perdu · en cours »).
-      Annoncé contre réel par niveau, coupons, et jour par jour. Rien n'est effacé.</li>
+      Annoncé contre réel par niveau, coupons, et jour par jour. Rien n'est effacé. Corners et cartons : réglés environ 2 h après le match
+      (ESPN, depuis le 26/11/2026), coupes d'Europe comprises.</li>
     <li><strong>Analyses des derniers jours</strong> (Hier / Avant-hier / 7 derniers jours) : pour chaque match terminé, le score final et
       chacun de ses verdicts juste ✓ ou faux ✗, le bilan du jour (« 41 verdicts justes sur 56 pour 72 % annoncés ») et la réussite du
-      verdict « le plus sûr ». Public une fois le match fini. <strong>Pendant le match</strong>, l'onglet Aujourd'hui montre déjà les verdicts
+      verdict « le plus sûr ». Depuis le 27/11/2026, une analyse enregistrée avec la nouvelle règle ne montre et ne compte que ses paris du match
+      (au plus 3, avec leur cote estimée) et « le plus sûr » est le premier d'entre eux ; les analyses enregistrées avant gardent tous leurs
+      verdicts (jamais réécrites). Pendant une semaine, le bilan « 7 jours » mélange donc les deux règles. Public une fois le match fini. <strong>Pendant le match</strong>, l'onglet Aujourd'hui montre déjà les verdicts
       joués d'avance (« déjà joués · en cours »), et seulement ceux-là.</li>
     <li>Les jours enregistrés avant le nouveau moteur restent tels quels, marqués « ancien moteur ».</li>
     <li>Une ancienne adresse de fiche (lien WhatsApp) d'un match terminé mène à sa page « Ce que disait l'analyse ». Une adresse inconnue
@@ -328,11 +352,15 @@ tr:nth-child(even) td { background: #FAFBFC; }
   <p><code>/</code> en français, <code>/welcome/</code> en anglais. Sections : accueil avec téléphones, preuve « annoncé contre réel » de la
     saison 2025/26, liste du jour figée, visite de l'appli (vraies captures), convertisseur de cotes, compétitions, prix, installation
     (détecte téléphone ou ordinateur, QR code sur ordinateur, instructions iPhone), FAQ, pied de page 18+. <strong>Les captures sont de vrais
-    écrans de l'appli avec de vrais matchs</strong> : prises le 21 novembre 2026 (matchs du jour, du lendemain, et le grand match de la semaine,
-    Arsenal – Manchester City du 29 novembre, montré avec son analyse complète). La date de prise de vue est écrite dans
+    écrans de l'appli avec de vrais matchs</strong> : toutes reprises le 27 novembre 2026 (fiche avec « Les paris du match ») après la mise à niveau 1 (matchs du jour, du lendemain,
+    le grand match de la semaine, Arsenal – Manchester City du 29 novembre, montré avec son analyse complète, et un 5e chapitre « Le match en
+    direct » : la carte « Le match » de Crystal Palace – Real Sociedad du 26 novembre, 2-1, avec ses vrais temps forts ESPN). La date de prise de vue est écrite dans
     <code>probalis/site/static/shots/shots.json</code> et affichée sous les captures. Elles sont figées : inutile de les refaire à chaque mise à jour.
     Pour les refaire : mode d'emploi en tête de <code>probalis/site/shots.py</code> (construire d'abord le site, préparer la copie dans un dossier
-    temporaire, la servir en local, photographier, puis reconstruire). Règle : à chaque changement de l'appli, la vitrine est mise à jour dans le même envoi.</p>
+    temporaire, la servir en local, photographier, puis reconstruire). Règle : à chaque changement de l'appli, la vitrine est mise à jour dans le même envoi.
+    FAQ : « C'est quoi, les paris du match ? » (remplace « le verdict le plus sûr », le 27/11/2026, avec les chiffres de la règle sur 2025/26).
+    Les icônes des chapitres de la visite sont choisies par nom de capture (<code>site.html</code>) : un chapitre de plus ne casse plus la
+    construction (test <code>tests/test_vitrine.py</code>).</p>
 
   <h3>3.11 Appli installable et hors connexion</h3>
   <p>Installable (manifeste, icônes, service worker <code>sw.js</code>). Hors connexion : écran « Pas de connexion » au lieu de pages
@@ -389,6 +417,18 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
       remis à zéro chaque mois. Sans la clé <code>PROBALIS_ODDS_API_KEY</code>, rien n'est demandé. Conditions lues le 22/11/2026 : affichage
       et calculs permis, y compris sur un site payant ; revente des cotes brutes interdite. La page du match cite alors « The Odds API »
       comme source des cotes, et le bas des pages l'ajoute aux sources.</li>
+    <li><strong>ESPN</strong> (accès ouvert, sans clé ni compte ; <code>probalis/football/espn.py</code>, depuis le 26/11/2026) : pour chaque
+      championnat, la liste des matchs d'un jour (<code>…/soccer/&lt;championnat&gt;/scoreboard?dates=AAAAMMJJ</code>, un seul jour par demande :
+      une plage de dates est refusée) et le déroulé d'un match (<code>…/summary?event=&lt;n°&gt;</code> : temps forts, statistiques, compositions,
+      environ 420 Ko). 23 de nos 25 compétitions y sont (pas la Frauen-Bundesliga ni la Serie A féminine). Sert à trois choses :
+      <strong>(1)</strong> relier nos matchs aux siens (<code>espn.link</code> : même championnat, coup d'envoi à 3 h près, ressemblance des noms
+      d'équipes avec la même méthode que pour football-data, répartition optimale ; un seul nom suffit s'il est sûr et à la même heure, par
+      exemple « Köln » / « FC Cologne ») : 241 matchs sur 253 reliés du 20 au 26/11/2026 ; le n° ESPN est gardé dans
+      l'historique (<code>matches[id].espn</code> = [championnat, n°, jour]) ; <strong>(2)</strong> les corners et cartons des matchs finis (5.6) ;
+      <strong>(3)</strong> le direct des téléphones, à travers notre relais <code>/live/</code> (5.8). Le calcul demande au plus une adresse toutes
+      les 0,6 s (ESPN ne répond plus un moment après environ 80 demandes rapides), réessaie une fois après 45 s, et s'arrête au bout de 6 échecs
+      (ESPN considéré en panne : rien d'autre ne bloque). Nom envoyé : <code>Probalis/0.1</code> (ESPN refuse les noms « Mozilla … Bot »).
+      Cache : <code>data/cache/espn/</code> (jours passés 24 h, hier et aujourd'hui 12 min, jours à venir 6 h ; bilan d'un match fini gardé pour toujours).</li>
     <li>Tout est gardé en cache dans <code>data/cache/</code> (non versionné). Le premier calcul dure environ 30 minutes, les suivants
       environ 20 minutes (25 compétitions).</li>
   </ul>
@@ -414,8 +454,20 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
 
   <h3>5.4 Verdicts OUI / NON (<code>probalis/core/verdicts.py</code>)</h3>
   <p>Pour chaque match : plus de 1,5 / 2,5 / 3,5 buts, les deux équipes marquent, meilleure double chance, chaque équipe marque, résultat,
-    corners, cartons. Réponse OUI si la chance dépasse 50 %, sinon NON ; sous 55 % de certitude : « serré ». Le plus sûr = la plus grande
-    certitude. La phrase de preuve vient du tableau de fiabilité de <code>engine_params.json</code>.</p>
+    corners, cartons. Réponse OUI si la chance dépasse 50 %, sinon NON ; sous 55 % de certitude : « serré ». La phrase de preuve vient du
+    tableau de fiabilité de <code>engine_params.json</code>.</p>
+  <p><strong>Paris du match</strong> (<code>vd.picks</code>, depuis le 27/11/2026) : parmi les verdicts, ceux qui ont au moins 60 % de chance
+    (<code>PICK_MIN_P</code>) et une cote estimée d'au moins 1,30 (<code>PICK_MIN_ODDS</code> ; cote estimée = cote juste / 1,05, même formule
+    que les onglets Paris et Ticket, d'où une chance d'au plus 73,2 %), rangés du plus sûr au moins sûr, jamais deux du même type
+    (<code>PICK_GROUP</code> : résultat et double chance ensemble, les trois lignes de buts ensemble, corners et cartons ensemble), au plus 3
+    (<code>PICK_MAX</code>). Le premier est « le plus sûr ». Testé avant d'être branché sur les 5 484 matchs de 2025/26 (saison jamais vue par le
+    moteur ; <code>football/tune.py</code> enregistre le bilan dans <code>reliability._picks</code>) : 15 479 paris, réussis 68,2 % pour 68,0 %
+    annoncés, cote estimée moyenne 1,41 ; 3 paris dans 84 % des matchs, 2 dans 15 %, 1 dans 1 % ; le plus sûr d'entre eux réussit 70,5 %
+    (contre 82,5 % pour l'ancien « plus sûr », à une cote estimée moyenne de 1,16). À la cote estimée, ces paris perdent environ 4,4 % (la marge
+    du bookmaker) : comme partout dans Probalis, aucune promesse de gain. Variantes testées puis écartées : sans limite sur les corners et cartons
+    (38 % des paris auraient été des corners ou cartons), sans corners ni cartons (25 % des matchs n'auraient eu que 2 paris), 55 % de chance au
+    lieu de 60 % (presque tous les matchs à 3 paris, mais plus faibles). Sur les 266 matchs à venir le 27/11/2026 : 209 à 3 paris, 51 à 2, 5 à 1,
+    1 sans pari.</p>
 
   <h3>5.5 Paris du jour et coupons (<code>probalis/site/picks.py</code>)</h3>
   <p>Sélection par niveau (bornes de chance), un pari par match, au plus 2 du même type, confiance suffisante, pas de féminin.
@@ -430,9 +482,18 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
       (le 21/11/2026, elle n'avait que 4 paris sur 15 et 24 analyses sur 102 : la republier aurait effacé le reste), ou si la clé est fausse.</li>
     <li>La liste d'un jour est <strong>figée</strong> au premier calcul fait ce jour-là (heure UTC+1) et ne change plus. Un jour figé ne reçoit plus que
       les matchs pas encore commencés.</li>
-    <li>Chaque jour garde l'analyse de <strong>chaque match</strong> (verdicts, le plus sûr, 1X2, score le plus probable, version du moteur), jugée
-      une fois le match fini. Corners et cartons : jugés quand football-data publie les chiffres (2 à 4 jours), « non vérifiables » pour les coupes,
-      ou pour un championnat au bout de 6 jours sans chiffres. Un match de championnat enregistré sans ses noms football-data (listes faites avant le
+    <li>Chaque jour garde l'analyse de <strong>chaque match</strong> (tous ses verdicts, ses paris du match « pk » depuis le 27/11/2026, le plus sûr « b »,
+      1X2, score le plus probable, version du moteur), jugée
+      une fois le match fini. <strong>Corners et cartons</strong> (depuis le 26/11/2026) : d'abord <strong>ESPN</strong>, dès la fin du match
+      (<code>espn.counts</code> : seulement un match fini après 90 minutes et suivi en entier, possession relevée), puis football-data (championnats,
+      2 à 4 jours après). « Non vérifiables » : prolongation ou tirs au but, Frauen-Bundesliga et Serie A féminine (ni ESPN ni football-data),
+      coupe, Arabie saoudite ou football féminin sans chiffres ESPN au bout de 24 h (<code>ESPN_WAIT</code>), championnat sans chiffres au bout de
+      6 jours. Les cartons sont comptés comme football-data (les données du calcul) : jaunes + rouges, et un rouge sur 2e jaune vaut 3 (jaune,
+      jaune, rouge) alors qu'ESPN n'y compte que le rouge (<code>espn.box</code> retrouve le 2e jaune dans les temps forts). Vérifié sur
+      140 matchs de championnat du 20 au 26/11/2026 suivis en entier par les deux : corners identiques 135 fois (5 écarts d'un seul corner),
+      cartons identiques 138 fois. La National League n'est suivie qu'en partie par ESPN (zéros partout sauf les cartons) : elle attend football-data.
+      Les matchs de coupe marqués « non vérifiables » avant ESPN (règle d'avant) sont remis en attente une fois reliés (<code>history.link_espn</code>,
+      matchs des 6 derniers jours). Un match de championnat enregistré sans ses noms football-data (listes faites avant le
       21/11/2026) est retrouvé par sa date et les noms TheSportsDB, les deux équipes devant tomber sur le même match (<code>find_named</code> dans
       <code>history.py</code>). Sur la page d'un match fini, une note explique que les corners et cartons attendent leurs chiffres.</li>
     <li>30 jours en détail, puis seulement le bilan. La version publique ne montre que ce qui est terminé (le reste est Premium).</li>
@@ -447,7 +508,8 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
     <li><strong>Coupons</strong> : dévoilés (pages et version publique) seulement quand <strong>chacun</strong> de leurs paris est réglé
       (<code>history.coupon_shown</code>). Un coupon perdu dès le premier match ne montre pas les paris des matchs encore à jouer (Premium).</li>
     <li>Fiche d'un match en cours : chaque verdict joué d'avance porte « Déjà validé » ou « Déjà perdu » (<code>build._live_verdict</code>).
-      Le score en direct lui-même n'est pas affiché (non demandé).</li>
+      Le score en direct est affiché depuis le 26/11/2026 par le téléphone lui-même (ESPN, voir 5.8) ; les règlements, eux, restent faits par
+      le calcul avec TheSportsDB (le score de 90 minutes, sans ambiguïté sur les prolongations).</li>
   </ul>
 
   <h3>5.7 Forme et face-à-face (<code>probalis/football/form.py</code>)</h3>
@@ -463,6 +525,16 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
       Supabase : Premium = tout ; compte gratuit = son analyse du jour et le n° 1 de chaque liste ; sinon refus (401/403).</li>
     <li>Dans la page, <code>static/app.js</code> (Lk.apply) remet les blocs à leur place.</li>
   </ul>
+  <p><strong>Relais du direct</strong> (26/11/2026) : <code>probalis/site/live.mjs</code>, copié par la construction dans
+    <code>functions/live/[[path]].js</code> (Cloudflare Pages Function). Les téléphones demandent <code>/live/sb/&lt;championnat&gt;/&lt;AAAAMMJJ&gt;.json</code>
+    (matchs d'un jour : état, minute, score) et <code>/live/ev/&lt;championnat&gt;/&lt;n°&gt;.json</code> (un match : état, minute, score, temps forts,
+    statistiques, compositions). Le relais demande à ESPN, ne garde que l'utile (quelques Ko au lieu de 420 Ko), et garde la réponse au bord
+    du réseau Cloudflare 30 s pendant un match, 2 min avant, 1 h une fois fini : quel que soit le nombre de membres, ESPN ne voit au plus
+    qu'une demande toutes les 30 s par match, et jamais l'adresse d'un membre. Seuls nos 23 championnats ESPN sont acceptés. Dans la page,
+    <code>app.js</code> (<code>Live</code>) redemande chaque minute pendant le match, toutes les 5 min avant (compositions), plus du tout une fois fini,
+    et se met en pause quand l'appli n'est pas à l'écran. Les noms venus d'ESPN sont écrits comme du texte, jamais comme du code. Le cache de
+    l'appli (<code>sw.js</code>) ne garde rien de <code>/live/</code>. Limite de l'offre gratuite de Cloudflare : 100 000 appels de fonctions par
+    jour (gardien <code>/lk/</code> et relais <code>/live/</code> ensemble) ; à surveiller si les membres deviennent nombreux.</p>
 
   <h3>5.9 Organisation du code</h3>
   <table>
@@ -479,12 +551,15 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
     <tr><td><code>probalis/site/emails/</code></td><td>E-mails (gabarits, envoi quotidien, programme Gmail)</td></tr>
     <tr><td><code>supabase/</code></td><td>Base de données (migrations SQL) et fonctions serveur (admin, member, notify, checkout…)</td></tr>
     <tr><td><code>functions/lk/</code></td><td>Gardien des chiffres Premium (Cloudflare Pages Function)</td></tr>
+    <tr><td><code>probalis/football/espn.py</code></td><td>ESPN : rapprochement de nos matchs, corners et cartons des matchs finis</td></tr>
+    <tr><td><code>probalis/site/live.mjs</code> (copié dans <code>functions/live/</code>)</td><td>Relais du match en direct (tests : <code>live.test.mjs</code>, données d'un vrai match allégé dans <code>tests/fixtures/</code>)</td></tr>
     <tr><td><code>probalis/football/form.py</code></td><td>Forme récente et face-à-face affichés dans les fiches</td></tr>
     <tr><td><code>probalis/football/oddsapi.py</code></td><td>Cotes de The Odds API (coupes d'Europe, football féminin, Ligue saoudienne) et garde du quota gratuit</td></tr>
     <tr><td><code>probalis/site/shots.py</code>, <code>probalis/deploy.py</code></td><td>Captures de la vitrine ; mise en ligne par petits paquets</td></tr>
     <tr><td><code>.github/workflows/</code></td><td>Calcul automatique (rythme en 7.5) et e-mails du jour (bloqués, voir 10), lancés par le minuteur Cloudflare</td></tr>
     <tr><td><code>cloudflare/horloge/</code></td><td>Minuteur Cloudflare <code>probalis-horloge</code> : appuie sur « Run workflow » aux heures du calcul et des e-mails du jour (<code>worker.mjs</code>, tests dans <code>test.mjs</code>, mode d'emploi dans <code>README.md</code>)</td></tr>
-    <tr><td><code>tests/</code></td><td>Tests automatiques (73 tests, tous réussis le 22/11/2026, dont ceux du minuteur), lancés aussi par GitHub Actions</td></tr>
+    <tr><td><code>tests/</code></td><td>Tests automatiques (93 tests, tous réussis le 27/11/2026, dont <code>test_match_picks.py</code> pour les paris du match, dont ceux du minuteur et du relais du direct en JavaScript ;
+      <code>conftest.py</code> empêche tout appel à ESPN pendant les tests), lancés aussi par GitHub Actions</td></tr>
   </table>
 </section>
 
@@ -504,7 +579,8 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
   <h3>Verdicts : annoncé contre réussi</h3>
   <table>
     <tr><th>Verdict</th><th>Nombre</th><th>Réussis</th><th>Annoncés</th></tr>
-    <tr><td>« Le plus sûr » du match</td><td>5 484</td><td>82,5 %</td><td>82,3 %</td></tr>
+    <tr><td>Paris du match (3 au plus, cote ≈ 1,30 ou plus, depuis le 27/11/2026)</td><td>15 479</td><td>68,2 %</td><td>68,0 %</td></tr>
+    <tr><td>« Le plus sûr » du match, toutes cotes (règle d'avant le 27/11/2026)</td><td>5 484</td><td>82,5 %</td><td>82,3 %</td></tr>
     <tr><td>Double chance</td><td>5 484</td><td>77,8 %</td><td>77,9 %</td></tr>
     <tr><td>Plus de 1,5 but</td><td>5 484</td><td>75,8 %</td><td>75,6 %</td></tr>
     <tr><td>Plus de 2,5 buts</td><td>5 484</td><td>56,1 %</td><td>56,9 %</td></tr>
@@ -564,6 +640,8 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <li>Les adresses protégées <code>/lk/…</code> répondent 401 sans compte, aucune donnée Premium dans les pages publiques.</li>
     <li>Pages publiques en 200 (/, /welcome/, /fr/, /en/, paris, ticket, historique, premium, /data/history.json, /data/history-full.bin, /sw.js), vraie page 404, un logo sous /logos/.</li>
     <li>Probalis Office : manifeste, icône, ancienne adresse admin en 404.</li>
+    <li>Relais du direct : <code>/live/sb/eng.1/&lt;AAAAMMJJ&gt;.json</code> d'un jour de Premier League répond 200 avec ses matchs ;
+      <code>/live/sb/usa.1/…</code> (championnat pas à nous) répond 404 ; la fiche d'un match du jour a son onglet « Match ».</li>
   </ul>
   <h3>7.5 Mise à jour automatique (en marche depuis le 21/11/2026, minuteur Cloudflare depuis le 22/11/2026)</h3>
   <p><code>.github/workflows/build.yml</code> relance le calcul et met le site en ligne. Il est lancé par le <strong>minuteur Cloudflare</strong>
@@ -627,7 +705,8 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <tr><th style="width:22%">Service</th><th style="width:30%">Usage</th><th>Réglages (noms)</th></tr>
     <tr><td>GitHub</td><td>Dépôt <code>Probalis/Probalis</code> (public), dans l'organisation gratuite <code>Probalis</code> dont le compte personnel du porteur du projet est propriétaire (déplacé le 21/11/2026 ; l'ancienne adresse redirige). Calcul automatique</td><td>Variables : <code>PROBALIS_SITE_URL</code>, <code>PROBALIS_SUPABASE_URL</code>, <code>PROBALIS_SUPABASE_ANON_KEY</code>, <code>PROBALIS_CONTACT_EMAIL</code>, <code>PROBALIS_OWNER_NAME</code>. Secrets : <code>PROBALIS_HISTORY_KEY</code>, <code>CLOUDFLARE_API_TOKEN</code>, <code>CLOUDFLARE_ACCOUNT_ID</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code>, <code>PROBALIS_ODDS_API_KEY</code> (tous posés ; les e-mails du jour demandent aussi <code>SUPABASE_URL</code> et <code>SUPABASE_SERVICE_ROLE_KEY</code>, pas encore posés). Sur le PC : <code>site-public.env</code>, <code>historique.env</code> et <code>cotes.env</code> dans <code>D:\Projets\Probalis-secrets</code></td></tr>
     <tr><td>The Odds API</td><td>Cotes des coupes d'Europe, de la Ligue des champions féminine, de la Frauen-Bundesliga et de la Ligue saoudienne (offre gratuite, 500 crédits par mois)</td><td>Compte créé par le porteur du projet. Clé : secret GitHub <code>PROBALIS_ODDS_API_KEY</code> et <code>cotes.env</code> sur le PC (même valeur). Crédits restants visibles dans le tableau de bord du service</td></tr>
-    <tr><td>Cloudflare Pages</td><td>Hébergement, projet <code>probalis</code>, fonction gardien</td><td>Publication par Wrangler (connexion du PC)</td></tr>
+    <tr><td>Cloudflare Pages</td><td>Hébergement, projet <code>probalis</code>, fonction gardien <code>/lk/</code> et relais du direct <code>/live/</code> (100 000 appels de fonctions par jour en tout, offre gratuite)</td><td>Publication par Wrangler (connexion du PC)</td></tr>
+    <tr><td>ESPN</td><td>Direct, temps forts, statistiques, compositions ; corners et cartons des matchs finis (depuis le 26/11/2026)</td><td>Aucun compte, aucune clé (accès ouvert, non officiel : il peut changer sans prévenir ; s'il ne répond plus, le site marche comme avant, sans direct, et les corners et cartons reviennent à football-data)</td></tr>
     <tr><td>Cloudflare Workers</td><td>Minuteur <code>probalis-horloge</code> : lance le calcul et les e-mails du jour aux bonnes heures (voir 7.5)</td><td>Secret <code>GITHUB_TOKEN</code> (clé GitHub « Probalis horloge », droit « Actions : lecture et écriture » sur <code>Probalis/Probalis</code>). Publication par Wrangler (connexion du PC)</td></tr>
     <tr><td>Supabase</td><td>Connexion Google, base de données, fonctions serveur</td><td>Secrets : <code>SITE_URL</code>, <code>CONTACT_EMAIL</code>, <code>UNSUBSCRIBE_SECRET</code>, <code>ADMIN_EMAILS</code>, <code>GMAIL_SCRIPT_URL</code>, <code>GMAIL_SCRIPT_SECRET</code> ; plus tard clés Stripe / Flutterwave / Resend. Outil : <code>npx supabase@3.2.0</code> (toujours <code>--yes</code> en production, jamais <code>db push</code> sans accord)</td></tr>
     <tr><td>Google Cloud</td><td>Bouton « Continuer avec Google »</td><td>Client OAuth « Probalis site » (identifiants collés dans Supabase)</td></tr>
@@ -703,6 +782,52 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       (lancé à la main avec le bouton « Run workflow » à 2 h 40, réussi ; le calcul automatique prévu à 2 h 05 n'a pas démarré, voir l'entrée suivante).
       Vérifié sur https://probalis.pages.dev : la fiche Arsenal – Borussia Dortmund affiche
       « Calé sur les cotes » et la note « Cotes relevées sur The Odds API » ; le bas des pages et la FAQ de la vitrine citent The Odds API.</td></tr>
+    <tr><td>23/11/2026</td><td><strong>Recherche d'API de sport sur GitHub</strong> (demandée par le porteur du projet) : 244 projets passés en revue.
+      Aucun n'est à la fois récent, complet et gratuit pour un site payant : les plus complets sont payants (Sportmonks, API-Football…) ou récupèrent
+      Sofascore, FotMob, Flashscore, FBref ou Understat sans leur accord (<code>soccerdata</code>, <code>EasySoccerData</code>…). À retenir :
+      <code>martj42/international_results</code> (domaine public, matchs internationaux à jour, CAN comprise) pour les équipes nationales. Gratuits sous
+      conditions : SportScore (lien obligatoire), Football Charts (clé gratuite réservée à un usage personnel). L'adresse ouverte d'ESPN donne les corners
+      juste après le match, mais sans conditions officielles : pas utilisée. Rien n'est branché. Détails dans <code>docs/03-sources-gratuites.md</code>.</td></tr>
+    <tr><td>23/11/2026</td><td><strong>Équipes nationales : pas maintenant</strong> (demandé par le porteur du projet : « ça ne sert à rien de le mettre sur le site s'il
+      n'y a pas de compétition proche »). D'ici fin janvier 2027, seule la Coupe d'Asie (7/01–5/02/2027) se joue : TheSportsDB la connaît, mais The Odds API
+      n'a pas de cotes pour elle. La Coupe du Golfe est passée (23/09–6/10/2026), la CAN 2027 se joue du 19/06 au 17/07/2027, les qualifications de la CAN
+      ont eu lieu en septembre et novembre 2026 et la suite est attendue à la fenêtre de mars 2027. The Odds API a une rubrique CAN (inactive pour l'instant)
+      et la Ligue des nations (4 quarts de finale déjà listés, 25–27/03/2027). Décision : préparer les équipes nationales en avril–mai 2027, pour la CAN.</td></tr>
+    <tr><td>23/11/2026</td><td><strong>Sources pour le direct, les compositions, les statistiques, les xG et les cotes</strong> : le porteur du projet veut les meilleures
+      sources, avec ou sans autorisation officielle. Choix : ESPN (adresse ouverte, 23 compétitions sur 25, compositions, statistiques, cotes DraftKings),
+      Understat pour les xG (à tester), The Odds API gardée. Sofascore, FotMob, Flashscore et OddsPortal se protègent contre les programmes
+      automatiques : pas utilisés. Rien n'est encore branché. Détails dans la partie 10, « Version 2 proposée ».</td></tr>
+    <tr><td>23/11/2026</td><td><strong>Étude de Scouter</strong> (demandée par le porteur du projet, qui veut une version 2 calée sur cette appli avec une touche à nous) :
+      tableau Scouter / Probalis / proposition, touche proposée et ordre des étapes dans la partie 10. Pas encore validé.</td></tr>
+    <tr><td>26/11/2026</td><td><strong>Schéma de Scouter</strong> (demandé par le porteur du projet) : une première proposition copiait toute
+      l'organisation de Scouter (nouvelle barre du bas, fiche à 7 onglets). Le porteur du projet a précisé le même jour qu'il veut un juste milieu :
+      garder Probalis et l'améliorer par étapes dans le sens de Scouter. Plan en 5 mises à niveau dans la partie 10, la première étant le match en
+      direct (ESPN), commencée le même jour (ligne suivante). <strong>TheSportsDB payant</strong> vérifié : direct,
+      compositions, statistiques et déroulé, mais seulement pour les grandes compétitions (rien pour l'Arabie saoudite, le football féminin, la Ligue 2,
+      la National League), ni cotes ni absents : il ne remplace pas ESPN.</td></tr>
+    <tr><td>27/11/2026</td><td><strong>Paris du match : au plus 3 par match, cote de 1,30 ou plus</strong>, demandé par le porteur du projet (« énormément
+      de verdicts […] souvent des cotes de 1,10 […] ça embrouille ») : au plus 2 ou 3 paris sûrs par match, à partir de 1,30, pour mieux varier
+      les choix. Ses décisions : les autres verdicts sont <strong>retirés</strong> de la fiche (pas seulement repliés) ; la mise à niveau 1 part sur
+      GitHub en même temps que ce changement (elle n'y était pas encore : dernier envoi le 22/11). Règle testée sur 2025/26 avant d'être branchée
+      (voir 5.4), cote estimée alignée sur celle des onglets Paris et Ticket (cote juste / 1,05). Fiche, page d'un match passé, historique
+      (bilan des seuls paris du match pour les nouvelles analyses), carte « fiabilité » de l'onglet Paris (68 % au lieu de 82,5 %, puisque la
+      règle change), vitrine (textes, FAQ, captures) et cahier mis à jour. Vérifié dans le navigateur (copie de démonstration Premium) : fiche
+      sur ordinateur et téléphone, match sans aucun pari. Tests : 93 réussis. Pas encore envoyé sur GitHub ni en ligne.</td></tr>
+    <tr><td>26/11/2026</td><td><strong>Mise à niveau 1 : le match en direct (ESPN)</strong>, demandée par le porteur du projet (« Oui, commence »).
+      Minute et score sur la liste des matchs et en tête de la fiche, onglet « Match » (temps forts, statistiques, compositions), même carte sur la
+      page d'un match passé, corners et cartons réglés dès la fin du match. Choix faits : le téléphone passe par notre relais Cloudflare
+      (<code>/live/</code>) et jamais directement par ESPN (adresses des membres protégées, une seule demande à ESPN par match toutes les 30 s,
+      réponses de quelques Ko) ; le score qui règle les paris reste celui de TheSportsDB (90 minutes) ; les cartons ESPN sont recomptés comme
+      football-data (un rouge sur 2e jaune vaut 3), écart trouvé en comparant 140 matchs (avant correction : 129 cartons identiques sur 164 ;
+      après : 138 sur 140 suivis en entier) ; corners : 135 sur 140 identiques, les 5 autres à un corner près, ESPN pris quand même pour régler
+      en 2 h au lieu de 2 à 4 jours. ESPN refusait notre ancien nom « Mozilla … ProbalisBot » (403) : nom simple <code>Probalis/0.1</code>.
+      Vérifié dans le navigateur (site construit sur le PC, relais lancé par Wrangler en local) : liste des matchs (« Fin » et score, minute avec
+      pastille verte pendant un match), fiche (score et minute dans l'en-tête, point vert sur l'onglet « Match », temps forts, statistiques,
+      compositions), page d'un match passé (Arsenal – Dortmund du 24/11), largeur téléphone, thème clair et sombre. Trois défauts trouvés et
+      corrigés pendant cette vérification : la vitrine plantait à la construction avec un 5e chapitre (icônes prévues pour 4) ; les barres des
+      statistiques étaient invisibles (le nom de classe « lead » existait déjà ailleurs avec une marge, renommé <code>lv-lead</code>) ; sur
+      ordinateur la carte « Le match » ne prenait qu'une demi-largeur. Captures de la vitrine toutes reprises le 26/11/2026.
+      Tests : 87 réussis. Pas encore envoyé sur GitHub ni en ligne.</td></tr>
     <tr><td>22/11/2026</td><td><strong>Corners et cartons pas réglés dans l'historique</strong> (remarqué par le porteur du projet) : sur 102 matchs
       joués le 21/11, 71 avaient des verdicts en attente, tous de corners ou de cartons. Tous les autres (1X2, double chance, plus/moins, les deux
       équipes marquent, buts d'une équipe) étaient réglés. Deux causes. (1) Normal : football-data.co.uk publie les corners et cartons 2 à 4 jours après
@@ -756,12 +881,87 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       <code>probalis-horloge</code>). Reste : noter ici sa date d'expiration et, avant cette date, créer une nouvelle clé et la reposer
       (<code>cloudflare/horloge/README.md</code>). Sans clé valable, le site ne se met plus à jour tout seul.</td></tr>
   </table>
+  <h3>Version 2 proposée (étude de Scouter, 23/11/2026, pas encore validée)</h3>
+  <p><strong>Scouter</strong> (Artlines Web Solutions, iPhone et Android, 4,9/5 sur 1 200 avis App Store, version 1.4.45 du 22/11/2026) est l'appli
+    que le porteur du projet veut prendre pour modèle. Elle annonce plus de 1 000 compétitions, des pronostics par marché avec un indice de confiance,
+    le direct, les xG en direct et « 84 % de réussite » (chiffre invérifiable : aucun historique public). Abonnement VIP : 5,99 $ la semaine,
+    15,99 $ le mois, 89,99 $ l'an, essai de 3 jours. Ses données viennent sans doute d'un fournisseur payant : son « indice de pression » porte le
+    nom d'un produit de Sportmonks (avis, pas vérifié). Sources : scouter-app.co et sa fiche App Store.</p>
+  <table>
+    <tr><th style="width:24%">Scouter</th><th style="width:22%">Probalis aujourd'hui</th><th>Proposition pour la version 2</th><th style="width:14%">Données</th></tr>
+    <tr><td>Pronostic par marché, « le plus sûr » en vert, « le plus risqué » signalé</td><td>Déjà là (verdicts OUI/NON, le plus sûr avec sa preuve)</td><td>Garder</td><td>—</td></tr>
+    <tr><td>« VIP Genius » : meilleur angle, risques, résumé en clair</td><td>« Pourquoi » (3 à 5 raisons chiffrées)</td><td><strong>Le mot de Probalis</strong> : meilleur angle, risque principal, ce qu'il vaut mieux éviter, en français simple, tiré de nos chiffres</td><td>Nos calculs</td></tr>
+    <tr><td>Scores en direct, minute, buts, cartons</td><td>Score lu pour régler les verdicts, pas affiché</td><td><strong>Direct affiché</strong> sur la liste et la fiche, relu par le navigateur toutes les 60 s (ESPN l'autorise : CORS ouvert)</td><td>ESPN</td></tr>
+    <tr><td>Compositions</td><td>Rien</td><td><strong>Composition et schéma</strong> environ 1 h avant le match</td><td>ESPN</td></tr>
+    <tr><td>Centre de match (possession, tirs, corners, fautes, cartons, arrêts, passes)</td><td>Rien</td><td><strong>Barres face à face</strong>, en direct puis gardées après le match</td><td>ESPN</td></tr>
+    <tr><td>« Oracle » : verdict en direct sur le pronostic (garder, se couvrir, changer)</td><td>Verdict réglé en direct quand il est sûr</td><td><strong>Verdicts en direct</strong> : chance recalculée par notre moteur selon le score, la minute et les cartons rouges (« en bonne voie · 82 % »), sans conseil de pari</td><td>Nos calculs + ESPN</td></tr>
+    <tr><td>xG et xG cadrés en direct, courbe de pression</td><td>Buts attendus du modèle avant le match</td><td>Vrais xG après le match pour les 5 grands championnats, si le test du moteur passe. Pas d'xG en direct : aucune source gratuite</td><td>Understat (à tester)</td></tr>
+    <tr><td>« Edge » : 5 signaux classés avec leur taux de réussite, quand chaque équipe marque, joueur le plus dangereux</td><td>Forme et face-à-face</td><td><strong>Tendances qui ont tenu</strong> : seulement les signaux qui ont marché sur une saison jamais vue, avec leur vrai taux ; minutes des buts gardées au fil des matchs</td><td>football-data, ESPN, historique</td></tr>
+    <tr><td>Générateur de coupon (2 à 8 matchs, niveau de risque, marchés, cote mini)</td><td>Ticket (3 modes) et 3 coupons tout prêts</td><td>Ajouter le niveau de risque, les marchés préférés et une cote mini par match ; toujours la vraie chance du coupon</td><td>Nos calculs</td></tr>
+    <tr><td>Cotes de plusieurs bookmakers et leur mouvement</td><td>Cote moyenne du marché</td><td><strong>Mouvement du marché</strong> (ouverture puis maintenant) ; cotes DraftKings pour la WSL et l'Arabie saoudite</td><td>The Odds API, ESPN</td></tr>
+    <tr><td>Réussite affichée : hier, semaine, mois</td><td>Bilan d'hier et historique gelé</td><td>Bilan sur 7 et 30 jours et courbe « annoncé contre réussi »</td><td>Historique</td></tr>
+    <tr><td>Alertes (but, carton rouge, début, fin) et équipes favorites</td><td>Prévu (« Équipes favorites et alertes »)</td><td>Alertes sur l'appli installée, envoyées par le minuteur Cloudflare</td><td>ESPN + Cloudflare</td></tr>
+    <tr><td>Fiches joueurs, absents, blessures</td><td>Rien</td><td>Plus tard : les absents demandent une source payante</td><td>API payante</td></tr>
+    <tr><td>Abonnement 5,99 $ la semaine, 15,99 $ le mois</td><td>Pass sans abonnement : 1 000 FCFA la semaine, 3 000 le mois</td><td>Garder nos prix ; l'analyse gratuite du jour sert déjà d'essai</td><td>—</td></tr>
+  </table>
+  <p><strong>Notre touche (proposée) :</strong> (1) <strong>honnêteté vérifiable</strong> : chaque verdict est gelé avant le match et réglé en public, pas de
+    « 84 % » invérifiable ; (2) <strong>des chiffres, pas des conseils</strong> : le direct dit où en est chaque verdict, il ne dit pas « couvre-toi maintenant » ;
+    (3) <strong>seulement ce qui a fait ses preuves</strong> : une tendance ou un indice n'apparaît que s'il a marché sur une saison jamais vue ;
+    (4) <strong>pensé pour l'Afrique francophone</strong> : français d'abord, FCFA, mobile money par WhatsApp, pages légères qui s'ouvrent avec peu de données
+    (Scouter pèse 138 Mo), CAN 2027 ; (5) <strong>jeu raisonnable</strong> : carnet « Mes paris » avec le vrai bilan.</p>
+  <p><strong>Juste milieu entre Probalis et Scouter (précisé par le porteur du projet le 26/11/2026).</strong> Il ne s'agit pas de copier Scouter ni de
+    tout changer : on regarde comment Scouter est organisé et on fait évoluer Probalis dans ce sens, par petites mises à niveau. On garde les 5 onglets
+    (Matchs, Paris, Ticket, Historique, Compte), les couleurs, le logo et nos mots (OUI / NON, preuve, FCFA). Ce qu'on retient de Scouter (relevé sur
+    ses captures App Store) : le direct et les détails du match dans la fiche, un résumé en clair, la grille des verdicts avec « le plus sûr »,
+    les filtres par marché, un générateur de coupon réglable, les favoris, la réussite affichée sur plusieurs périodes.</p>
+  <table>
+    <tr><th style="width:16%">Mise à niveau</th><th style="width:40%">Ce qui change</th><th>Où, et ce qui reste comme avant</th></tr>
+    <tr><td>1. Le match en direct (ESPN) <span class="tag todo">Prêt le 26/11/2026</span></td><td>Score et minute en direct ; nouvel onglet « Match » dans la fiche : temps forts, statistiques face à face,
+      compositions ; corners et cartons réglés environ 2 h après le match (coupes d'Europe, Arabie saoudite, football féminin compris)</td>
+      <td>Liste des matchs et fiche. Les onglets de la fiche restent ; « Match » s'ajoute à côté de « Résumé ». Fait (voir 3.1, 5.2, 5.6, 5.8) ;
+      reste à l'envoyer sur GitHub (accord du porteur du projet)</td></tr>
+    <tr><td>2. Fiche plus claire</td><td>« Le mot de Probalis » (meilleur angle, risque principal, ce qu'il vaut mieux éviter) ; grille des verdicts avec
+      « le plus sûr » et « le 2e plus sûr » (en partie faite le 27/11/2026 : « Les paris du match », 3 au plus, cote de 1,30 ou plus) ;
+      onglet « Cotes » (cotes du marché + compare ta cote) ; face-à-face en barres</td>
+      <td>Fiche. Les blocs actuels restent, rangés plus clairement</td></tr>
+    <tr><td>3. Paris et Historique</td><td>Filtres par marché (Victoire, Buts, Les deux marquent, Corners…) en plus des 3 niveaux ; badges Gagné / Perdu /
+      En direct ; réussite sur hier, 7 jours et 30 jours</td><td>Onglets Paris et Historique</td></tr>
+    <tr><td>4. Ticket et favoris</td><td>Générateur réglable (nombre de matchs, niveau de risque, compétitions, marchés, cote mini) ; étoile pour suivre
+      ses équipes et compétitions, en haut de la liste des matchs</td><td>Onglets Ticket et Matchs. Les 3 modes du Ticket restent</td></tr>
+    <tr><td>5. Plus tard</td><td>Verdicts en direct (chance recalculée selon le score et la minute), alertes, tendances testées, vrais xG (Understat, si
+      le test du moteur passe)</td><td>—</td></tr>
+  </table>
+  <p>Chaque mise à niveau est envoyée seule, avec la vitrine à jour (vraies captures) et ce cahier. Plus tard, si le projet rapporte : absents, joueurs
+    et xG partout (fournisseur payant).</p>
+  <p><strong>TheSportsDB payant vérifié le 26/11/2026</strong> (documentation et essai avec la clé gratuite) : direct toutes les 2 minutes (score, minute,
+    statut), compositions (joueurs, postes, remplaçants ; schéma vide dans l'exemple), statistiques (tirs, tirs cadrés, fautes, corners, hors-jeu,
+    possession, cartons, arrêts, passes), déroulé (buts avec minute et passeur, cartons, changements), xG arrondis à l'unité (« 3-0 ») et repris
+    d'API-Football. <strong>Pas de cotes, pas d'absents ni de blessures, pas d'xG en direct.</strong> Surtout, les détails ne sont remplis que pour les
+    grandes compétitions : oui pour Premier League, LaLiga, Serie A et Ligue des champions ; rien pour la Saudi Pro League, la WSL, la Ligue des champions
+    féminine, la Frauen-Bundesliga, la Ligue 2 et la National League. Conditions : interdit de revendre l'API. Il ne remplace donc pas ESPN.</p>
+  <p><strong>Sources choisies le 23/11/2026</strong> (le porteur du projet accepte d'utiliser des sources sans autorisation officielle) :</p>
+  <table>
+    <tr><th style="width:20%">Besoin</th><th style="width:30%">Meilleur choix</th><th>Secours et remarques</th></tr>
+    <tr><td>Direct, compositions, statistiques</td><td><strong>ESPN</strong> (adresse ouverte, gratuite). Essai du 23/11/2026 : 23 de nos 25 compétitions, composition avec schéma, possession, tirs, tirs cadrés, corners, fautes, cartons, hors-jeu, arrêts, passes</td><td>Manquent la Frauen-Bundesliga et la Serie A féminine ; National League : cartons seulement. ESPN n'autorise pas officiellement cet usage. Secours partiel : TheSportsDB payant (9 $ par mois, ou 20 $ pour une petite entreprise : direct toutes les 2 min ; compositions et statistiques seulement pour les grandes compétitions, voir plus haut)</td></tr>
+    <tr><td>Corners et cartons</td><td><strong>ESPN</strong> (environ 2 h après le match)</td><td>football-data reste en secours (2 à 4 jours)</td></tr>
+    <tr><td>Vrais xG</td><td><strong>Understat</strong> (5 grands championnats, historique depuis 2014, à tester)</td><td>Partout : payant (offre pro de Football Charts, API-Football ou Sportmonks)</td></tr>
+    <tr><td>Cotes</td><td><strong>The Odds API</strong> (déjà en place) + <strong>ESPN</strong> (cotes DraftKings : 1-N-2, plus/moins, handicap, y compris WSL et Arabie saoudite)</td><td>Cotes ESPN au format américain (-600, +1000) à convertir</td></tr>
+    <tr><td>Absents, blessures</td><td>Aucune source gratuite fiable</td><td>Payant</td></tr>
+    <tr><td>Équipes nationales</td><td><code>martj42/international_results</code> + ESPN + The Odds API (CAN)</td><td>Printemps 2027</td></tr>
+  </table>
+  <p>Sofascore, FotMob, Flashscore et OddsPortal se protègent contre les programmes automatiques : pas utilisés (l'essai du 23/11/2026, qui
+    demandait de se faire passer pour un navigateur, a été refusé par la sécurité de l'assistant).</p>
   <h3>Prochaines fonctionnalités proposées (par ordre d'utilité)</h3>
   <ol>
     <li><strong>Carnet « Mes paris »</strong> : le membre note les coupons qu'il a vraiment joués avec la cote de son bookmaker ; Probalis les règle tout seul
       et montre son vrai bilan (gagné, perdu, mises). Fidélise et aide à jouer raisonnablement. Demande une table Supabase (accord avant toute écriture en production).</li>
     <li><strong>Équipes favorites et alertes</strong> : suivre ses clubs, alerte avant leur match (verdict le plus sûr en Premium) et après (résultat).</li>
-    <li><strong>Équipes nationales (CAN)</strong> : vérifier d'abord que les résultats gratuits suffisent pour un calcul honnête (pas de cotes gratuites).</li>
+    <li><strong>Équipes nationales (CAN)</strong> : vérifier d'abord que les résultats gratuits suffisent pour un calcul honnête (pas de cotes gratuites).
+      Source trouvée le 23/11/2026 : <code>martj42/international_results</code> sur GitHub (domaine public, plus de 49 000 matchs depuis 1872, à jour
+      au 17/11/2026, CAN et qualifications comprises). <strong>Pas avant le printemps 2027</strong> (vérifié le 23/11/2026) : d'ici fin janvier, la seule
+      grande compétition de sélections est la Coupe d'Asie (7/01–5/02/2027, Arabie saoudite), sans cotes chez The Odds API et peu suivie au Cameroun.
+      La CAN 2027 (Kenya, Tanzanie, Ouganda) se joue du 19/06 au 17/07/2027 ; The Odds API a déjà une rubrique CAN (inactive pour l'instant), mais rien
+      pour les qualifications ni les matchs amicaux. À préparer en avril–mai 2027 pour être prêt avant la CAN.</li>
     <li><strong>Tests du moteur à refaire</strong> : « plus rien à jouer » sans cotes en <strong>avril 2027</strong> (<code>python -m probalis.football.enjeu</code>,
       avec la fin de 2026/27) ; mélange Elo pour les coupes d'Europe et le football féminin en <strong>juin 2027</strong> (<code>python -m probalis.football.elo --force</code>,
       périodes à décaler d'un an). Adoption seulement si la règle du moteur passe.</li>
@@ -777,7 +977,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <li>Stores (Google Play, App Store) quand le projet sera rentable.</li>
   </ul>
   <h3>À éviter (pas de données gratuites fiables)</h3>
-  <p>Paris en direct, buteurs, compositions d'équipes.</p>
+  <p>Paris en direct, buteurs. (Compositions d'équipes : possibles avec ESPN depuis le 23/11/2026, voir « Version 2 proposée ».)</p>
 </section>
 
 <!-- ============================== 11 ============================== -->
@@ -815,6 +1015,10 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <li>La traduction automatique de Chrome fait planter le tableau de bord Supabase : la désactiver sur cette page.</li>
     <li>Le service worker garde d'anciennes versions en cache pendant les essais locaux : le désinscrire pour voir les changements.</li>
     <li>TheSportsDB limite les appels (environ 10 par minute) : le premier calcul est long, ensuite le cache aide.</li>
+    <li>ESPN : refuse les noms de robot « Mozilla … Bot » (403) ; une plage de dates (<code>dates=A-B</code>) répond 400, un jour à la fois ;
+      ne répond plus un moment après environ 80 demandes très rapprochées (d'où l'espacement de 0,6 s dans <code>espn.py</code>). Le relais
+      <code>/live/</code> ne marche pas avec <code>python -m probalis serve</code> (simple serveur de fichiers) : pour l'essayer en local,
+      <code>wrangler pages dev public</code> depuis le dossier du dépôt (il lit <code>functions/</code>).</li>
     <li>Le quota de The Odds API (500 crédits par mois) est commun à GitHub et au PC : une construction depuis le PC avec <code>cotes.env</code>
       dépense aussi des crédits. Chaque ordinateur a son propre compteur (<code>data/cache/oddsapi/quota.json</code>), mais le chiffre « crédits
       restants » renvoyé par The Odds API et la réserve de 40 crédits protègent le total. Une clé refusée (erreur 401) ou un quota épuisé (429)
@@ -843,7 +1047,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <tr><td>PWA</td><td>Site web qui s'installe comme une application, sans passer par un store.</td></tr>
     <tr><td>Mode démo</td><td>Site construit sans Supabase : connexion et Premium simulés sur le téléphone, pour essayer sans compte.</td></tr>
   </table>
-  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 22 novembre 2026 (version 1.7), corners et cartons réglés même pour les matchs enregistrés sans noms football-data, nouveau rythme du calcul automatique lancé par un minuteur Cloudflare (l'horloge de GitHub ne lançait presque rien), paris réglés pendant le match, vraies cotes des coupes d'Europe (The Odds API : en ligne et vérifiées sur le site).</p>
+  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 27 novembre 2026 (version 1.11), paris du match (au plus 3 par match, cote de 1,30 ou plus, autres verdicts retirés de la fiche), mise à niveau 1 : le match en direct (ESPN : minute et score, onglet « Match », corners et cartons réglés en 2 h), mises à niveau inspirées de Scouter (juste milieu), TheSportsDB payant vérifié, recherche d'API de sport sur GitHub, équipes nationales repoussées au printemps 2027, version 2 proposée (étude de Scouter, sources du direct), corners et cartons réglés même pour les matchs enregistrés sans noms football-data, nouveau rythme du calcul automatique lancé par un minuteur Cloudflare (l'horloge de GitHub ne lançait presque rien), paris réglés pendant le match, vraies cotes des coupes d'Europe (The Odds API : en ligne et vérifiées sur le site).</p>
 </section>
 
 </body>

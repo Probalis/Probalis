@@ -85,9 +85,19 @@ def test_match_with_fd_names_unchanged_and_give_up_after_six_days(monkeypatch):
     assert e["matches"]["1"]["nost"] is True
 
 
-def test_cup_match_still_not_verifiable_at_once(monkeypatch):
+def test_cup_match_waits_a_day_for_espn_then_not_verifiable(monkeypatch):
+    # Depuis le 26/11/2026, ESPN donne les corners et cartons des coupes d'Europe : on attend ses chiffres
     hist = _hist()
     hist["days"]["2026-11-21"]["matches"]["1"]["league"] = "UCL"
+    e = _settle(monkeypatch, hist, KO + timedelta(hours=3), rows=ROWS)
+    assert "nost" not in e["matches"]["1"] and e["an"]["1"]["r"][:2] == [None, None]
+    e = _settle(monkeypatch, hist, KO + timedelta(hours=25), rows=ROWS)
+    assert e["matches"]["1"]["nost"] is True and e["an"]["1"]["r"][:2] == ["nv", "nv"]
+
+
+def test_women_league_without_espn_still_not_verifiable_at_once(monkeypatch):
+    hist = _hist()
+    hist["days"]["2026-11-21"]["matches"]["1"]["league"] = "FBL"   # Frauen-Bundesliga : ni ESPN ni football-data
     e = _settle(monkeypatch, hist, KO + timedelta(hours=3), rows=ROWS)
     assert e["matches"]["1"]["nost"] is True and e["an"]["1"]["r"][:2] == ["nv", "nv"]
 

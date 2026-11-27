@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_card.html" import crest %}
+{% from "_card.html" import crest, live_box %}
 {% from "_analyses.html" import vd_res with context %}
 {% block title %}{{ m.home }} – {{ m.away }}{% if m.score_txt %} ({{ m.score_txt }}){% endif %} : {{ t.ha_past_title }} · Probalis{% endblock %}
 {% block description %}{{ m.league_name }} · {{ m.home }} – {{ m.away }} : {{ t.ha_past_match }}{% endblock %}
@@ -29,7 +29,7 @@
 <p class="past-note">{{ icon('info', 16, 2.2) }}<span>{{ t.ha_past_match }}</span></p>
 
 <section class="card vcard" aria-labelledby="pv-title">
-  <div class="card-head"><h2 id="pv-title">{{ t.vd_title }}</h2>{% if m.n %}<span class="ha-ok{% if m.ok / m.n >= 0.7 %} good{% endif %}"><b>{{ m.ok }}/{{ m.n }}</b><small>{{ t.ha_ok }}</small></span>{% endif %}</div>
+  <div class="card-head"><h2 id="pv-title">{{ t.vd_title if m.picks else t.vd_title_old }}</h2>{% if m.n %}<span class="ha-ok{% if m.ok / m.n >= 0.7 %} good{% endif %}"><b>{{ m.ok }}/{{ m.n }}</b><small>{{ t.ha_ok }}</small></span>{% endif %}</div>
   <div class="vd-wrap">
   {% if m.best %}<div class="vd-top">
     <span class="vd-tag">{{ t.vd_best }}</span>
@@ -37,7 +37,7 @@
     <div class="vd-ans"><b class="vd-a {{ m.best.cls }}">{{ m.best.ans }}</b><span class="vd-p">{{ m.best.pct }}</span>{{ vd_res(m.best.res, m.status == 'done' and m.best.k in ('co', 'ca')) }}</div>
   </div>{% endif %}
   <div class="vds">
-  {% for v in m.rows %}<div class="vd has-res{% if v.best %} is-best{% endif %}"><span class="vd-q">{{ v.q }}</span><b class="vd-a {{ v.cls }}">{{ v.ans }}</b><b class="vd-p">{{ v.pct }}</b>{{ vd_res(v.res, m.status == 'done' and v.k in ('co', 'ca')) }}</div>
+  {% for v in m.rows %}<div class="vd has-res{% if v.best %} is-best{% endif %}"><span class="vd-q">{{ v.q }}</span><b class="vd-a {{ v.cls }}">{{ v.ans }}</b><b class="vd-p">{{ v.pct }}</b>{% if v.odds %}<span class="vd-o">{{ t.vd_odds.format(o=v.odds) }}</span>{% endif %}{{ vd_res(v.res, m.status == 'done' and v.k in ('co', 'ca')) }}</div>
   {% endfor %}
   </div>
   </div>
@@ -45,6 +45,8 @@
   {% if m.nv %}<p class="note">{{ t.ha_unverif }}.</p>{% endif %}
   <p class="note">{{ t.vd_note }}</p>
 </section>
+
+{% if m.espn %}{{ live_box(m, t, past=true) }}{% endif %}
 
 {% if m.x %}<section class="card">
   <h2>{{ t.ha_said }}</h2>

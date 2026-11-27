@@ -25,15 +25,15 @@
 </div>
 
 {% for f in featured %}
-<a class="featured" href="match/{{ f.slug }}.html" data-ko="{{ f.kickoff }}" data-league="{{ f.league }}" data-stature="{{ f.stature or 0 }}" data-prime="{{ 1 if f.section in ('popular', 'europe') else 0 }}"{% if f.id != lead %} hidden{% endif %}>
+<a class="featured" href="match/{{ f.slug }}.html" data-ko="{{ f.kickoff }}" data-league="{{ f.league }}" data-stature="{{ f.stature or 0 }}" data-prime="{{ 1 if f.section in ('popular', 'europe') else 0 }}"{% if f.espn %} data-espn="{{ f.espn }}"{% endif %}{% if f.id != lead %} hidden{% endif %}>
   <span class="f-ring" aria-hidden="true"></span>
   <div class="f-top">
     <span class="f-tags"><span class="tag">{{ t.featured }}</span><span>{{ f.league_name }}</span></span>
-    <span class="f-when"><span data-dshort="{{ f.kickoff }}">{{ f.day_short }}</span> · <time data-ko="{{ f.kickoff }}">{{ f.kickoff[11:16] }}</time></span>
+    <span class="f-when"><span class="f-dt"><span data-dshort="{{ f.kickoff }}">{{ f.day_short }}</span> · <time data-ko="{{ f.kickoff }}">{{ f.kickoff[11:16] }}</time></span></span>
   </div>
   <div class="f-teams">
     <div class="side"><span class="disc">{{ crest(f.home_crest, big=true) }}</span><span class="nm">{{ f.home.name }}</span></div>
-    <div class="f-vs"><b>{{ t.vs }}</b>{% if f.venue %}<small>{{ f.venue }}</small>{% endif %}</div>
+    <div class="f-vs"><b>{{ t.vs }}</b>{% if f.espn %}<b class="f-sc" hidden></b>{% endif %}{% if f.venue %}<small>{{ f.venue }}</small>{% endif %}</div>
     <div class="side"><span class="disc">{{ crest(f.away_crest, big=true) }}</span><span class="nm">{{ f.away.name }}</span></div>
   </div>
   {{ bar3(f) }}

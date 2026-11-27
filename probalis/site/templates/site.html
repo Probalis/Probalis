@@ -160,7 +160,7 @@
       <ol class="tour-list">
         {% for c in s.tour %}
         <li class="chap" data-i="{{ loop.index0 }}">
-          <p class="chap-tab">{{ icon(['ball', 'trend', 'ticket', 'history'][loop.index0], 18, 2.2) }}{{ c.tab }}</p>
+          <p class="chap-tab">{{ icon({'match': 'ball', 'live': 'zap', 'bets': 'trend', 'ticket': 'ticket', 'history': 'history'}.get(c.shot, 'ball'), 18, 2.2) }}{{ c.tab }}</p>
           <h3>{{ c.h3 }}</h3>
           <p>{{ c.p }}</p>
           <figure class="phone chap-phone">{{ shot(c.shot, s['shot_alt_' ~ c.shot], lazy=True) }}</figure>

@@ -2294,6 +2294,352 @@
     });
   };
 
+  // =====================================================================================================
+  // Match en direct (ESPN, par notre relais /live/ : le téléphone ne parle jamais à ESPN directement).
+  // Liste des matchs : minute et score sur les cartes des matchs en cours ou finis depuis peu.
+  // Fiche : score et minute en tête, onglet « Match » (temps forts, statistiques, compositions).
+  // Mis à jour chaque minute pendant le match, en pause quand l'appli n'est pas à l'écran.
+  // Les noms venus d'ESPN ne sont jamais écrits comme du code : textContent seulement.
+  // =====================================================================================================
+  var Live = (function () {
+    var MIN = 60e3;
+    var gen = 0;
+    var timers = [];
+    var resume = null;
+    var BAD = { STATUS_POSTPONED: 'lv_postponed', STATUS_CANCELED: 'lv_canceled', STATUS_ABANDONED: 'lv_abandoned',
+      STATUS_FORFEIT: 'lv_abandoned', STATUS_SUSPENDED: 'lv_delayed', STATUS_DELAYED: 'lv_delayed' };
+    var get = function (path) {
+      return fetch('/live/' + path + '.json', { credentials: 'omit' })
+        .then(function (r) { return r.ok ? r.json() : (r.status === 404 ? { gone: true } : null); })
+        .catch(function () { return null; });
+    };
+    var ref = function (el) {
+      var p = (el.dataset.espn || '').split('/');
+      return p.length === 3 ? { slug: p[0], id: p[1], day: p[2] } : null;
+    };
+    var later = function (g, fn, ms) {
+      timers.push(setTimeout(function () {
+        if (g !== gen) return;
+        if (doc.hidden) { resume = fn; return; }
+        fn();
+      }, Math.max(1000, ms)));
+    };
+    var el = function (tag, cls, txt) {
+      var e = doc.createElement(tag);
+      if (cls) e.className = cls;
+      if (txt != null) e.textContent = txt;
+      return e;
+    };
+    // Ce qu'on montre de l'état d'un match : { live, done, txt, long, sc }
+    var label = function (e) {
+      if (!e || !e.s) return null;
+      if (BAD[e.sn]) return { done: e.s !== 'in', bad: true, txt: T[BAD[e.sn]], long: T[BAD[e.sn]] };
+      if (e.s === 'pre') return null;
+      var sc = e.sc && e.sc[0] != null && e.sc[1] != null ? e.sc : null;
+      if (e.s === 'in') {
+        var ht = e.sn === 'STATUS_HALFTIME';
+        return { live: true, sc: sc, txt: ht ? T.lv_ht : (e.cl || T.lv_live), long: ht ? T.lv_ht_long : (e.cl || T.lv_live) };
+      }
+      var end = e.sn === 'STATUS_FINAL_AET' ? T.lv_aet : e.sn === 'STATUS_FINAL_PEN' ? T.lv_pen : null;
+      return { done: true, sc: sc, txt: end || T.lv_ft, long: end || T.lv_ft_long };
+    };
+
+    // ---------- Liste des matchs ----------
+    var paintCard = function (card, e) {
+      var l = label(e);
+      if (!l) return null;
+      card.classList.toggle('is-live', !!l.live);
+      card.classList.toggle('is-done', !!l.done);
+      var host = card.querySelector('.mc-top .time, .f-when');
+      var b = host && host.querySelector('.lvb');
+      if (host && !b) { b = el('span', 'lvb'); host.insertBefore(b, host.firstChild); }
+      if (b) b.textContent = l.txt;
+      var scs = card.querySelectorAll('.team .sc');
+      if (scs.length === 2 && l.sc) {
+        scs[0].textContent = l.sc[0];
+        scs[1].textContent = l.sc[1];
+        scs[0].hidden = scs[1].hidden = false;
+      }
+      var fs = card.querySelector('.f-sc');
+      if (fs && l.sc) { fs.textContent = l.sc[0] + ' – ' + l.sc[1]; fs.hidden = false; }
+      return l;
+    };
+    var cards = function (list, g) {
+      var now = Date.now();
+      var groups = {};
+      var next = Infinity;
+      list.forEach(function (c) {
+        var r = ref(c);
+        var ko = new Date(c.dataset.ko).getTime();
+        if (c._lvEnd || !r || isNaN(ko) || !c.isConnected) return;
+        if (now < ko - 2 * MIN) { next = Math.min(next, ko - 2 * MIN); return; }
+        var k = r.slug + '/' + r.day;
+        (groups[k] = groups[k] || []).push([c, r]);
+      });
+      var keys = Object.keys(groups);
+      if (!keys.length) {
+        if (next < Infinity) later(g, function () { cards(list, g); }, Math.min(next - now, 30 * MIN));
+        return;
+      }
+      Promise.all(keys.map(function (k) {
+        return get('sb/' + k).then(function (d) {
+          if (g !== gen || !d || !d.ev) return;
+          groups[k].forEach(function (cr) {
+            var l = paintCard(cr[0], d.ev[cr[1].id]);
+            if (l && l.done) cr[0]._lvEnd = true;  // fini : plus la peine de redemander
+          });
+        });
+      })).then(function () {
+        if (g === gen) later(g, function () { cards(list, g); }, MIN);
+      });
+    };
+
+    // ---------- Fiche : onglet « Match » ----------
+    var POS = function (p) {
+      p = String(p || '').toUpperCase();
+      if (p === 'G' || p.indexOf('GK') === 0) return 'g';
+      if (/^(DM|CM|AM|LM|RM|M)/.test(p)) return 'm';
+      if (/^(CD|CB|LB|RB|LWB|RWB|WB|SW|D)/.test(p)) return 'd';
+      return p ? 'a' : '';
+    };
+    var pct = function (v) { var n = parseFloat(v); return isNaN(n) ? v : Math.round(n) + ' %'; };
+    var statRows = function (st) {
+      var by = {};
+      st.forEach(function (s) { by[s[0]] = s; });
+      return st.filter(function (s) { return s[0] !== 'accuratePasses'; }).map(function (s) {
+        var h = s[1];
+        var a = s[2];
+        var nh = parseFloat(h);
+        var na = parseFloat(a);
+        if (s[0] === 'possessionPct') { h = pct(h); a = pct(a); }
+        if (s[0] === 'passPct') {
+          var acc = by.accuratePasses;
+          var tot = by.totalPasses;
+          if (acc && tot && +tot[1] && +tot[2]) { nh = 100 * acc[1] / tot[1]; na = 100 * acc[2] / tot[2]; } else { nh *= 100; na *= 100; }
+          h = Math.round(nh) + ' %';
+          a = Math.round(na) + ' %';
+        }
+        return { k: s[0], h: h, a: a, nh: isNaN(nh) ? 0 : nh, na: isNaN(na) ? 0 : na };
+      });
+    };
+    var paneEvents = function (d) {
+      var box = el('div', 'lv-pane');
+      box.dataset.pane = 'ev';
+      if (!d.ev || !d.ev.length) { box.appendChild(el('p', 'lv-msg', d.s === 'pre' ? T.lv_pre : T.lv_no_ev)); return box; }
+      var ol = el('ol', 'lv-evs');
+      var period = 1;
+      d.ev.forEach(function (e) {
+        if (e.p && e.p > period) {
+          ol.appendChild(el('li', 'lv-sep', e.p === 2 ? T.lv_ht_long : T.lv_et));
+          period = e.p;
+        }
+        var li = el('li', 'lv-ev ' + (e.e === 'a' ? 'a' : 'h') + ' k-' + e.k);
+        li.appendChild(el('span', 'm', e.m));
+        var ic = el('span', 'ic');
+        ic.setAttribute('aria-hidden', 'true');
+        li.appendChild(ic);
+        var tx = el('span', 'tx');
+        var n = e.n || [];
+        if (e.k === 'c') {
+          tx.appendChild(el('b', 'in', '↑ ' + (n[0] || '')));
+          if (n[1]) tx.appendChild(el('small', 'out', '↓ ' + n[1]));
+        } else {
+          tx.appendChild(el('b', null, n[0] || ''));
+          var sub = e.k === 'b' ? (e.x === 'csc' ? T.lv_og : e.x === 'pen' ? T.lv_pen_goal : (n[1] ? fmt(T.lv_assist, { n: n[1] }) : ''))
+            : e.k === 'jr' ? T.lv_2y : '';
+          if (sub) tx.appendChild(el('small', null, sub));
+        }
+        li.appendChild(tx);
+        ol.appendChild(li);
+      });
+      box.appendChild(ol);
+      return box;
+    };
+    var paneStats = function (d) {
+      var box = el('div', 'lv-pane');
+      box.dataset.pane = 'st';
+      var rows = statRows(d.st || []);
+      if (!rows.length) { box.appendChild(el('p', 'lv-msg', d.s === 'pre' ? T.lv_pre : T.lv_no_st)); return box; }
+      rows.forEach(function (r) {
+        var row = el('div', 'lv-st');
+        var top = el('div', 'lv-st-top');
+        var tot = r.nh + r.na;
+        var sh = tot > 0 ? r.nh / tot : 0.5;
+        top.appendChild(el('b', sh > 0.5 ? 'lv-lead' : null, r.h));
+        top.appendChild(el('span', null, T['st_' + r.k] || r.k));
+        top.appendChild(el('b', sh < 0.5 ? 'lv-lead' : null, r.a));
+        row.appendChild(top);
+        var bar = el('div', 'lv-bar');
+        var bh = el('i', sh > 0.5 ? 'lv-lead' : null);
+        var ba = el('i', sh < 0.5 ? 'lv-lead' : null);
+        bh.style.width = (100 * sh).toFixed(1) + '%';
+        ba.style.width = (100 * (1 - sh)).toFixed(1) + '%';
+        bar.appendChild(bh);
+        bar.appendChild(ba);
+        row.appendChild(bar);
+        box.appendChild(row);
+      });
+      return box;
+    };
+    var paneLineups = function (d, names) {
+      var box = el('div', 'lv-pane');
+      box.dataset.pane = 'lu';
+      if (!d.lu) { box.appendChild(el('p', 'lv-msg', d.s === 'pre' ? T.lv_pre_lu : T.lv_no_lu)); return box; }
+      var sw = el('div', 'seg lv-teams');
+      var lists = [];
+      ['h', 'a'].forEach(function (side, i) {
+        var t = d.lu[side];
+        var b = el('button', i ? null : 'on', names[i] || (i ? '2' : '1'));
+        b.type = 'button';
+        b.setAttribute('aria-pressed', i ? 'false' : 'true');
+        sw.appendChild(b);
+        var wrap = el('div', 'lv-lu');
+        wrap.hidden = !!i;
+        if (t.f) wrap.appendChild(el('p', 'lv-f', fmt(T.lv_coach_formation, { f: t.f })));
+        var add = function (players, subs) {
+          var ul = el('ul', 'lv-pl' + (subs ? ' subs' : ''));
+          players.forEach(function (p) {
+            var li = el('li', p[3] === 1 ? 'out' : p[3] === 2 ? 'in' : null);
+            li.appendChild(el('span', 'no', p[0]));
+            li.appendChild(el('span', 'nm', p[1]));
+            var g = POS(p[2]);
+            if (g && !subs) li.appendChild(el('span', 'po', T['pos_' + g] || ''));
+            if (p[3] === 1) li.appendChild(el('span', 'mk', '↓')).setAttribute('aria-label', T.lv_out);
+            if (p[3] === 2) li.appendChild(el('span', 'mk', '↑')).setAttribute('aria-label', T.lv_in);
+            ul.appendChild(li);
+          });
+          wrap.appendChild(ul);
+        };
+        add(t.xi || [], false);
+        if (t.sub && t.sub.length) {
+          wrap.appendChild(el('h3', null, T.lv_subs));
+          add(t.sub, true);
+        }
+        lists.push(wrap);
+      });
+      sw.addEventListener('click', function (e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        $$('button', sw).forEach(function (x, i) {
+          var on = x === b;
+          x.classList.toggle('on', on);
+          x.setAttribute('aria-pressed', on);
+          lists[i].hidden = !on;
+        });
+      });
+      box.appendChild(sw);
+      lists.forEach(function (w) { box.appendChild(w); });
+      return box;
+    };
+    var render = function (box, d, scope) {
+      var l = label(d);
+      var state = box.querySelector('.lv-state');
+      state.hidden = !l;
+      if (l) {
+        state.className = 'lv-state' + (l.live ? ' live' : '');
+        state.textContent = l.long + (l.sc && !l.live ? ' · ' + l.sc[0] + '-' + l.sc[1] : '');
+      }
+      var names = $$('.hero-teams .nm', scope).map(function (n) { return n.textContent; });
+      var panes = [paneEvents(d), paneStats(d), paneLineups(d, names)];
+      var seg = box.querySelector('.lv-seg');
+      var cur = seg.querySelector('button.on');
+      var want = box._lvPane || (d.s === 'pre' && d.lu ? 'lu' : 'ev');
+      var body = box.querySelector('.lv-body');
+      body.textContent = '';
+      panes.forEach(function (p) { p.hidden = p.dataset.pane !== want; body.appendChild(p); });
+      $$('button', seg).forEach(function (b) {
+        var on = b.dataset.lv === want;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-selected', on);
+      });
+      seg.hidden = false;
+      if (!seg._lv) {
+        seg._lv = true;
+        seg.addEventListener('click', function (e) {
+          var b = e.target.closest('button[data-lv]');
+          if (!b) return;
+          box._lvPane = b.dataset.lv;
+          $$('button', seg).forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-selected', on); });
+          $$('.lv-pane', body).forEach(function (p) { p.hidden = p.dataset.pane !== b.dataset.lv; });
+        });
+      }
+      box.removeAttribute('aria-busy');
+      var src = box.querySelector('.lv-src');
+      var upd = src.querySelector('.lv-upd') || src.appendChild(el('span', 'lv-upd'));
+      upd.textContent = ' ' + fmt(T.lv_updated, { t: F.time.format(new Date()) });
+      // En-tête de la fiche : score et minute à la place de l'heure du coup d'envoi
+      var hw = scope.querySelector('.hero-when');
+      var hs = hw && hw.querySelector('.lv-sc');
+      if (hs && l && (l.sc || l.bad)) {
+        var hc = hw.querySelector('.lv-cl');
+        hs.textContent = l.sc ? l.sc[0] + ' – ' + l.sc[1] : '–';
+        hc.textContent = l.txt;
+        hc.className = 'lv-cl' + (l.live ? ' live' : '');
+        hs.hidden = hc.hidden = false;
+        hw.classList.add('lv-on');
+      }
+      var dot = scope.querySelector('#tab-match .tab-live');
+      if (dot) dot.hidden = !(l && l.live);
+    };
+    var match = function (box, scope, g) {
+      var r = ref(box);
+      var ko = new Date(box.dataset.ko).getTime();
+      var now = Date.now();
+      if (!r) return;
+      // Plus de 2 h avant le coup d'envoi : rien à demander (les compositions arrivent environ 1 h avant)
+      if (!box.dataset.past && now < ko - 2 * 3600e3) {
+        render(box, { s: 'pre' }, scope);
+        later(g, function () { match(box, scope, g); }, Math.min(ko - 2 * 3600e3 - now, 30 * MIN));
+        return;
+      }
+      get('ev/' + r.slug + '/' + r.id).then(function (d) {
+        if (g !== gen || !box.isConnected) return;
+        if (!d) {
+          if (!box._lvOk) {
+            var body = box.querySelector('.lv-body');
+            body.textContent = '';
+            body.appendChild(el('p', 'lv-msg', T.lv_err));
+          }
+          later(g, function () { match(box, scope, g); }, MIN);
+          return;
+        }
+        if (d.gone) {
+          var b2 = box.querySelector('.lv-body');
+          b2.textContent = '';
+          b2.appendChild(el('p', 'lv-msg', T.lv_gone));
+          box.removeAttribute('aria-busy');
+          return;
+        }
+        box._lvOk = true;
+        render(box, d, scope);
+        var l = label(d);
+        if (l && l.done) return;  // fini : plus de mise à jour
+        later(g, function () { match(box, scope, g); }, d.s === 'in' ? MIN : 5 * MIN);
+      });
+    };
+
+    doc.addEventListener('visibilitychange', function () {
+      if (!doc.hidden && resume) {
+        var f = resume;
+        resume = null;
+        f();
+      }
+    });
+    return {
+      start: function (scope) {
+        gen++;
+        timers.forEach(clearTimeout);
+        timers = [];
+        resume = null;
+        if (!win.fetch) return;
+        var g = gen;
+        var list = $$('.mcard[data-espn], .featured[data-espn]', scope);
+        if (list.length) cards(list, g);
+        $$('.lv[data-espn]', scope).forEach(function (box) { match(box, scope, g); });
+      }
+    };
+  })();
+
   var init = function (scope) {
     initHistAn(scope);
     initDates(scope);
@@ -2301,6 +2647,7 @@
     initPrices(scope);
     initHome(scope);
     initTabs(scope);
+    Live.start(scope);
     initCompare(scope);
     initAccount(scope);
     initPremium(scope);

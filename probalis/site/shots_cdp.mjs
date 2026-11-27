@@ -37,7 +37,7 @@ try {
   if (+w < 700) await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
   await send('Page.navigate', { url });
   // La page d'aide prépare le navigateur puis redirige : on attend que la vraie page soit chargée et posée.
-  const goal = new URL(url).searchParams.get('go');
+  const goal = (new URL(url).searchParams.get('go') || '').split('#')[0];
   for (let i = 0; i < 80; i++) {
     const r = await send('Runtime.evaluate', { expression: 'location.pathname + "|" + document.readyState', returnByValue: true });
     const [path, state] = String(r.result?.result?.value || '').split('|');

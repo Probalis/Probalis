@@ -1,0 +1,1509 @@
+{
+ "header": {
+  "competitions": [
+   {
+    "status": {
+     "type": {
+      "id": "28",
+      "name": "STATUS_FULL_TIME",
+      "state": "post",
+      "completed": true,
+      "description": "Full Time",
+      "detail": "FT",
+      "shortDetail": "FT"
+     }
+    },
+    "competitors": [
+     {
+      "id": "306",
+      "homeAway": "home",
+      "score": "2",
+      "team": {
+       "id": "306",
+       "displayName": "Hull City",
+       "shortDisplayName": "Hull"
+      }
+     },
+     {
+      "id": "331",
+      "homeAway": "away",
+      "score": "0",
+      "team": {
+       "id": "331",
+       "displayName": "Brighton & Hove Albion",
+       "shortDisplayName": "Brighton"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "boxscore": {
+  "teams": [
+   {
+    "homeAway": "home",
+    "team": {
+     "id": "306",
+     "displayName": "Hull City",
+     "shortDisplayName": "Hull"
+    },
+    "statistics": [
+     {
+      "name": "foulsCommitted",
+      "displayValue": "7"
+     },
+     {
+      "name": "yellowCards",
+      "displayValue": "2"
+     },
+     {
+      "name": "redCards",
+      "displayValue": "0"
+     },
+     {
+      "name": "offsides",
+      "displayValue": "3"
+     },
+     {
+      "name": "wonCorners",
+      "displayValue": "3"
+     },
+     {
+      "name": "saves",
+      "displayValue": "7"
+     },
+     {
+      "name": "possessionPct",
+      "displayValue": "29.8"
+     },
+     {
+      "name": "totalShots",
+      "displayValue": "11"
+     },
+     {
+      "name": "shotsOnTarget",
+      "displayValue": "5"
+     },
+     {
+      "name": "shotPct",
+      "displayValue": "0.5"
+     },
+     {
+      "name": "penaltyKickGoals",
+      "displayValue": "0"
+     },
+     {
+      "name": "penaltyKickShots",
+      "displayValue": "0"
+     },
+     {
+      "name": "accuratePasses",
+      "displayValue": "135"
+     },
+     {
+      "name": "totalPasses",
+      "displayValue": "242"
+     },
+     {
+      "name": "passPct",
+      "displayValue": "0.6"
+     },
+     {
+      "name": "accurateCrosses",
+      "displayValue": "3"
+     },
+     {
+      "name": "totalCrosses",
+      "displayValue": "15"
+     },
+     {
+      "name": "crossPct",
+      "displayValue": "0.2"
+     },
+     {
+      "name": "totalLongBalls",
+      "displayValue": "81"
+     },
+     {
+      "name": "accurateLongBalls",
+      "displayValue": "22"
+     },
+     {
+      "name": "longballPct",
+      "displayValue": "0.3"
+     },
+     {
+      "name": "blockedShots",
+      "displayValue": "2"
+     },
+     {
+      "name": "effectiveTackles",
+      "displayValue": "10"
+     },
+     {
+      "name": "totalTackles",
+      "displayValue": "16"
+     },
+     {
+      "name": "tacklePct",
+      "displayValue": "0.6"
+     },
+     {
+      "name": "interceptions",
+      "displayValue": "9"
+     },
+     {
+      "name": "effectiveClearance",
+      "displayValue": "23"
+     },
+     {
+      "name": "totalClearance",
+      "displayValue": "23"
+     }
+    ]
+   },
+   {
+    "homeAway": "away",
+    "team": {
+     "id": "331",
+     "displayName": "Brighton & Hove Albion",
+     "shortDisplayName": "Brighton"
+    },
+    "statistics": [
+     {
+      "name": "foulsCommitted",
+      "displayValue": "17"
+     },
+     {
+      "name": "yellowCards",
+      "displayValue": "2"
+     },
+     {
+      "name": "redCards",
+      "displayValue": "1"
+     },
+     {
+      "name": "offsides",
+      "displayValue": "1"
+     },
+     {
+      "name": "wonCorners",
+      "displayValue": "5"
+     },
+     {
+      "name": "saves",
+      "displayValue": "3"
+     },
+     {
+      "name": "possessionPct",
+      "displayValue": "70.2"
+     },
+     {
+      "name": "totalShots",
+      "displayValue": "15"
+     },
+     {
+      "name": "shotsOnTarget",
+      "displayValue": "8"
+     },
+     {
+      "name": "shotPct",
+      "displayValue": "0.5"
+     },
+     {
+      "name": "penaltyKickGoals",
+      "displayValue": "0"
+     },
+     {
+      "name": "penaltyKickShots",
+      "displayValue": "0"
+     },
+     {
+      "name": "accuratePasses",
+      "displayValue": "501"
+     },
+     {
+      "name": "totalPasses",
+      "displayValue": "589"
+     },
+     {
+      "name": "passPct",
+      "displayValue": "0.9"
+     },
+     {
+      "name": "accurateCrosses",
+      "displayValue": "6"
+     },
+     {
+      "name": "totalCrosses",
+      "displayValue": "24"
+     },
+     {
+      "name": "crossPct",
+      "displayValue": "0.3"
+     },
+     {
+      "name": "totalLongBalls",
+      "displayValue": "63"
+     },
+     {
+      "name": "accurateLongBalls",
+      "displayValue": "37"
+     },
+     {
+      "name": "longballPct",
+      "displayValue": "0.6"
+     },
+     {
+      "name": "blockedShots",
+      "displayValue": "3"
+     },
+     {
+      "name": "effectiveTackles",
+      "displayValue": "8"
+     },
+     {
+      "name": "totalTackles",
+      "displayValue": "13"
+     },
+     {
+      "name": "tacklePct",
+      "displayValue": "0.6"
+     },
+     {
+      "name": "interceptions",
+      "displayValue": "13"
+     },
+     {
+      "name": "effectiveClearance",
+      "displayValue": "23"
+     },
+     {
+      "name": "totalClearance",
+      "displayValue": "23"
+     }
+    ]
+   }
+  ]
+ },
+ "keyEvents": [
+  {
+   "type": {
+    "id": "80",
+    "text": "Kickoff",
+    "type": "kickoff"
+   },
+   "clock": {
+    "displayValue": ""
+   },
+   "period": {
+    "number": 1
+   },
+   "team": null,
+   "scoringPlay": false,
+   "text": "First Half begins.",
+   "participants": []
+  },
+  {
+   "type": {
+    "id": "94",
+    "text": "Yellow Card",
+    "type": "yellow-card"
+   },
+   "clock": {
+    "displayValue": "34'"
+   },
+   "period": {
+    "number": 1
+   },
+   "team": {
+    "id": "331",
+    "displayName": "Brighton & Hove Albion"
+   },
+   "scoringPlay": false,
+   "text": "Luka Vuskovic (Brighton and Hove Albion) is shown the yellow card.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Luka Vuskovic"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "94",
+    "text": "Yellow Card",
+    "type": "yellow-card"
+   },
+   "clock": {
+    "displayValue": "37'"
+   },
+   "period": {
+    "number": 1
+   },
+   "team": {
+    "id": "306",
+    "displayName": "Hull City"
+   },
+   "scoringPlay": false,
+   "text": "Nobel Mendy (Hull City) is shown the yellow card.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Nobel Mendy"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "129",
+    "text": "Start Delay",
+    "type": "start-delay"
+   },
+   "clock": {
+    "displayValue": "43'"
+   },
+   "period": {
+    "number": 1
+   },
+   "team": {
+    "id": "306",
+    "displayName": "Hull City"
+   },
+   "scoringPlay": false,
+   "text": "Delay in match because of an injury Tim Iroegbunam (Hull City).",
+   "participants": []
+  },
+  {
+   "type": {
+    "id": "129",
+    "text": "Start Delay",
+    "type": "start-delay"
+   },
+   "clock": {
+    "displayValue": "43'"
+   },
+   "period": {
+    "number": 1
+   },
+   "team": {
+    "id": "331",
+    "displayName": "Brighton & Hove Albion"
+   },
+   "scoringPlay": false,
+   "text": null,
+   "participants": []
+  },
+  {
+   "type": {
+    "id": "130",
+    "text": "End Delay",
+    "type": "end-delay"
+   },
+   "clock": {
+    "displayValue": "45'"
+   },
+   "period": {
+    "number": 1
+   },
+   "team": {
+    "id": "306",
+    "displayName": "Hull City"
+   },
+   "scoringPlay": false,
+   "text": "Delay over. They are ready to continue.",
+   "participants": []
+  },
+  {
+   "type": {
+    "id": "130",
+    "text": "End Delay",
+    "type": "end-delay"
+   },
+   "clock": {
+    "displayValue": "45'"
+   },
+   "period": {
+    "number": 1
+   },
+   "team": {
+    "id": "331",
+    "displayName": "Brighton & Hove Albion"
+   },
+   "scoringPlay": false,
+   "text": null,
+   "participants": []
+  },
+  {
+   "type": {
+    "id": "76",
+    "text": "Substitution",
+    "type": "substitution"
+   },
+   "clock": {
+    "displayValue": "45'"
+   },
+   "period": {
+    "number": 1
+   },
+   "team": {
+    "id": "306",
+    "displayName": "Hull City"
+   },
+   "scoringPlay": false,
+   "text": "Substitution, Hull City. Lucas Gourna-Douath replaces Tim Iroegbunam because of an injury.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Lucas Gourna-Douath"
+     }
+    },
+    {
+     "athlete": {
+      "displayName": "Tim Iroegbunam"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "81",
+    "text": "Halftime",
+    "type": "halftime"
+   },
+   "clock": {
+    "displayValue": "45'+4'"
+   },
+   "period": {
+    "number": 1
+   },
+   "team": null,
+   "scoringPlay": false,
+   "text": null,
+   "participants": []
+  },
+  {
+   "type": {
+    "id": "76",
+    "text": "Substitution",
+    "type": "substitution"
+   },
+   "clock": {
+    "displayValue": "45'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "306",
+    "displayName": "Hull City"
+   },
+   "scoringPlay": false,
+   "text": "Substitution, Hull City. Sorba Thomas replaces Mohamed-Ali Cho.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Sorba Thomas"
+     }
+    },
+    {
+     "athlete": {
+      "displayName": "Mohamed-Ali Cho"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "82",
+    "text": "Start 2nd Half",
+    "type": "start-2nd-half"
+   },
+   "clock": {
+    "displayValue": "45'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": null,
+   "scoringPlay": false,
+   "text": null,
+   "participants": []
+  },
+  {
+   "type": {
+    "id": "94",
+    "text": "Yellow Card",
+    "type": "yellow-card"
+   },
+   "clock": {
+    "displayValue": "59'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "306",
+    "displayName": "Hull City"
+   },
+   "scoringPlay": false,
+   "text": "Lucas Gourna-Douath (Hull City) is shown the yellow card for a bad foul.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Lucas Gourna-Douath"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "94",
+    "text": "Yellow Card",
+    "type": "yellow-card"
+   },
+   "clock": {
+    "displayValue": "63'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "331",
+    "displayName": "Brighton & Hove Albion"
+   },
+   "scoringPlay": false,
+   "text": "Costinha (Brighton and Hove Albion) is shown the yellow card for a bad foul.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Costinha"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "76",
+    "text": "Substitution",
+    "type": "substitution"
+   },
+   "clock": {
+    "displayValue": "67'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "331",
+    "displayName": "Brighton & Hove Albion"
+   },
+   "scoringPlay": false,
+   "text": "Substitution, Brighton and Hove Albion. Jack Hinshelwood replaces Yasin Ayari.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Jack Hinshelwood"
+     }
+    },
+    {
+     "athlete": {
+      "displayName": "Yasin Ayari"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "76",
+    "text": "Substitution",
+    "type": "substitution"
+   },
+   "clock": {
+    "displayValue": "67'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "331",
+    "displayName": "Brighton & Hove Albion"
+   },
+   "scoringPlay": false,
+   "text": "Substitution, Brighton and Hove Albion. Charalampos Kostoulas replaces Georginio Rutter.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Charalambos Kostoulas"
+     }
+    },
+    {
+     "athlete": {
+      "displayName": "Georginio Rutter"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "76",
+    "text": "Substitution",
+    "type": "substitution"
+   },
+   "clock": {
+    "displayValue": "67'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "331",
+    "displayName": "Brighton & Hove Albion"
+   },
+   "scoringPlay": false,
+   "text": "Substitution, Brighton and Hove Albion. Yankuba Minteh replaces Olivier Boscagli.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Yankuba Minteh"
+     }
+    },
+    {
+     "athlete": {
+      "displayName": "Olivier Boscagli"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "76",
+    "text": "Substitution",
+    "type": "substitution"
+   },
+   "clock": {
+    "displayValue": "67'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "306",
+    "displayName": "Hull City"
+   },
+   "scoringPlay": false,
+   "text": "Substitution, Hull City. Ryan Giles replaces Elliot Stroud.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Ryan Giles"
+     }
+    },
+    {
+     "athlete": {
+      "displayName": "Elliot Stroud"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "76",
+    "text": "Substitution",
+    "type": "substitution"
+   },
+   "clock": {
+    "displayValue": "68'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "306",
+    "displayName": "Hull City"
+   },
+   "scoringPlay": false,
+   "text": "Substitution, Hull City. Jens Hjertø-Dahl replaces Matt Crooks.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Jens Hjerto Dahl"
+     }
+    },
+    {
+     "athlete": {
+      "displayName": "Matt Crooks"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "76",
+    "text": "Substitution",
+    "type": "substitution"
+   },
+   "clock": {
+    "displayValue": "80'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "331",
+    "displayName": "Brighton & Hove Albion"
+   },
+   "scoringPlay": false,
+   "text": "Substitution, Brighton and Hove Albion. Ferdi Kadıoğlu replaces Diego Gómez.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Ferdi Kadioglu"
+     }
+    },
+    {
+     "athlete": {
+      "displayName": "Diego Gómez"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "94",
+    "text": "Yellow Card",
+    "type": "yellow-card"
+   },
+   "clock": {
+    "displayValue": "81'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "331",
+    "displayName": "Brighton & Hove Albion"
+   },
+   "scoringPlay": false,
+   "text": "Chema Andrés (Brighton and Hove Albion) is shown the yellow card for a bad foul.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Chema Andrés"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "76",
+    "text": "Substitution",
+    "type": "substitution"
+   },
+   "clock": {
+    "displayValue": "84'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "306",
+    "displayName": "Hull City"
+   },
+   "scoringPlay": false,
+   "text": "Substitution, Hull City. Brooke Norton-Cuffy replaces Lewie Coyle.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Brooke Norton-Cuffy"
+     }
+    },
+    {
+     "athlete": {
+      "displayName": "Lewie Coyle"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "93",
+    "text": "Red Card",
+    "type": "red-card"
+   },
+   "clock": {
+    "displayValue": "89'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "331",
+    "displayName": "Brighton & Hove Albion"
+   },
+   "scoringPlay": false,
+   "text": "Second yellow card to Costinha (Brighton and Hove Albion) for a bad foul.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Costinha"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "70",
+    "text": "Goal",
+    "type": "goal"
+   },
+   "clock": {
+    "displayValue": "90'+2'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "306",
+    "displayName": "Hull City"
+   },
+   "scoringPlay": true,
+   "text": "Goal! Hull City 1, Brighton and Hove Albion 0. Oliver McBurnie (Hull City) right footed shot from the centre of the box to the bottom right corner. Assisted by Lucas Gourna-Douath following a fast break.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Oliver McBurnie"
+     }
+    },
+    {
+     "athlete": {
+      "displayName": "Lucas Gourna-Douath"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "76",
+    "text": "Substitution",
+    "type": "substitution"
+   },
+   "clock": {
+    "displayValue": "90'+4'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "331",
+    "displayName": "Brighton & Hove Albion"
+   },
+   "scoringPlay": false,
+   "text": "Substitution, Brighton and Hove Albion. Ibrahim Osman replaces Chema Andrés.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Ibrahim Osman"
+     }
+    },
+    {
+     "athlete": {
+      "displayName": "Chema Andrés"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "70",
+    "text": "Goal",
+    "type": "goal"
+   },
+   "clock": {
+    "displayValue": "90'+5'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": {
+    "id": "306",
+    "displayName": "Hull City"
+   },
+   "scoringPlay": true,
+   "text": "Goal! Hull City 2, Brighton and Hove Albion 0. Oliver McBurnie (Hull City) right footed shot from the left side of the six yard box to the centre of the goal. Assisted by Mohamed Belloumi following a fast break.",
+   "participants": [
+    {
+     "athlete": {
+      "displayName": "Oliver McBurnie"
+     }
+    },
+    {
+     "athlete": {
+      "displayName": "Mohamed Belloumi"
+     }
+    }
+   ]
+  },
+  {
+   "type": {
+    "id": "83",
+    "text": "End Regular Time",
+    "type": "end-regular-time"
+   },
+   "clock": {
+    "displayValue": "90'+6'"
+   },
+   "period": {
+    "number": 2
+   },
+   "team": null,
+   "scoringPlay": false,
+   "text": "Second Half ends, Hull City 2, Brighton and Hove Albion 0.",
+   "participants": []
+  }
+ ],
+ "rosters": [
+  {
+   "homeAway": "home",
+   "formation": "4-2-3-1",
+   "team": {
+    "id": "306",
+    "displayName": "Hull City"
+   },
+   "roster": [
+    {
+     "starter": true,
+     "jersey": "19",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "1",
+     "position": {
+      "abbreviation": "G"
+     },
+     "athlete": {
+      "displayName": "Konstantinos Tzolakis"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "32",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "6",
+     "position": {
+      "abbreviation": "CD-L"
+     },
+     "athlete": {
+      "displayName": "Nobel Mendy"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "6",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "5",
+     "position": {
+      "abbreviation": "CD-R"
+     },
+     "athlete": {
+      "displayName": "Semi Ajayi"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "21",
+     "subbedIn": false,
+     "subbedOut": true,
+     "formationPlace": "3",
+     "position": {
+      "abbreviation": "LB"
+     },
+     "athlete": {
+      "displayName": "Elliot Stroud"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "2",
+     "subbedIn": false,
+     "subbedOut": true,
+     "formationPlace": "2",
+     "position": {
+      "abbreviation": "RB"
+     },
+     "athlete": {
+      "displayName": "Lewie Coyle"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "25",
+     "subbedIn": false,
+     "subbedOut": true,
+     "formationPlace": "10",
+     "position": {
+      "abbreviation": "AM"
+     },
+     "athlete": {
+      "displayName": "Matt Crooks"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "27",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "4",
+     "position": {
+      "abbreviation": "LM"
+     },
+     "athlete": {
+      "displayName": "Regan Slater"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "42",
+     "subbedIn": false,
+     "subbedOut": true,
+     "formationPlace": "8",
+     "position": {
+      "abbreviation": "RM"
+     },
+     "athlete": {
+      "displayName": "Tim Iroegbunam"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "9",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "9",
+     "position": {
+      "abbreviation": "F"
+     },
+     "athlete": {
+      "displayName": "Oliver McBurnie"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "50",
+     "subbedIn": false,
+     "subbedOut": true,
+     "formationPlace": "11",
+     "position": {
+      "abbreviation": "AM-L"
+     },
+     "athlete": {
+      "displayName": "Mohamed-Ali Cho"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "10",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "7",
+     "position": {
+      "abbreviation": "AM-R"
+     },
+     "athlete": {
+      "displayName": "Mohamed Belloumi"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "22",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Lucas Herrington"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "47",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Robinio Vaz"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "15",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "John Egan"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "29",
+     "subbedIn": true,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Lucas Gourna-Douath"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "3",
+     "subbedIn": true,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Ryan Giles"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "7",
+     "subbedIn": true,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Sorba Thomas"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "1",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Jack Butland"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "14",
+     "subbedIn": true,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Jens Hjerto Dahl"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "18",
+     "subbedIn": true,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Brooke Norton-Cuffy"
+     }
+    }
+   ]
+  },
+  {
+   "homeAway": "away",
+   "formation": "4-2-3-1",
+   "team": {
+    "id": "331",
+    "displayName": "Brighton & Hove Albion"
+   },
+   "roster": [
+    {
+     "starter": true,
+     "jersey": "1",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "1",
+     "position": {
+      "abbreviation": "G"
+     },
+     "athlete": {
+      "displayName": "Bart Verbruggen"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "5",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "6",
+     "position": {
+      "abbreviation": "CD-L"
+     },
+     "athlete": {
+      "displayName": "Lewis Dunk"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "44",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "5",
+     "position": {
+      "abbreviation": "CD-R"
+     },
+     "athlete": {
+      "displayName": "Luka Vuskovic"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "21",
+     "subbedIn": false,
+     "subbedOut": true,
+     "formationPlace": "3",
+     "position": {
+      "abbreviation": "LB"
+     },
+     "athlete": {
+      "displayName": "Olivier Boscagli"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "20",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "2",
+     "position": {
+      "abbreviation": "RB"
+     },
+     "athlete": {
+      "displayName": "Costinha"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "26",
+     "subbedIn": false,
+     "subbedOut": true,
+     "formationPlace": "10",
+     "position": {
+      "abbreviation": "AM"
+     },
+     "athlete": {
+      "displayName": "Yasin Ayari"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "14",
+     "subbedIn": false,
+     "subbedOut": true,
+     "formationPlace": "4",
+     "position": {
+      "abbreviation": "LM"
+     },
+     "athlete": {
+      "displayName": "Chema Andrés"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "13",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "8",
+     "position": {
+      "abbreviation": "RM"
+     },
+     "athlete": {
+      "displayName": "Pascal Gross"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "10",
+     "subbedIn": false,
+     "subbedOut": true,
+     "formationPlace": "9",
+     "position": {
+      "abbreviation": "F"
+     },
+     "athlete": {
+      "displayName": "Georginio Rutter"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "29",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "11",
+     "position": {
+      "abbreviation": "AM-L"
+     },
+     "athlete": {
+      "displayName": "Maxim De Cuyper"
+     }
+    },
+    {
+     "starter": true,
+     "jersey": "25",
+     "subbedIn": false,
+     "subbedOut": true,
+     "formationPlace": "7",
+     "position": {
+      "abbreviation": "AM-R"
+     },
+     "athlete": {
+      "displayName": "Diego Gómez"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "15",
+     "subbedIn": true,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Ibrahim Osman"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "23",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Jason Steele"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "19",
+     "subbedIn": true,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Charalambos Kostoulas"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "11",
+     "subbedIn": true,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Yankuba Minteh"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "8",
+     "subbedIn": true,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Jack Hinshelwood"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "24",
+     "subbedIn": true,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Ferdi Kadioglu"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "33",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Matt O'Riley"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "30",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Michael Svoboda"
+     }
+    },
+    {
+     "starter": false,
+     "jersey": "27",
+     "subbedIn": false,
+     "subbedOut": false,
+     "formationPlace": "0",
+     "position": {
+      "abbreviation": "SUB"
+     },
+     "athlete": {
+      "displayName": "Mats Wieffer"
+     }
+    }
+   ]
+  }
+ ]
+}

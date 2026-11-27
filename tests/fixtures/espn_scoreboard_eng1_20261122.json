@@ -1,0 +1,88 @@
+{
+ "events": [
+  {
+   "id": "401879234",
+   "date": "2026-11-22T14:00Z",
+   "status": {
+    "clock": 5400.0,
+    "displayClock": "90'+6'",
+    "period": 2,
+    "type": {
+     "id": "28",
+     "name": "STATUS_FULL_TIME",
+     "state": "post",
+     "completed": true,
+     "description": "Full Time",
+     "detail": "FT",
+     "shortDetail": "FT"
+    }
+   },
+   "competitions": [
+    {
+     "competitors": [
+      {
+       "homeAway": "home",
+       "score": "2",
+       "team": {
+        "id": "306",
+        "displayName": "Hull City",
+        "shortDisplayName": "Hull"
+       }
+      },
+      {
+       "homeAway": "away",
+       "score": "0",
+       "team": {
+        "id": "331",
+        "displayName": "Brighton & Hove Albion",
+        "shortDisplayName": "Brighton"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "401878755",
+   "date": "2026-11-22T16:30Z",
+   "status": {
+    "clock": 5400.0,
+    "displayClock": "90'+3'",
+    "period": 2,
+    "type": {
+     "id": "28",
+     "name": "STATUS_FULL_TIME",
+     "state": "post",
+     "completed": true,
+     "description": "Full Time",
+     "detail": "FT",
+     "shortDetail": "FT"
+    }
+   },
+   "competitions": [
+    {
+     "competitors": [
+      {
+       "homeAway": "home",
+       "score": "4",
+       "team": {
+        "id": "364",
+        "displayName": "Liverpool",
+        "shortDisplayName": "Liverpool"
+       }
+      },
+      {
+       "homeAway": "away",
+       "score": "0",
+       "team": {
+        "id": "360",
+        "displayName": "Manchester United",
+        "shortDisplayName": "Man Utd"
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

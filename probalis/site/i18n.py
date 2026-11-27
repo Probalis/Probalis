@@ -32,8 +32,8 @@ UI = {
         "see_analysis": "Voir l'analyse", "all_markets": "Tous les marchés",
         "draw": "Nul", "kickoff": "Coup d'envoi",
         "responsible": "18+ · Les probabilités ne sont pas des certitudes. Ne mise jamais plus que ce que tu peux perdre.",
-        "data_credit": "Données : football-data.co.uk, TheSportsDB.",
-        "data_credit_api": "Données : football-data.co.uk, TheSportsDB, The Odds API.",
+        "data_credit": "Données : football-data.co.uk, TheSportsDB, ESPN.",
+        "data_credit_api": "Données : football-data.co.uk, TheSportsDB, The Odds API, ESPN.",
         "updated": "Mis à jour le",
         "theme": "Changer de thème", "lang_switch": "English", "lang_version": "English version",
         "groups": {"main": "Principaux", "goals": "Buts", "teams": "Équipes", "handicaps": "Handicaps",
@@ -105,8 +105,8 @@ UI = {
         "see_analysis": "See analysis", "all_markets": "All markets",
         "draw": "Draw", "kickoff": "Kick-off",
         "responsible": "18+ · Probabilities are not certainties. Never stake more than you can afford to lose.",
-        "data_credit": "Data: football-data.co.uk, TheSportsDB.",
-        "data_credit_api": "Data: football-data.co.uk, TheSportsDB, The Odds API.",
+        "data_credit": "Data: football-data.co.uk, TheSportsDB, ESPN.",
+        "data_credit_api": "Data: football-data.co.uk, TheSportsDB, The Odds API, ESPN.",
         "updated": "Updated",
         "theme": "Switch theme", "lang_switch": "Français", "lang_version": "Version française",
         "groups": {"main": "Main", "goals": "Goals", "teams": "Teams", "handicaps": "Handicaps",
@@ -220,6 +220,12 @@ GROUP_ORDER = ("main", "goals", "teams", "corners", "halves", "handicaps", "scor
 def num(x: float, lang: str, digits: int = 2) -> str:
     s = f"{x:.{digits}f}".rstrip("0").rstrip(".") if digits else f"{x:.0f}"
     return s.replace(".", ",") if lang == "fr" else s
+
+
+def count(n: int, lang: str) -> str:
+    """Nombre entier lisible : 10 557 (fr, espace fine insécable) / 10,557 (en)."""
+    s = f"{int(n):,}"
+    return s.replace(",", " ") if lang == "fr" else s
 
 
 def odds(x: float, lang: str) -> str:
@@ -938,12 +944,16 @@ _V2 = {
     "fr": {
         "corners_word": "corners", "cards_word": "cartons", "more_corners": "Plus de corners",
         "more_cards": "Plus de cartons", "equal_word": "{what} : égalité",
-        "vd_title": "Verdicts", "vd_lead": "Oui ou non, et la chance que la réponse soit la bonne.",
+        "vd_title": "Les paris du match", "vd_title_old": "Verdicts",
+        "vd_lead": "Au plus 3 paris de types différents, à une cote d'au moins 1,30 : OUI ou NON, et la chance que la réponse soit la bonne.",
+        "vd_odds": "cote ≈ {o}",
+        "vd_none": "Aucun pari assez sûr à une cote de 1,30 ou plus sur ce match : il faut au moins 60 % de chance. Les chances de chaque marché restent dans les autres onglets.",
+        "vd_picks_proof": "Sur la saison {season}, testée sans que le moteur l'ait vue, ces paris ont réussi {won} fois sur {n} ({rate}) pour {ann} annoncés, à une cote estimée de {odds} en moyenne.",
         "vd_best": "Le plus sûr", "vd_yes": "OUI", "vd_no": "NON", "vd_open": "SERRÉ",
         "vd_open_help": "Trop serré pour trancher : ni oui ni non à plus de 55 %.",
         "vd_proof": "Ce type de verdict s'est vérifié {won} fois sur {n} ({rate}) sur la saison {season}, testée sans que le moteur l'ait vue.",
         "vd_proof_none": "Aucun verdict n'est une certitude : sur 10 verdicts à {pct}, environ {miss} ne passent pas.",
-        "vd_note": "Le pourcentage est la chance que la réponse (OUI ou NON) soit la bonne. Jamais une certitude.",
+        "vd_note": "Le pourcentage est la chance que la réponse (OUI ou NON) soit la bonne. Jamais une certitude. La cote est une estimation : la cote juste moins la marge habituelle d'un bookmaker (environ 5 %) ; compare-la à celle du tien.",
         "vd_q_win": "{team} gagne ?", "vd_q_dc": "{sel} ?", "vd_q_ou": "Plus de {line} buts ?",
         "vd_q_btts": "Les deux équipes marquent ?", "vd_q_tt": "{team} marque ?",
         "vd_q_co": "Plus de {line} corners ?", "vd_q_ca": "Plus de {line} cartons ?",
@@ -962,13 +972,13 @@ _V2 = {
         "ha_pending": "En attente du résultat", "ha_void": "Match reporté ou annulé",
         "ha_unverif": "Non vérifiable (pas de chiffres gratuits)",
         "ha_pending_st": "En attente des chiffres de corners et cartons",
-        "ha_wait_st": "Corners et cartons : en attente des chiffres officiels, publiés en général 2 à 4 jours après le match. Ces verdicts seront jugés tout seuls dès leur publication.",
+        "ha_wait_st": "Corners et cartons : en attente des chiffres, publiés en général environ 2 h après la fin du match (2 à 4 jours pour quelques petits championnats). Ces verdicts seront jugés tout seuls dès leur publication.",
         "ha_engine_v1": "Ancien moteur", "ha_open_match": "Voir les verdicts",
         "ha_past_match": "Ce match est terminé. Voici ce que disait notre analyse.",
         "rel_title": "Fiabilité vérifiée",
         "pk_why": "Pourquoi",
         "rel_tested": "matchs testés sur la saison {season}, que le moteur n'avait jamais vue",
-        "rel_best": "de verdicts « le plus sûr » justes sur ce test ({a} annoncés)",
+        "rel_best": "des paris du match (3 au plus, cote de 1,30 ou plus) justes sur ce test ({a} annoncés)",
         "tk_same_match": "Deux choix viennent du même match : ils sont liés, la vraie chance du ticket peut être différente.",
         "yesterday_title": "Hier",
         "yesterday_line": "{won} paris gagnés sur {n} ({rate})",
@@ -994,7 +1004,7 @@ _V2 = {
         "form_note": "Simple rappel des résultats : ils sont déjà pris en compte dans le calcul.",
         "ha_void_short": "Reporté", "ha_ok": "justes", "ha_pending_short": "En attente", "ha_live": "déjà joués · en cours",
         "ha_old_day": "Ce jour-là, seules les listes de paris étaient enregistrées (ancien moteur) : pas encore de verdicts par match.",
-        "ha_note": "Chaque verdict est enregistré avant le coup d'envoi, puis jugé avec le score final (ou pendant le match, dès qu'il est déjà joué). Les verdicts « serré » ne comptent pas. Corners et cartons : jugés quand les chiffres sont publiés (2 à 4 jours), non vérifiables pour les coupes.",
+        "ha_note": "Chaque verdict est enregistré avant le coup d'envoi, puis jugé avec le score final (ou pendant le match, dès qu'il est déjà joué). Les verdicts « serré » ne comptent pas. Corners et cartons : jugés dès que les chiffres sont publiés (environ 2 h après le match, 2 à 4 jours pour quelques petits championnats) ; non vérifiables après une prolongation et pour la Frauen-Bundesliga et la Serie A féminine.",
         "ha_past_title": "ce que disait l'analyse", "ha_final": "Match terminé",
         "ha_said": "Ce que donnait l'analyse", "ha_top_score": "Score le plus probable : {s}",
         "ha_see_today": "Voir les matchs à venir",
@@ -1005,12 +1015,16 @@ _V2 = {
     "en": {
         "corners_word": "corners", "cards_word": "cards", "more_corners": "More corners",
         "more_cards": "More cards", "equal_word": "{what}: level",
-        "vd_title": "Verdicts", "vd_lead": "Yes or no, and the chance that the answer is right.",
+        "vd_title": "Match picks", "vd_title_old": "Verdicts",
+        "vd_lead": "Up to 3 bets of different kinds, at odds of at least 1.30: YES or NO, and the chance that the answer is right.",
+        "vd_odds": "odds ≈ {o}",
+        "vd_none": "No bet safe enough at odds of 1.30 or more in this match: at least a 60% chance is needed. The chances of every market are still in the other tabs.",
+        "vd_picks_proof": "In the {season} season, tested without the engine having seen it, these picks came true {won} times out of {n} ({rate}) for {ann} announced, at estimated odds of {odds} on average.",
         "vd_best": "Most reliable", "vd_yes": "YES", "vd_no": "NO", "vd_open": "CLOSE",
         "vd_open_help": "Too close to call: neither yes nor no above 55%.",
         "vd_proof": "This kind of verdict came true {won} times out of {n} ({rate}) in the {season} season, tested without the engine having seen it.",
         "vd_proof_none": "No verdict is a certainty: out of 10 verdicts at {pct}, about {miss} fail.",
-        "vd_note": "The percentage is the chance that the answer (YES or NO) is right. Never a certainty.",
+        "vd_note": "The percentage is the chance that the answer (YES or NO) is right. Never a certainty. The odds are an estimate: the fair odds minus a bookmaker's usual margin (about 5%); compare them with your own bookmaker's.",
         "vd_q_win": "{team} to win?", "vd_q_dc": "{sel}?", "vd_q_ou": "Over {line} goals?",
         "vd_q_btts": "Both teams to score?", "vd_q_tt": "{team} to score?",
         "vd_q_co": "Over {line} corners?", "vd_q_ca": "Over {line} cards?",
@@ -1028,13 +1042,13 @@ _V2 = {
         "ha_pending": "Waiting for the result", "ha_void": "Match postponed or cancelled",
         "ha_unverif": "Not verifiable (no free figures)",
         "ha_pending_st": "Waiting for the corner and card figures",
-        "ha_wait_st": "Corners and cards: waiting for the official figures, usually published 2 to 4 days after the match. These verdicts will be judged automatically once they are out.",
+        "ha_wait_st": "Corners and cards: waiting for the figures, usually out about 2 hours after the final whistle (2 to 4 days for a few smaller leagues). These verdicts will be judged automatically once they are out.",
         "ha_engine_v1": "Previous engine", "ha_open_match": "See the verdicts",
         "ha_past_match": "This match is over. Here is what our analysis said.",
         "rel_title": "Verified reliability",
         "pk_why": "Why",
         "rel_tested": "matches tested on the {season} season, which the engine had never seen",
-        "rel_best": "of “most reliable” verdicts right in that test ({a} announced)",
+        "rel_best": "of match picks (up to 3, odds of 1.30 or more) right in that test ({a} announced)",
         "tk_same_match": "Two picks come from the same match: they are linked, so the slip's real chance may differ.",
         "yesterday_title": "Yesterday",
         "yesterday_line": "{won} bets won out of {n} ({rate})",
@@ -1060,7 +1074,7 @@ _V2 = {
         "form_note": "Just a reminder of past results: they are already part of the calculation.",
         "ha_void_short": "Postponed", "ha_ok": "right", "ha_pending_short": "Pending", "ha_live": "settled · in play",
         "ha_old_day": "On that day only the bet lists were recorded (previous engine): no per-match verdicts yet.",
-        "ha_note": "Every verdict is recorded before kick-off, then judged with the final score (or during the match, as soon as it's decided). “Close” verdicts don't count. Corners and cards: judged when the figures are published (2 to 4 days), not verifiable for cups.",
+        "ha_note": "Every verdict is recorded before kick-off, then judged with the final score (or during the match, as soon as it's decided). “Close” verdicts don't count. Corners and cards: judged once the figures are out (about 2 hours after the match, 2 to 4 days for a few smaller leagues); not verifiable after extra time and for the Frauen-Bundesliga and Serie A Women.",
         "ha_past_title": "what the analysis said", "ha_final": "Full time",
         "ha_said": "What the analysis gave", "ha_top_score": "Most likely score: {s}",
         "ha_see_today": "See upcoming matches",
@@ -1070,12 +1084,65 @@ _V2 = {
     },
 }
 
+# Le match en direct (ESPN) : onglet « Match » de la fiche, score et minute sur la liste des matchs
+_LIVE = {
+    "fr": {
+        "tab_match": "Match", "lv_title": "Le match", "lv_events": "Temps forts", "lv_stats": "Statistiques",
+        "lv_lineups": "Compositions", "lv_loading": "Chargement du match…",
+        "lv_src": "Score, temps forts, statistiques et compositions : ESPN, mis à jour chaque minute pendant le match.",
+    },
+    "en": {
+        "tab_match": "Match", "lv_title": "The match", "lv_events": "Key events", "lv_stats": "Stats",
+        "lv_lineups": "Line-ups", "lv_loading": "Loading the match…",
+        "lv_src": "Score, key events, stats and line-ups: ESPN, updated every minute during the match.",
+    },
+}
+
+_LIVE_JS = {
+    "fr": {
+        "lv_live": "En direct", "lv_ht": "MT", "lv_ht_long": "Mi-temps", "lv_ft": "Fin", "lv_ft_long": "Match terminé",
+        "lv_aet": "Ap. prol.", "lv_pen": "T.a.b.", "lv_postponed": "Reporté", "lv_canceled": "Annulé",
+        "lv_abandoned": "Arrêté", "lv_delayed": "Retardé", "lv_et": "Prolongation",
+        "lv_pre": "Le direct commence au coup d'envoi.", "lv_pre_lu": "Les compositions arrivent en général 1 h avant le match.",
+        "lv_no_ev": "Pas encore de temps fort.", "lv_no_st": "Pas de statistiques pour ce match.",
+        "lv_no_lu": "Compositions pas encore annoncées.", "lv_err": "Le direct ne répond pas pour l'instant. Nouvel essai dans une minute.",
+        "lv_gone": "Ce match n'est plus suivi en direct.",
+        "lv_pen_goal": "sur penalty", "lv_og": "contre son camp", "lv_2y": "2e jaune", "lv_assist": "passe : {n}",
+        "lv_in": "Entre", "lv_out": "Sort", "lv_subs": "Remplaçants", "lv_coach_formation": "Schéma {f}",
+        "lv_updated": "Mis à jour à {t}",
+        "st_possessionPct": "Possession", "st_totalShots": "Tirs", "st_shotsOnTarget": "Tirs cadrés",
+        "st_wonCorners": "Corners", "st_foulsCommitted": "Fautes", "st_yellowCards": "Cartons jaunes",
+        "st_redCards": "Cartons rouges", "st_offsides": "Hors-jeu", "st_saves": "Arrêts du gardien",
+        "st_totalPasses": "Passes", "st_passPct": "Passes réussies",
+        "pos_g": "G", "pos_d": "D", "pos_m": "M", "pos_a": "A",
+    },
+    "en": {
+        "lv_live": "Live", "lv_ht": "HT", "lv_ht_long": "Half-time", "lv_ft": "FT", "lv_ft_long": "Full time",
+        "lv_aet": "AET", "lv_pen": "Pens", "lv_postponed": "Postponed", "lv_canceled": "Cancelled",
+        "lv_abandoned": "Abandoned", "lv_delayed": "Delayed", "lv_et": "Extra time",
+        "lv_pre": "Live updates start at kick-off.", "lv_pre_lu": "Line-ups usually come out 1 hour before the match.",
+        "lv_no_ev": "No key events yet.", "lv_no_st": "No stats for this match.",
+        "lv_no_lu": "Line-ups not announced yet.", "lv_err": "Live data isn't responding right now. Trying again in a minute.",
+        "lv_gone": "This match is no longer covered live.",
+        "lv_pen_goal": "penalty", "lv_og": "own goal", "lv_2y": "2nd yellow", "lv_assist": "assist: {n}",
+        "lv_in": "On", "lv_out": "Off", "lv_subs": "Substitutes", "lv_coach_formation": "Formation {f}",
+        "lv_updated": "Updated at {t}",
+        "st_possessionPct": "Possession", "st_totalShots": "Shots", "st_shotsOnTarget": "Shots on target",
+        "st_wonCorners": "Corners", "st_foulsCommitted": "Fouls", "st_yellowCards": "Yellow cards",
+        "st_redCards": "Red cards", "st_offsides": "Offsides", "st_saves": "Saves",
+        "st_totalPasses": "Passes", "st_passPct": "Pass accuracy",
+        "pos_g": "GK", "pos_d": "DF", "pos_m": "MF", "pos_a": "FW",
+    },
+}
+
 for _lang in LANGS:
     UI[_lang].update(_EXTRA[_lang])
     UI[_lang].update(_BETS[_lang])
     UI[_lang].update(_V2[_lang])
     _JS[_lang].update(_JS_EXTRA[_lang])
     _JS[_lang].update(_BETS_JS[_lang])
+    UI[_lang].update(_LIVE[_lang])
+    _JS[_lang].update(_LIVE_JS[_lang])
 
 
 def pick_label(key: str, sel: str, line: float | None, lang: str, home: str, away: str) -> str:

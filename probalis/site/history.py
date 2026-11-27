@@ -38,7 +38,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from ..core import verdicts as vd
-from ..football import fixtures, signals
+from ..football import espn, fixtures, signals
 from ..football.data import CACHE, USER_AGENT, parse_csv
 from ..football.leagues import BY_CODE, current_season_start, season_codes
 from . import picks
@@ -52,6 +52,7 @@ GIVE_UP_AFTER = timedelta(days=6)                # sans score au bout de 6 jours
 MAX_LOOKUPS = 40                                 # appels TheSportsDB par construction pour les scores manquants
 AN_DAYS = 30                                     # analyses des matchs gardées en détail (ensuite : le bilan du jour)
 NV = "nv"                                        # verdict non vérifiable (pas de chiffres gratuits)
+ESPN_WAIT = timedelta(hours=24)                  # corners et cartons ESPN (coupes, Arabie, femmes) : un jour au plus
 
 
 def _empty() -> dict:
@@ -241,11 +242,12 @@ def verdict_of(d: dict) -> dict:
 
 
 def analysis_record(m: dict, rel: dict) -> dict:
-    """Ce qu'on garde de l'analyse d'un match : ses verdicts, le plus sûr, le 1X2, le score le plus probable."""
+    """Ce qu'on garde de l'analyse d'un match : ses verdicts, les paris du match montrés sur la fiche (« pk », depuis
+    le 27/11/2026 ; « b » = le premier, le plus sûr), le 1X2, le score le plus probable. Tous les verdicts restent
+    enregistrés (tests de fiabilité), mais le bilan d'un match qui a « pk » ne compte que ses paris du match."""
     vs = vd.verdicts(m["markets"])
-    b = vd.best(vs, rel)
-    rec = {"v": [_vslim(v) for v in vs], "b": next((i for i, v in enumerate(vs) if v is b), None),
-           "eng": m.get("engine", "v1")}
+    pk = vd.picks(vs)
+    rec = {"v": [_vslim(v) for v in vs], "pk": pk, "b": pk[0] if pk else None, "eng": m.get("engine", "v1")}
     x = next((mk for mk in m["markets"] if mk["key"] == "1x2" and mk.get("line") is None), None)
     if x:
         rec["x"] = [round(x["sel"][s]["p"], 3) for s in ("1", "X", "2")]
@@ -355,9 +357,16 @@ def live_scores(hist: dict) -> dict[str, tuple[int, int]]:
             for mid, mt in (e.get("matches") or {}).items() if mt.get("live") and not mt.get("score")}
 
 
+def shown(rec: dict) -> list[int]:
+    """Verdicts d'une analyse montrés et comptés : ses paris du match (depuis le 27/11/2026), sinon tous (avant)."""
+    return list(rec["pk"]) if "pk" in rec else list(range(len(rec.get("v") or [])))
+
+
 def live_decided(mt: dict, rec: dict) -> bool:
     """Match en cours avec au moins un verdict déjà joué d'avance (affiché tout de suite dans l'historique)."""
-    return bool(mt.get("live")) and not mt.get("score") and not mt.get("void")         and any(r in ("won", "lost") and not d.get("o") for d, r in zip(rec.get("v") or [], rec.get("r") or []))
+    vs, res = rec.get("v") or [], rec.get("r") or []
+    return (bool(mt.get("live")) and not mt.get("score") and not mt.get("void")
+            and any(i < len(res) and res[i] in ("won", "lost") and not vs[i].get("o") for i in shown(rec)))
 
 
 def coupon_shown(cp: dict) -> str | None:
@@ -442,6 +451,51 @@ def _fd_row(fd: _FdRows, mt: dict):
     return fd.find_named(mt["league"], mt["kickoff"], mt["home"]["name"], mt["away"]["name"])
 
 
+def link_espn(hist: dict, now: datetime) -> int:
+    """Relie à ESPN les matchs de l'historique qui ne le sont pas encore (des 6 derniers jours aux 2 prochains) :
+    leur n° ESPN sert au direct des fiches et aux corners et cartons. Un match de coupe, d'Arabie saoudite ou
+    féminin marqué « non vérifiable » avant ESPN (règle d'avant le 26/11/2026) est remis en attente de ses chiffres."""
+    items, where = [], {}
+    for day, e in (hist.get("days") or {}).items():
+        for mid, mt in (e.get("matches") or {}).items():
+            if mt.get("espn") or mt.get("league") not in espn.SLUGS:
+                continue
+            ko = datetime.fromisoformat(mt["kickoff"])
+            if not (now - GIVE_UP_AFTER <= ko <= now + timedelta(days=espn.WINDOW[1])):
+                continue
+            key = f"{day}|{mid}"
+            items.append({"key": key, "league": mt["league"], "kickoff": mt["kickoff"],
+                          "home": mt["home"]["name"], "away": mt["away"]["name"]})
+            where[key] = mt
+    refs = espn.link(items, now) if items else {}
+    for key, ref in refs.items():
+        mt = where[key]
+        mt["espn"] = ref
+        if mt.get("nost") and not mt.get("st"):
+            mt.pop("nost")
+    return len(refs)
+
+
+def espn_refs(hist: dict) -> dict[str, list]:
+    """N° ESPN de chaque match de l'historique : id TheSportsDB -> [championnat ESPN, n° du match, jour]."""
+    return {mid: mt["espn"] for e in (hist.get("days") or {}).values()
+            for mid, mt in (e.get("matches") or {}).items() if mt.get("espn")}
+
+
+def _counts_hopeless(mt: dict, ko: datetime, now: datetime, domestic: bool) -> bool:
+    """Plus la peine d'attendre les corners et cartons d'un match fini : « non vérifiable »."""
+    if now > ko + GIVE_UP_AFTER:
+        return True
+    if domestic:
+        return False                      # football-data les publie dans les jours qui suivent
+    if mt.get("league") not in espn.SLUGS:
+        return True                       # ni ESPN ni football-data (Frauen-Bundesliga, Serie A féminine)
+    ref = mt.get("espn")
+    if ref and espn.finished_badly(ref):
+        return True                       # prolongation, tirs au but ou suivi incomplet chez ESPN
+    return now > ko + ESPN_WAIT
+
+
 def settle(hist: dict, now: datetime, lookups: int = MAX_LOOKUPS) -> int:
     """Remplit les scores des matchs terminés, puis le résultat de chaque pari et de chaque coupon."""
     known = None
@@ -459,18 +513,18 @@ def settle(hist: dict, now: datetime, lookups: int = MAX_LOOKUPS) -> int:
             # « non vérifiable » trop tôt : on recherche ses chiffres jusqu'à GIVE_UP_AFTER, comme les autres.
             if domestic and mt.get("nost") and not mt.get("fd") and not mt.get("st") and now <= ko + GIVE_UP_AFTER:
                 mt.pop("nost")
-            # Corners et cartons : chiffres de football-data (championnats), sinon « non vérifiable »
+            # Corners et cartons : ESPN dès la fin du match (championnats, coupes d'Europe, Arabie saoudite, femmes),
+            # sinon football-data (championnats, quelques jours après), sinon « non vérifiable »
             if mt.get("score") and not mt.get("st") and not mt.get("nost") and _has_counts(e, mid):
-                row = _fd_row(fd, mt)
-                st = {}
-                if row:
+                st = (espn.counts(mt["espn"]) if mt.get("espn") else None) or {}
+                if not st and (row := _fd_row(fd, mt)):
                     if (c := signals.corners(row)):
                         st["corners"] = [int(c[0]), int(c[1])]
                     if (c := signals.cards(row)):
                         st["cards"] = [int(c[0]), int(c[1])]
                 if st:
                     mt["st"] = st
-                elif not domestic or now > ko + GIVE_UP_AFTER:
+                elif _counts_hopeless(mt, ko, now, domestic):
                     mt["nost"] = True
             if mt.get("score") or mt.get("void"):
                 mt.pop("live", None)
@@ -554,7 +608,11 @@ def an_stats(e: dict) -> dict:
     n = won = bn = bw = 0
     ann = 0.0
     for rec in e["an"].values():
-        for i, (d, r) in enumerate(zip(rec.get("v", []), rec.get("r") or [])):
+        vs, res = rec.get("v", []), rec.get("r") or []
+        for i in shown(rec):
+            if i >= len(res):
+                continue
+            d, r = vs[i], res[i]
             if d.get("o") or r not in ("won", "lost"):
                 continue
             n += 1

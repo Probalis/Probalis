@@ -8,15 +8,15 @@
 {% macro pcts(m, labels, big=false) %}<div class="pcts{% if big %} big{% endif %}">{% call lk(m=m.slug, own=true) %}{% for p, l in [(m.p1_txt, labels[0]), (m.px_txt, labels[1]), (m.p2_txt, labels[2])] %}{% if lk.pub %}<span><b class="lkd" aria-hidden="true">00 %</b>{{ l }}</span>{% else %}<span{% if loop.index0 == m.best %} class="fav"{% endif %}><b>{{ p }}</b>{{ l }}</span>{% endif %}{% endfor %}{% endcall %}</div>{% endmacro %}
 
 {% macro match_card(m, t, root) %}
-<a class="mcard" href="{{ root }}match/{{ m.slug }}.html" data-ko="{{ m.kickoff }}" data-league="{{ m.league }}">
+<a class="mcard" href="{{ root }}match/{{ m.slug }}.html" data-ko="{{ m.kickoff }}" data-league="{{ m.league }}"{% if m.espn %} data-espn="{{ m.espn }}"{% endif %}>
   <div class="mc-top">
     <span class="time"><span class="dd" data-dshort="{{ m.kickoff }}">{{ m.day_short }}</span><time data-ko="{{ m.kickoff }}">{{ m.kickoff[11:16] }}</time></span>
     {% call lk(m=m.slug, own=true) %}{% if lk.pub %}<span class="mc-stats lkd" aria-hidden="true">{{ t.over25_short }} 00 % · {{ t.btts_short }} 00 %</span>{% else %}<span class="mc-stats">{{ t.over25_short }} {{ m.over25 }} · {{ t.btts_short }} {{ m.btts_yes }}</span>{% endif %}{% endcall %}
   </div>
   <div class="mc-body">
     <div class="mc-teams">
-      <span class="team">{{ crest(m.home_crest) }}<span class="nm">{{ m.home.name }}</span></span>
-      <span class="team">{{ crest(m.away_crest) }}<span class="nm">{{ m.away.name }}</span></span>
+      <span class="team">{{ crest(m.home_crest) }}<span class="nm">{{ m.home.name }}</span>{% if m.espn %}<b class="sc" hidden></b>{% endif %}</span>
+      <span class="team">{{ crest(m.away_crest) }}<span class="nm">{{ m.away.name }}</span>{% if m.espn %}<b class="sc" hidden></b>{% endif %}</span>
     </div>
     {% call lk(m=m.slug) %}<div class="boxes">
     {% for k, p in [('1', m.p1_txt), ('X', m.px_txt), ('2', m.p2_txt)] %}
@@ -26,6 +26,18 @@
   </div>
 </a>
 {% endmacro %}
+
+{# Le match en direct (ESPN, par notre relais /live/) : rempli par app.js (temps forts, statistiques, compositions) #}
+{% macro live_box(m, t, past=false) %}<section class="card lv js-only" data-espn="{{ m.espn }}" data-ko="{{ m.kickoff }}"{% if past %} data-past="1"{% endif %} aria-labelledby="lv-title-{{ m.slug }}" aria-busy="true">
+  <div class="card-head"><h2 id="lv-title-{{ m.slug }}">{{ t.lv_title }}</h2><span class="lv-state" hidden></span></div>
+  <div class="seg lv-seg" role="tablist" hidden>
+    <button type="button" role="tab" data-lv="ev" aria-selected="true" class="on">{{ t.lv_events }}</button>
+    <button type="button" role="tab" data-lv="st" aria-selected="false">{{ t.lv_stats }}</button>
+    <button type="button" role="tab" data-lv="lu" aria-selected="false">{{ t.lv_lineups }}</button>
+  </div>
+  <div class="lv-body" aria-live="polite"><p class="lv-msg">{{ t.lv_loading }}</p></div>
+  <p class="note lv-src">{{ t.lv_src }}</p>
+</section>{% endmacro %}
 
 {# Emplacement de publicité discret (pub maison pour l'instant), masqué pour les membres Premium #}
 {% macro ad(t, root, slot) %}<aside class="ad" data-ad="{{ slot }}" aria-label="{{ t.ad_label }}">

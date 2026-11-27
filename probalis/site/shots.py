@@ -10,9 +10,11 @@ jour. Le jour où elles ont été prises est écrit dans static/shots/shots.json
 
 Usage (depuis le dossier du dépôt, après une construction normale qui a laissé data/cache/) :
   1. python -m probalis.site.shots --prepare shots-public       (copie du vrai site, en mode démo : rien sous cadenas)
-  2. le servir : python -m http.server 8766 --directory shots-public
+  2. le servir avec le relais du direct (capture « live ») : python -m probalis.site.shots --serve shots-public
+     (Wrangler, port 8766 ; sans la capture « live », python -m http.server 8766 --directory shots-public suffit)
   3. python -m probalis.site.shots --base http://127.0.0.1:8766 --public shots-public
   4. reconstruire le site pour publier les nouvelles images (elles sont copiées dans /assets/shots/).
+Capture « live » : la carte « Le match » (ESPN) d'un vrai match fini des 3 derniers jours, grand championnat d'abord.
 """
 from __future__ import annotations
 
@@ -107,6 +109,43 @@ def _big_match(public: Path) -> dict:
     return soon[0]
 
 
+PRIME = ("E0", "SP1", "I1", "D1", "F1", "UCL", "UEL")
+
+
+def _live_match(public: Path) -> dict | None:
+    """Match fini le plus récent (3 derniers jours) relié à ESPN, grand championnat d'abord, pour la capture « live »."""
+    hist = json.loads((public / "data" / "history.json").read_text(encoding="utf-8"))
+    now = datetime.now(timezone.utc)
+    cands = []
+    for e in (hist.get("days") or {}).values():
+        for mid, mt in (e.get("matches") or {}).items():
+            ko = datetime.fromisoformat(mt["kickoff"])
+            if mt.get("espn") and mt.get("score") and mid in (e.get("an") or {}) and now - timedelta(days=3) < ko < now:
+                cands.append((mt["league"] in PRIME, ko, mt))
+    if not cands:
+        return None
+    cands.sort(key=lambda c: (c[0], c[1]), reverse=True)
+    return cands[0][2]
+
+
+def serve(public: Path, port: int = 8766) -> None:
+    """Sert `public` avec le seul relais du direct (/live/), comme en ligne, pour les captures. Le gardien /lk/ n'y est
+    pas : en mode démo, l'appli lit les blocs Premium directement."""
+    from . import build
+    from ..deploy import patched_cli
+    root = Path(tempfile.mkdtemp(prefix="probalis-live-"))
+    fn = root / "functions" / "live"
+    fn.mkdir(parents=True)
+    shutil.copy2(build.LIVE_FN, fn / "[[path]].js")
+    cli = patched_cli()
+    print(f"Site servi avec le relais du direct : http://127.0.0.1:{port}")
+    try:
+        subprocess.run(["node", "--no-warnings", str(cli), "pages", "dev", str(public.resolve()), "--port", str(port),
+                        "--ip", "127.0.0.1"], cwd=root, check=False)
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
 def _jpeg(src: Path, dst: Path, width: int) -> None:
     """Réduit la capture et l'enregistre en JPEG avec les outils de Windows (aucune bibliothèque à installer)."""
     script = (
@@ -127,11 +166,15 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", default="http://127.0.0.1:8766")
     ap.add_argument("--public", default="public", help="dossier servi à l'adresse --base")
-    ap.add_argument("--only", nargs="*", help="noms des captures à refaire (matches, match, bets, ticket, history)")
+    ap.add_argument("--only", nargs="*", help="noms des captures à refaire (matches, match, bets, ticket, history, live)")
+    ap.add_argument("--serve", metavar="DOSSIER", help="servir ce dossier avec le relais du direct, puis rien d'autre")
     ap.add_argument("--prepare", metavar="DOSSIER", help="construire d'abord le site d'exemple dans ce dossier")
     args = ap.parse_args()
     if args.prepare:
         prepare(Path(args.public), Path(args.prepare))
+        return
+    if args.serve:
+        serve(Path(args.serve))
         return
     public = Path(args.public)
     big = _big_match(public)
@@ -144,6 +187,11 @@ def main() -> None:
         "ticket": ("ticket.html", {"coupon": "1"}),
         "history": ("historique.html", {}),
     }
+    live = _live_match(public)
+    if live:  # la carte « Le match » d'un vrai match fini, en haut de l'écran
+        shots["live"] = (f"match/{live['slug']}.html%23lv-title-{live['slug']}", {})
+    elif not args.only or "live" in args.only:
+        raise SystemExit("Aucun match fini relié à ESPN pour la capture « live ».")
     helper = public / "__shot.html"
     helper.write_text(HELPER, encoding="utf-8")
     OUT.mkdir(parents=True, exist_ok=True)
@@ -170,7 +218,8 @@ def main() -> None:
             # Jour où les captures ont été prises (heure d'Afrique centrale et de l'Ouest, UTC+1) : elles montrent des
             # matchs de plusieurs jours (aujourd'hui, demain, le grand match de la semaine), d'où la date de prise de vue.
             taken = datetime.now(timezone(timedelta(hours=1))).date().isoformat()
-            (OUT / "shots.json").write_text(json.dumps({"day": taken, "match": big["slug"]}, indent=1), encoding="utf-8")
+            (OUT / "shots.json").write_text(json.dumps({"day": taken, "match": big["slug"], "live": live["slug"]}, indent=1),
+                                            encoding="utf-8")
     finally:
         helper.unlink(missing_ok=True)
         shutil.rmtree(tmp, ignore_errors=True)

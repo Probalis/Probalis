@@ -6,6 +6,10 @@ Chaque verdict répond à une question simple (« Plus de 2,5 buts ? », « Les 
 - p : la probabilité que la réponse donnée soit la bonne ;
 - open : True quand c'est trop serré pour trancher (moins de OPEN_BELOW).
 Le même code sert au site (fiche match, historique) et aux tests de fiabilité (football/tune.py).
+
+La fiche ne montre que les « paris du match » (picks, depuis le 27/11/2026, demandé par le porteur du projet : trop de
+verdicts à 1,10 embrouillaient) : au plus PICK_MAX verdicts, de types différents, avec au moins PICK_MIN_P de chance et
+une cote estimée chez le bookmaker d'au moins PICK_MIN_ODDS, au plus un sur les corners ou les cartons.
 """
 from __future__ import annotations
 
@@ -14,6 +18,14 @@ GOAL_LINES = (1.5, 2.5, 3.5)
 CORNER_LINES = (8.5, 9.5, 10.5)
 CARD_LINES = (3.5, 4.5)
 MIN_CELL = 30  # verdicts comparables nécessaires pour s'appuyer sur le passé
+
+BOOK_MARGIN = 0.05     # cote « bookmaker » estimée = cote juste / 1,05 (marge moyenne d'un marché classique)
+PICK_MAX = 3
+PICK_MIN_P = 0.60
+PICK_MIN_ODDS = 1.30   # soit une chance d'au plus 73,2 %
+# Types de paris : jamais deux du même type parmi les paris du match (corners et cartons comptent pour un seul)
+PICK_GROUP = {"win": "result", "dc": "result", "ou1.5": "goals", "ou2.5": "goals", "ou3.5": "goals",
+              "btts": "btts", "tt": "team", "co": "counts", "ca": "counts"}
 
 
 def _find(markets: list[dict], key: str, line=None) -> dict | None:
@@ -82,11 +94,34 @@ def expected(rel: dict, v: dict) -> float:
 
 
 def best(vs: list[dict], rel: dict) -> dict | None:
-    """Le verdict le plus sûr du match."""
+    """Le verdict le plus sûr du match, toutes cotes confondues (règle d'avant le 27/11/2026, gardée pour les tests)."""
     cands = [v for v in vs if not v["open"]]
     if not cands:
         return None
     return max(cands, key=lambda v: expected(rel, v))
+
+
+def book_odds(p: float) -> float:
+    """Cote estimée chez le bookmaker pour une chance p : cote juste (1 / p) divisée par 1 + marge (comme
+    site/picks.book_odds, onglets Paris et Ticket)."""
+    return (1 / p) / (1 + BOOK_MARGIN) if p > 0 else 0.0
+
+
+def picks(vs: list[dict]) -> list[int]:
+    """Les paris du match : positions dans `vs`, le plus sûr d'abord (chance annoncée la plus haute)."""
+    cands = sorted((i for i, v in enumerate(vs)
+                    if not v["open"] and v["p"] >= PICK_MIN_P and book_odds(v["p"]) >= PICK_MIN_ODDS - 1e-9),
+                   key=lambda i: (-vs[i]["p"], i))
+    out, groups = [], set()
+    for i in cands:
+        g = PICK_GROUP.get(vs[i]["fam"], vs[i]["fam"])
+        if g in groups:
+            continue
+        out.append(i)
+        groups.add(g)
+        if len(out) == PICK_MAX:
+            break
+    return out
 
 
 def _outcome(key: str, line, sel: str, hg: int, ag: int) -> bool:

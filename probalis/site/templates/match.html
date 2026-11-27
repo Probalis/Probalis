@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_card.html" import crest, league_logo, bar3, pcts, ad, lock_pill %}
+{% from "_card.html" import crest, league_logo, bar3, pcts, ad, lock_pill, live_box %}
 {% macro row(r, sub=none) %}<div class="r"><div class="r-l"><span>{{ r.label }}{% if r.push %} <small>({{ t.push }} {{ r.push }})</small>{% endif %}</span>{% if sub %}<small>{{ sub }}</small>{% endif %}<i class="meter"><i class="{{ r.level }}" style="width: {{ r.w }}%"></i></i></div><b class="r-p">{{ r.pct }}</b><span class="pill">{{ r.fair }}</span></div>{% endmacro %}
 {% macro vd_live(res) %}{% if res %}<span class="pk-res {{ res }} vd-live">{{ icon({'won': 'check', 'lost': 'x'}[res], 12, 3) }}{{ t['vd_live_' ~ res] }}</span>{% endif %}{% endmacro %}
 {% macro legend() %}<span class="legend" aria-hidden="true"><span>{{ t.chance }}</span><span>{{ t.fair_odds }}</span></span>{% endmacro %}
@@ -19,7 +19,7 @@
   <div class="hero-teams">
     <h1 class="sr-only">{{ m.home.name }} – {{ m.away.name }}</h1>
     <div class="side"><span class="disc xl">{{ crest(m.home_crest, big=true, eager=true) }}</span><span class="nm">{{ m.home.name }}</span></div>
-    <div class="hero-when"><time class="big" data-ko="{{ m.kickoff }}">{{ m.kickoff[11:16] }}</time><small data-dmed="{{ m.kickoff }}">{{ m.day_med }}</small></div>
+    <div class="hero-when"><time class="big" data-ko="{{ m.kickoff }}">{{ m.kickoff[11:16] }}</time><small data-dmed="{{ m.kickoff }}">{{ m.day_med }}</small>{% if m.espn %}<b class="big lv-sc" hidden></b><small class="lv-cl" hidden></small>{% endif %}</div>
     <div class="side"><span class="disc xl">{{ crest(m.away_crest, big=true, eager=true) }}</span><span class="nm">{{ m.away.name }}</span></div>
   </div>
   {{ bar3(m, big=true) }}
@@ -65,6 +65,7 @@
 <div class="tabs-anchor" id="tabs-anchor"></div>
 <nav class="ptabs scroll-x" aria-label="{{ t.market_tabs }}">
   <a href="#p-resume" id="tab-resume" class="on">{{ t.summary }}</a>
+  {% if m.espn %}<a href="#p-match" id="tab-match" class="js-only">{{ t.tab_match }}<span class="tab-live" hidden></span></a>{% endif %}
   {% for g in m.groups %}
   <a href="#p-{{ g.key }}" id="tab-{{ g.key }}">{{ g.title }}{% if g.locked %}<span class="tab-lock">{{ icon('lock', 12, 2.6) }}</span>{% endif %}</a>
   {% endfor %}
@@ -74,20 +75,20 @@
   <section class="card locked vcard" aria-labelledby="vd-title">
     <div class="card-head"><h2 id="vd-title">{{ t.vd_title }}</h2>{{ lock_pill(t, root) }}</div>
     <p class="vd-lead">{{ t.vd_lead }}</p>
-    {% call lk(m=m.slug) %}<div class="vd-wrap">
+    {% call lk(m=m.slug) %}<div class="vd-wrap{% if not m.vd.rows %} vd-solo{% endif %}">
     {% if m.vd.top %}<div class="vd-top">
       <span class="vd-tag">{{ t.vd_best }}</span>
       <div class="vd-q">{{ m.vd.top.q }}</div>
-      <div class="vd-ans"><b class="vd-a {{ m.vd.top.cls }}">{{ m.vd.top.ans }}</b><span class="vd-p">{{ m.vd.top.pct }}</span>{{ vd_live(m.vd.top.live) }}</div>
+      <div class="vd-ans"><b class="vd-a {{ m.vd.top.cls }}">{{ m.vd.top.ans }}</b><span class="vd-p">{{ m.vd.top.pct }}</span><span class="vd-o">{{ t.vd_odds.format(o=m.vd.top.odds) }}</span>{{ vd_live(m.vd.top.live) }}</div>
       <p class="vd-proof">{{ m.vd.top.proof }}</p>
-    </div>{% endif %}
-    <div class="vds">
-    {% for v in m.vd.rows %}<div class="vd{% if v.best %} is-best{% endif %}"><span class="vd-q">{{ v.q }}</span><b class="vd-a {{ v.cls }}">{{ v.ans }}</b><b class="vd-p">{{ v.pct }}</b><i class="meter"><i class="{{ v.level }}" style="width: {{ v.w }}%"></i></i>{{ vd_live(v.live) }}</div>
+    </div>{% else %}<p class="vd-none">{{ t.vd_none }}</p>{% endif %}
+    {% if m.vd.rows %}<div class="vds">
+    {% for v in m.vd.rows %}<div class="vd"><span class="vd-q">{{ v.q }}</span><b class="vd-a {{ v.cls }}">{{ v.ans }}</b><b class="vd-p">{{ v.pct }}</b><span class="vd-o">{{ t.vd_odds.format(o=v.odds) }}</span><i class="meter"><i class="{{ v.level }}" style="width: {{ v.w }}%"></i></i>{{ vd_live(v.live) }}</div>
     {% endfor %}
-    </div>
+    </div>{% endif %}
     {% if m.vd.counts_txt %}<p class="vd-counts">{{ icon('target', 14, 2.2) }}<span>{{ m.vd.counts_txt }}</span></p>{% endif %}
     </div>{% endcall %}
-    <p class="note">{{ t.vd_note }}{% if m.vd.no_counts %} {{ m.vd.none_txt }}{% elif m.vd.partial %} {{ t.vd_partial }}{% endif %}</p>
+    <p class="note">{{ t.vd_note }}{% if m.vd.picks_proof %} {{ m.vd.picks_proof }}{% endif %}{% if m.vd.no_counts %} {{ m.vd.none_txt }}{% elif m.vd.partial %} {{ t.vd_partial }}{% endif %}</p>
   </section>
 
   {% if m.why %}<section class="card locked">
@@ -191,6 +192,10 @@
     {% endif %}
   </section>
 </section>
+
+{% if m.espn %}<section class="panel js-only" id="p-match" aria-label="{{ t.tab_match }}">
+  {{ live_box(m, t) }}
+</section>{% endif %}
 
 {% for g in m.groups %}
 <section class="panel" id="p-{{ g.key }}" aria-label="{{ g.title }}">

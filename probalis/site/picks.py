@@ -13,11 +13,11 @@ from __future__ import annotations
 import math
 from datetime import datetime, timedelta, timezone
 
+from ..core.verdicts import BOOK_MARGIN  # même marge que les paris de la fiche
 from ..football.leagues import BY_CODE
 
 # Jour « Probalis » : heure d'Afrique de l'Ouest et d'Europe centrale en hiver (UTC+1).
 DAY_TZ = timezone(timedelta(hours=1))
-BOOK_MARGIN = 0.05
 N_PICKS = 5
 
 STANDARD = (("1x2", None, ("1", "2")), ("dc", None, ("1X", "X2", "12")),

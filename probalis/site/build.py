@@ -20,6 +20,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup, escape
 
 from ..core import verdicts as vd
+from ..football import espn
 from ..football.engine import load_params
 from ..football.leagues import BY_CODE, LEAGUES
 from . import config, explain, history, i18n, picks, qr, site_text
@@ -217,33 +218,48 @@ def _live_verdict(v: dict, live: tuple | None) -> str | None:
     return history.live_result(lambda h, a: vd.settle(v, h, a), *live)
 
 
+def _picks_proof(lang: str) -> str | None:
+    """Bilan des paris du match sur la saison de test (football/tune.py, « _picks » du tableau de fiabilité)."""
+    params = load_params()
+    pk = (params.reliability or {}).get("_picks")
+    if not pk or not pk[0]:
+        return None
+    return i18n.UI[lang]["vd_picks_proof"].format(
+        season=_season_label((params.meta or {}).get("test")), won=i18n.count(pk[1], lang), n=i18n.count(pk[0], lang),
+        rate=i18n.pct(pk[1] / pk[0], lang), ann=i18n.pct(pk[2] / pk[0], lang), odds=i18n.odds(pk[3] / pk[0], lang))
+
+
 def _verdicts_view(m: dict, lang: str, live: tuple | None = None) -> dict:
-    """Les verdicts OUI / NON de la fiche, et le plus sûr avec sa preuve (verdicts comparables du passé).
+    """Les paris du match (au plus 3, cote estimée d'au moins 1,30 : core.verdicts.picks), le premier (le plus sûr)
+    mis en avant avec sa preuve (verdicts comparables du passé). Les autres verdicts ne sont plus montrés (27/11/2026).
     live : score en direct du match en cours ; les verdicts déjà joués d'avance portent « Déjà validé / perdu »."""
     t = i18n.UI[lang]
     home, away = m["home"]["name"], m["away"]["name"]
     params = load_params()
     rel = params.reliability
     vs = vd.verdicts(m["markets"])
-    best = vd.best(vs, rel)
+    chosen = [vs[i] for i in vd.picks(vs)]
     rows = []
-    for v in vs:
+    for v in chosen[1:]:
         ans, cls = verdict_answer(v, lang)
         rows.append({"q": verdict_question(v, lang, home, away), "ans": ans, "cls": cls,
                      "pct": i18n.pct(v["p"], lang), "w": round(min(max(v["p"], 0), 1) * 100, 1),
-                     "level": _level(v["p"]), "best": v is best, "live": _live_verdict(v, live)})
+                     "odds": i18n.odds(vd.book_odds(v["p"]), lang),
+                     "level": _level(v["p"]), "live": _live_verdict(v, live)})
     top = None
-    if best:
+    if chosen:
+        best = chosen[0]
         ans, cls = verdict_answer(best, lang)
         rec = vd.record(rel, best)
         if rec:
-            proof = t["vd_proof"].format(won=i18n.num(rec[1], lang, 0), n=i18n.num(rec[0], lang, 0),
+            proof = t["vd_proof"].format(won=i18n.count(rec[1], lang), n=i18n.count(rec[0], lang),
                                          rate=i18n.pct(rec[1] / rec[0], lang),
                                          season=_season_label((params.meta or {}).get("test")))
         else:
             proof = t["vd_proof_none"].format(pct=i18n.pct(best["p"], lang), miss=max(1, round((1 - best["p"]) * 10)))
         top = {"q": verdict_question(best, lang, home, away), "ans": ans, "cls": cls,
-               "pct": i18n.pct(best["p"], lang), "proof": proof, "live": _live_verdict(best, live)}
+               "pct": i18n.pct(best["p"], lang), "odds": i18n.odds(vd.book_odds(best["p"]), lang),
+               "proof": proof, "live": _live_verdict(best, live)}
     counts = m.get("counts") or {}
     counts_txt = None
     if counts.get("corners") and counts.get("cards"):
@@ -254,7 +270,7 @@ def _verdicts_view(m: dict, lang: str, live: tuple | None = None) -> dict:
     lg = BY_CODE.get(m["league"])
     none_txt = t["counts_none_cup" if lg and lg.category == "europe" else "counts_none"]
     return {"rows": rows, "top": top, "counts_txt": counts_txt, "partial": bool(counts.get("partial")),
-            "no_counts": not counts, "none_txt": none_txt}
+            "no_counts": not counts, "none_txt": none_txt, "picks_proof": _picks_proof(lang)}
 
 
 def _compare_label(key: str, s: str, line, lang: str, home: str, away: str) -> str:
@@ -554,9 +570,10 @@ def _reliability(lang: str) -> dict:
     """Chiffres de la carte « fiabilité » de l'onglet Paris, tirés du test du moteur (saison jamais vue)."""
     p = load_params()
     meta = p.meta or {}
-    b = (p.reliability or {}).get("_best") or [0, 0, 0]
+    # Depuis le 27/11/2026 : bilan des paris du match (ceux de la fiche), plus celui de l'ancien « le plus sûr »
+    b = (p.reliability or {}).get("_picks") or [0, 0, 0]
     n = (meta.get("matches") or {}).get("test") or b[0]
-    out = {"n": i18n.num(n, lang, 0) if n else None, "season": _season_label(meta.get("test"))}
+    out = {"n": i18n.count(n, lang) if n else None, "season": _season_label(meta.get("test"))}
     if b[0]:
         out["best"] = i18n.pct(b[1] / b[0], lang)
         out["best_ann"] = i18n.pct(b[2] / b[0], lang)
@@ -594,14 +611,20 @@ PAST_DAYS = 3   # matchs terminés qui gardent leur page (aujourd'hui, hier, ava
 
 
 def _an_rows(rec: dict, lang: str, home: str, away: str) -> list[dict]:
-    res = rec.get("r") or [None] * len(rec.get("v", []))
+    """Verdicts d'une analyse enregistrée : ses paris du match (depuis le 27/11/2026), sinon tous ses verdicts."""
+    vs = rec.get("v", [])
+    res = rec.get("r") or [None] * len(vs)
     rows = []
-    for i, (d, r) in enumerate(zip(rec.get("v", []), res)):
+    for i in history.shown(rec):
+        if i >= len(vs):
+            continue
+        d, r = vs[i], (res[i] if i < len(res) else None)
         v = history.verdict_of(d)
         ans, cls = verdict_answer(v, lang)
         rows.append({"q": verdict_question(v, lang, home, away), "ans": ans, "cls": cls, "pct": i18n.pct(v["p"], lang),
                      "res": "open" if v["open"] and r in ("won", "lost") else r, "best": i == rec.get("b"),
-                     "open": v["open"], "k": v["key"]})
+                     "open": v["open"], "k": v["key"],
+                     "odds": i18n.odds(vd.book_odds(v["p"]), lang) if "pk" in rec else None})
     return rows
 
 
@@ -620,11 +643,11 @@ def _an_match(e: dict, mid: str, rec: dict, lang: str, links: set) -> dict:
     return {**mm, "id": mid, "league": mt["league"], "rows": rows, "best": best, "status": status,
             "ok": sum(1 for r in done if r["res"] == "won"), "n": len(done),
             "nv": any(r["res"] == history.NV for r in rows),
-            # Match fini, corners ou cartons pas encore publiés (football-data, 2 à 4 jours) : on l'explique
+            # Match fini, corners ou cartons pas encore publiés (ESPN ~2 h, football-data 2 à 4 jours) : on l'explique
             "wait_st": status == "done" and any(r["res"] is None and r["k"] in ("co", "ca") for r in rows),
             "score_txt": f"{mt['score'][0]} - {mt['score'][1]}" if mt.get("score") else None,
             "x": [i18n.pct(p, lang) for p in rec.get("x") or []], "ts": (rec.get("ts") or "").replace("-", " - "),
-            "st": mt.get("st"), "eng_old": rec.get("eng") == "v1"}
+            "st": mt.get("st"), "eng_old": rec.get("eng") == "v1", "picks": "pk" in rec}
 
 
 def _an_sum_txt(s: dict, lang: str) -> dict:
@@ -706,6 +729,7 @@ def _past_view(e: dict, mid: str, rec: dict, lang: str, links: set) -> dict:
     if st.get("cards"):
         stats.append(f"{st['cards'][0]} – {st['cards'][1]} {t['cards_word']}")
     return {**v, "slug": mt["slug"], "day_med": i18n.day_med(ko, lang), "stats": " · ".join(stats),
+            "espn": "/".join(mt["espn"]) if mt.get("espn") else None, "kickoff": mt["kickoff"],
             "league_name": (lg.name_fr if lang == "fr" else lg.name_en) if lg else ""}
 
 
@@ -793,6 +817,7 @@ def _write_locked(lk: Locker, tk: dict, version: str, data: dict, base: Path) ->
 
 
 GUARD = HERE / "guard.js"
+LIVE_FN = HERE / "live.mjs"
 
 
 def _write_guard(cfg: dict, lk_dir: str) -> None:
@@ -807,6 +832,15 @@ def _write_guard(cfg: dict, lk_dir: str) -> None:
         shutil.rmtree(dst.parent)
     dst.parent.mkdir(parents=True)
     dst.write_text(js, encoding="utf-8")
+
+
+def _write_live() -> None:
+    """Le relais du match en direct (Cloudflare Pages Function, adresses /live/), copié tel quel."""
+    dst = ROOT / "functions" / "live" / "[[path]].js"
+    if dst.parent.exists():
+        shutil.rmtree(dst.parent)
+    dst.parent.mkdir(parents=True)
+    shutil.copy2(LIVE_FN, dst)
 
 
 SIMULATION = HERE / "simulation.json"
@@ -1070,7 +1104,11 @@ def build(data: dict) -> Path:
     today = picks.day_key(now)
     hist = history.load(site["site_url"])
     history.update(hist, data["matches"], now)
+    n_espn = history.link_espn(hist, now)  # n° ESPN des matchs : direct des fiches, corners et cartons
     settled = history.settle(hist, now)
+    refs = history.espn_refs(hist)
+    print(f"ESPN : {n_espn} match(s) relié(s) ce calcul, {len(refs)} en tout"
+          + (f" (erreurs : {', '.join(f'{k} ×{n}' for k, n in espn.errors.items())})" if espn.errors else "") + ".")
     if settled:
         print(f"Historique : {settled} résultat(s) de match ajouté(s).")
     live = history.live_scores(hist)  # matchs en cours : paris et verdicts déjà joués d'avance
@@ -1089,6 +1127,8 @@ def build(data: dict) -> Path:
     for lang in i18n.LANGS:
         t = i18n.UI[lang]
         views = [_match_view(m, lang, info, sections, live) for m in data["matches"] if m["league"] in BY_CODE]
+        for v in views:
+            v["espn"] = "/".join(refs[v["id"]]) if v["id"] in refs else None
         common = {"lang": lang, "t": t, "other_lang": "en" if lang == "fr" else "fr", "version": version,
                   "generated": generated, "generated_iso": data["generated_at"], "js": i18n.js_strings(lang),
                   "cfg": cfg, "site": site, "free_markets": sorted(config.FREE_MARKETS),
@@ -1189,6 +1229,7 @@ def build(data: dict) -> Path:
     lk_dir = _lk_dir(cfg)
     _write_locked(lk, tk, version, data, PUBLIC / lk_dir)
     _write_guard(cfg, lk_dir)
+    _write_live()
     history.save(hist, PUBLIC / "data", now)
     n_logos = LOGOS.publish(PUBLIC)
     print(f"Logos : {n_logos // 2} publiés sur notre site" + (f", {len(LOGOS.missing)} encore chez TheSportsDB"

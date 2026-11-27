@@ -28,6 +28,57 @@
 - **Sportradar (regardé le 22/11/2026) :** essai gratuit de 30 jours (1 000 requêtes, 1 par seconde, un produit),
   mais réservé à un test interne : interdit de publier ou d'afficher les données. Ensuite, contrat payant sans prix
   public. Pas retenu.
+- **Recherche sur GitHub (23/11/2026, demandée par le porteur du projet)** : 244 projets passés en revue (API, jeux de
+  données, programmes de collecte). Aucun n'est à la fois récent, complet et gratuit pour un site payant : les plus
+  complets sont payants ou récupèrent les données de sites sans leur accord.
+  - **À retenir : `martj42/international_results`** (domaine public, CC0) : tous les matchs internationaux masculins
+    depuis 1872, plus de 49 000, à jour au 17/11/2026, avec la CAN et ses qualifications, les tirs au but et les
+    buteurs. Base possible pour les équipes nationales (voir le cahier des charges, partie 10).
+  - **Gratuits sous conditions :** SportScore (`Backspace-me/sportscore-mcp`, sans clé, environ 1 000 appels par jour,
+    scores en direct et compositions, lien « Powered by SportScore » obligatoire, couverture à vérifier) ; Football Charts
+    (`ddevetak/footballcharts-mcp`, 98 championnats dont féminins, xG d'équipe pour environ 60 championnats, mais la clé
+    gratuite est réservée à un usage personnel : offre payante pour un site) ; `rezarahiminia/livescoreFootball`
+    (worldcup26.ir, sans clé, mais service d'un particulier sans licence) ; odds.adamgabor.eu (cotes passées, dont Ligue
+    des champions 2026/27 et football féminin, citées par `xgabora/Club-Football-Match-Data` : prix et conditions à vérifier).
+  - **Libres, à tester plus tard :** `withqwerty/reep` (CC0 : correspondance des noms d'équipes et de joueurs entre
+    Transfermarkt, FBref, UEFA, Sofascore…, pourrait aider à relier les noms entre nos sources ; seul son résumé a été lu) ;
+    `martineastwood/penaltyblog` (MIT : outils de calcul, Dixon-Coles, retrait de la marge des bookmakers, classements Elo
+    et Pi, pour comparer avec notre moteur ; pas une source de données) ; `openfootball/worldcup.json` (CC0, Coupes du monde).
+  - **Risqués pour un site payant :** les programmes qui récupèrent Sofascore, FotMob, Flashscore, WhoScored, FBref ou
+    Understat (`probberechts/soccerdata`, `manucabral/EasySoccerData`, `oseymour/ScraperFC`…) ; leurs conditions
+    l'interdisent ou ne le permettent pas, et ils cassent quand ces sites changent. De même : la documentation FotMob
+    (`pseudo-r/Public-FotMob-API`, dont le texte rappelle que les conditions de FotMob interdisent la collecte
+    automatique), les programmes de cotes OddsPortal, bet365 et Flashscore, les paquets Understat (xG), `n-eq/kooora-unofficial-api`
+    (football arabe et africain, abandonné depuis 2023), `Johnserf-Seed/SportteryAPI` (cotes de la loterie sportive
+    chinoise, conditions inconnues), `Ryzellx/football-live-api` et `holoduke/livescore-mcp` (sources pas claires). L'adresse ouverte d'ESPN donne les
+    corners juste après le match (essai du 23/11/2026 : Manchester City – Fulham, 8 et 6), mais sans conditions
+    officielles : à ne pas utiliser sans accord écrit d'ESPN.
+  - **Sans intérêt ici :** `transfermarkt-datasets` (mises à jour arrêtées depuis juillet 2026), StatsBomb Open Data
+    (anciens matchs seulement), openfootball (moins que ce qu'on a déjà), `rezarahiminia/livescoreFootball` (Angleterre
+    et Espagne seulement, service d'un particulier), `xgabora/Club-Football-Match-Data` (copie de football-data et ClubElo,
+    arrêtée au 3/09/2026), American Soccer Analysis (championnats des États-Unis, pas suivis), l'API du championnat de
+    Tanzanie (pas suivi), `FPL-Core-Insights` (joueurs de Premier League pour le jeu Fantasy), les SDK d'API payantes
+    (Sportmonks, API-Football, GOAL API, AllSportsAPI et FootAPI sur RapidAPI, Lumify, ScrapingBee).
+- **Sélection du 23/11/2026 (direct, compositions, statistiques, xG, cotes)** : le porteur du projet veut les meilleures
+  sources, avec ou sans autorisation officielle. Rien n'est encore branché (voir le cahier des charges, partie 10,
+  « Version 2 proposée »).
+  - **ESPN** (`site.api.espn.com/apis/site/v2/sports/soccer/{code}/scoreboard` et `/summary?event=`) : essai du 23/11/2026,
+    23 de nos 25 compétitions (`eng.1`, `esp.1`, `ita.1`, `ger.1`, `fra.1`, `eng.2`, `ned.1`, `por.1`, `bel.1`, `tur.1`, `fra.2`,
+    `esp.2`, `eng.3`, `eng.4`, `eng.5`, `ksa.1`, `uefa.champions`, `uefa.europa`, `uefa.europa.conf`, `uefa.wchampions`, `eng.w.1`,
+    `fra.w.1`, `esp.w.1` ; pas trouvées : `ger.w.1`, `ita.w.1`). Compositions avec schéma, statistiques (possession, tirs, tirs
+    cadrés, corners, fautes, cartons, hors-jeu, arrêts, passes, centres), événements, cotes DraftKings (1-N-2, plus/moins,
+    handicap, format américain), CORS ouvert (le navigateur peut lire directement). National League : cartons seulement.
+    Pas d'xG. Pas d'autorisation officielle d'ESPN.
+    **Branché le 26/11/2026** (mise à niveau 1, choix du porteur du projet) : `probalis/football/espn.py` (rapprochement des
+    matchs, corners et cartons des matchs finis) et le relais `/live/` (`probalis/site/live.mjs`, direct des téléphones).
+    Nom envoyé : `Probalis/0.1` (ESPN refuse « Mozilla … Bot ») ; au plus une demande toutes les 0,6 s. Détails dans le
+    cahier des charges (5.2, 5.6, 5.8).
+  - **Understat** pour les vrais xG des 5 grands championnats (historique depuis 2014) : à tester, et à garder seulement si
+    le moteur s'améliore sur une saison jamais vue.
+  - **TheSportsDB payant** en secours : 9 $ par mois (20 $ pour une petite entreprise), direct toutes les 2 minutes,
+    compositions, statistiques et déroulé complets (la version gratuite s'arrête à 5 lignes).
+  - **Absents et blessures** : aucune source gratuite fiable (payant : API-Football, Sportmonks).
+  - **Pas utilisés :** Sofascore, FotMob, Flashscore, OddsPortal, qui se protègent contre les programmes automatiques.
 - **Sources écartées :** ClubElo (son service de calendrier est fermé et son API ne répondait plus le 19/11/2026) ; API-Football gratuit (100 appels par jour et, à vérifier avec une clé, saisons en cours peut-être réservées aux offres payantes).
 - **Premier lancement plus long** (environ 30 minutes : TheSportsDB bloque au-delà d'une dizaine d'appels par minute) : il faut télécharger toutes les anciennes journées. Elles sont ensuite gardées en cache pour toujours, les lancements suivants ne demandent que les journées en cours.
 

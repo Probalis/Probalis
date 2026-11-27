@@ -82,7 +82,7 @@ self.addEventListener('fetch', (e) => {
   }
 
   // Chiffres protégés et données : toujours demandés au serveur
-  if (url.pathname.startsWith('/lk/') || url.pathname.startsWith('/data/')) return;
+  if (url.pathname.startsWith('/lk/') || url.pathname.startsWith('/data/') || url.pathname.startsWith('/live/')) return;
 
   // Pages : seulement depuis le réseau ; sans Internet, l'écran « Pas de connexion »
   if (req.mode === 'navigate' || req.destination === 'document') {

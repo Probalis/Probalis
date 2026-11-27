@@ -147,6 +147,7 @@ def test_history_records_and_settles_analyses():
     day = hist["days"]["2026-11-21"]
     rec = day["an"]["e1"]
     assert len(rec["v"]) == 10 and rec["b"] is not None and rec["eng"] == "v2"
+    assert 1 <= len(rec["pk"]) <= 3 and rec["b"] == rec["pk"][0]   # paris du match (27/11/2026)
     # Avant la fin du match : rien de public
     pub = history.public_copy(hist, now)
     assert "an" not in pub["days"]["2026-11-21"]
@@ -159,7 +160,12 @@ def test_history_records_and_settles_analyses():
     history._apply_results(day)
     assert rec["r"][-1] == history.NV
     s = history.an_stats(day)
-    assert s["n"] >= 6 and s["won"] <= s["n"]
+    settled = [i for i in rec["pk"] if rec["r"][i] in ("won", "lost") and not rec["v"][i].get("o")]
+    assert s["n"] == len(settled) and s["won"] <= s["n"]   # seuls les paris du match comptent
+    # Analyse enregistrée avant le 27/11/2026 (sans « pk ») : tous ses verdicts comptent, comme avant
+    old = {k: v for k, v in rec.items() if k != "pk"}
+    s_old = history.an_stats({"an": {"e1": old}})
+    assert s_old["n"] >= 6
     later = ko + timedelta(hours=3)
     pub = history.public_copy(hist, later)
     assert "e1" in pub["days"]["2026-11-21"]["an"]

@@ -341,6 +341,7 @@ def reliability(d: Data, p: EngineParams) -> dict:
     """Pour chaque famille de verdicts et chaque tranche de 5 points : combien, combien de réussis, annoncé."""
     table: dict = defaultdict(lambda: defaultdict(lambda: [0, 0, 0.0]))
     best = [0, 0, 0.0]
+    pk = [0, 0, 0.0, 0.0]  # paris du match (vd.picks) : nombre, réussis, chance annoncée, cote estimée (sommes)
     for r, markets in predictions(d, p, market=True):
         stats = {"corners": r.get("coA"), "cards": r.get("caA")}
         vs = vd.verdicts(markets)
@@ -352,6 +353,13 @@ def reliability(d: Data, p: EngineParams) -> dict:
             cell[0] += 1
             cell[1] += res == "won"
             cell[2] += v["p"]
+        for i in vd.picks(vs):
+            res = vd.settle(vs[i], r["s"][0], r["s"][1], stats)
+            if res in ("won", "lost"):
+                pk[0] += 1
+                pk[1] += res == "won"
+                pk[2] += vs[i]["p"]
+                pk[3] += vd.book_odds(vs[i]["p"])
         b = vd.best(vs, {})
         if b:
             res = vd.settle(b, r["s"][0], r["s"][1], stats)
@@ -362,6 +370,7 @@ def reliability(d: Data, p: EngineParams) -> dict:
     out = {fam: {bd: [c[0], c[1], round(c[2], 3)] for bd, c in sorted(cells.items())}
            for fam, cells in sorted(table.items())}
     out["_best"] = [best[0], best[1], round(best[2], 3)]
+    out["_picks"] = [pk[0], pk[1], round(pk[2], 3), round(pk[3], 3)]
     return out
 
 
@@ -453,6 +462,10 @@ def main() -> None:
     if b[0]:
         print(f"Verdict « le plus sûr » sur {args.test} : {b[1]}/{b[0]} réussis ({b[1] / b[0]:.1%}) "
               f"pour {b[2] / b[0]:.1%} annoncés")
+    pk = rel.get("_picks") or [0, 0, 0, 0]
+    if pk[0]:
+        print(f"Paris du match (au plus {vd.PICK_MAX}, cote {vd.PICK_MIN_ODDS} ou plus) sur {args.test} : {pk[1]}/{pk[0]} "
+              f"réussis ({pk[1] / pk[0]:.1%}) pour {pk[2] / pk[0]:.1%} annoncés, cote estimée moyenne {pk[3] / pk[0]:.2f}")
     for fam, cells in rel.items():
         if fam.startswith("_"):
             continue

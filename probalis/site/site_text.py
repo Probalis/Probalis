@@ -33,6 +33,7 @@ SITE = {
         "shot_alt_ticket": "Le constructeur de coupons de Probalis : chance du ticket et maillon faible",
         "shot_alt_matches": "L'onglet Matchs de Probalis : les matchs du jour et leurs probabilités",
         "shot_alt_history": "L'historique public de Probalis : les listes enregistrées avant les matchs",
+        "shot_alt_live": "Le match en direct dans Probalis : temps forts, statistiques et compositions",
 
         "proof_h2": "On a vérifié sur une saison entière.",
         "proof_lead": "Saison {season}, {n} matchs de {leagues} championnats. Chaque semaine, le modèle ne connaissait que les matchs déjà "
@@ -65,10 +66,15 @@ SITE = {
         "tour": [
             {"tab": "Onglet Matchs", "shot": "match",
              "h3": "Chaque match, décortiqué",
-             "p": "Des verdicts clairs (« Plus de 2,5 buts ? OUI, 64 % »), le plus sûr mis en avant, et les raisons chiffrées "
-                  "du calcul. Plus de 90 paris par match, corners et cartons compris quand les chiffres existent, chacun avec "
+             "p": "Au plus 3 paris par match, de types différents et à une cote d'au moins 1,30 (« Plus de 2,5 buts ? OUI, "
+                  "64 % »), le plus sûr mis en avant, et les raisons chiffrées du calcul. Plus de 90 paris par match, corners et cartons compris quand les chiffres existent, chacun avec "
                   "sa chance en mots simples et sa cote juste. Et pour tout le monde : la forme des deux équipes et leurs "
                   "derniers face-à-face."},
+            {"tab": "Onglet Matchs · Match", "shot": "live",
+             "h3": "Le match en direct",
+             "p": "Minute et score sur la liste des matchs. Dans la fiche, l'onglet « Match » : les temps forts (buts, cartons, "
+                  "remplacements), les statistiques des deux équipes face à face et les compositions, mis à jour chaque minute. "
+                  "Gratuit pour tout le monde. Et les paris sur les corners et les cartons sont jugés environ 2 h après le match."},
             {"tab": "Onglet Paris", "shot": "bets",
              "h3": "Les plus sûrs du jour, en trois niveaux",
              "p": "Prudent, Équilibré ou Audacieux : chaque jour, les 5 paris les plus probables de chaque niveau, sur des marchés "
@@ -132,7 +138,7 @@ SITE = {
         "pass_names": {"week": "7 jours", "month": "30 jours", "quarter": "3 mois", "half": "6 mois", "year": "1 an"},
         "pass_best": "Le plus avantageux",
         "save_note": "Remises calculées par jour, par rapport au pass 30 jours.",
-        "prem_items": ["Tous les matchs, avec leurs verdicts OUI / NON", "Les 5 paris de chaque niveau et les coupons du jour",
+        "prem_items": ["Tous les matchs, avec leurs paris du match (OUI / NON)", "Les 5 paris de chaque niveau et les coupons du jour",
                        "Ton coupon analysé jusqu'à 10 matchs", "Sans pub"],
         "prem_note": "Pass sans abonnement : tu paies une fois, rien ne se renouvelle tout seul. "
                      "Le paiement par mobile money et carte ouvre très bientôt.",
@@ -169,8 +175,9 @@ SITE = {
 
         "faq_h2": "Questions fréquentes",
         # Sources citées dans la FAQ ; The Odds API seulement quand ses cotes sont vraiment utilisées.
-        "data_src": "football-data.co.uk et de TheSportsDB",
-        "data_src_api": "football-data.co.uk, de TheSportsDB et de The Odds API (cotes des coupes d'Europe)",
+        "data_src": "football-data.co.uk, de TheSportsDB et d'ESPN (match en direct, corners et cartons)",
+        "data_src_api": "football-data.co.uk, de TheSportsDB, de The Odds API (cotes des coupes d'Europe) et d'ESPN (match en direct, "
+                        "corners et cartons)",
         "faq": [
             ("Probalis est-il un bookmaker ?",
              "Non. Probalis ne prend aucun pari et ne touche pas à ton argent. Tu joues où tu veux ; on t'aide seulement à choisir "
@@ -184,10 +191,17 @@ SITE = {
              "créées (tirs et tirs cadrés), la forme récente, l'avantage du terrain, puis les cotes moyennes du marché quand elles "
              "existent. Ses réglages sont appris sur la saison 2024/25, puis vérifiés sur 2025/26, une saison qu'il n'avait jamais "
              "vue. Les données viennent de {data_src}."),
-            ("C'est quoi, le verdict « le plus sûr » ?",
-             "Dans chaque match, la question où le moteur est le plus sûr de sa réponse (OUI ou NON). Sur la saison 2025/26, "
-             "testée sans que le moteur l'ait vue, ce verdict s'est vérifié environ 8 fois sur 10. Ce n'est jamais une certitude : "
-             "2 fois sur 10, il ne passe pas. Chaque jour, l'historique montre lesquels sont passés."),
+            ("C'est quoi, les paris du match ?",
+             "Dans chaque match, au plus 3 paris de types différents (résultat, buts, les deux équipes marquent, corners ou "
+             "cartons…), choisis parmi ceux qui ont au moins 60 % de chance et une cote d'au moins 1,30 chez le bookmaker : pas "
+             "de pari à 1,10 qui ne rapporte presque rien. Le premier est le plus sûr. Sur la saison 2025/26, testée sans que le "
+             "moteur l'ait vue, ces paris ont réussi 68 % du temps pour 68 % annoncés, à une cote de 1,41 en moyenne : environ "
+             "2 fois sur 3, jamais une certitude. Chaque jour, l'historique montre lesquels sont passés."),
+            ("Je peux suivre le match en direct ?",
+             "Oui, gratuitement : dans la fiche du match, l'onglet « Match » donne la minute et le score, les temps forts (buts, "
+             "cartons, remplacements), les statistiques des deux équipes et les compositions, mis à jour chaque minute. La liste "
+             "des matchs montre aussi la minute et le score des matchs en cours. Les paris sur les corners et les cartons sont "
+             "jugés environ 2 h après le match."),
             ("Pourquoi jamais 100 % ?",
              "Parce que rien n'est certain dans le foot. Même un pari à 90 % perd 1 fois sur 10 : on préfère te le rappeler."),
             ("C'est quoi, la cote juste ?",
@@ -241,6 +255,7 @@ SITE = {
         "shot_alt_ticket": "The Probalis slip builder: the slip's chance and its weakest link",
         "shot_alt_matches": "The Probalis Matches tab: today's matches and their probabilities",
         "shot_alt_history": "The Probalis public history: lists saved before kick-off",
+        "shot_alt_live": "The match live in Probalis: key events, stats and line-ups",
 
         "proof_h2": "We checked it over a whole season.",
         "proof_lead": "Season {season}, {n} matches in {leagues} leagues. Each week, the model only knew the matches already played, "
@@ -273,10 +288,15 @@ SITE = {
         "tour": [
             {"tab": "Matches tab", "shot": "match",
              "h3": "Every match, broken down",
-             "p": "Clear verdicts (“Over 2.5 goals? YES, 64%”), the most reliable one up front, and the reasons behind the "
-                  "numbers. More than 90 bets per match, corners and cards included when the figures exist, each with its "
+             "p": "Up to 3 picks per match, of different kinds and at odds of at least 1.30 (“Over 2.5 goals? YES, 64%”), "
+                  "the most reliable one up front, and the reasons behind the numbers. More than 90 bets per match, corners and cards included when the figures exist, each with its "
                   "chance in plain words and its fair odds. And for everyone: both teams' form and their latest "
                   "head-to-heads."},
+            {"tab": "Matches tab · Match", "shot": "live",
+             "h3": "The match, live",
+             "p": "Minute and score on the match list. On the match page, the “Match” tab: key events (goals, cards, "
+                  "substitutions), both teams' stats side by side and the line-ups, updated every minute. Free for everyone. "
+                  "And corners and cards bets are judged about 2 hours after the match."},
             {"tab": "Bets tab", "shot": "bets",
              "h3": "Today's safest bets, in three levels",
              "p": "Safe, Balanced or Bold: every day, the 5 most likely bets of each level, on markets every bookmaker offers. "
@@ -337,7 +357,7 @@ SITE = {
         "pass_names": {"week": "7 days", "month": "30 days", "quarter": "3 months", "half": "6 months", "year": "1 year"},
         "pass_best": "Best value",
         "save_note": "Discounts worked out per day, compared with the 30-day pass.",
-        "prem_items": ["Every match, with its YES / NO verdicts", "All 5 bets of each level and today's accumulators",
+        "prem_items": ["Every match, with its match picks (YES / NO)", "All 5 bets of each level and today's accumulators",
                        "Your slip analysed up to 10 matches", "No ads"],
         "prem_note": "A pass, not a subscription: you pay once and nothing renews by itself. "
                      "Mobile money and card payments open very soon.",
@@ -373,8 +393,9 @@ SITE = {
         "qr_label": "QR code that opens Probalis",
 
         "faq_h2": "Frequently asked questions",
-        "data_src": "football-data.co.uk and TheSportsDB",
-        "data_src_api": "football-data.co.uk, TheSportsDB and The Odds API (European cup odds)",
+        "data_src": "football-data.co.uk, TheSportsDB and ESPN (live match, corners and cards)",
+        "data_src_api": "football-data.co.uk, TheSportsDB, The Odds API (European cup odds) and ESPN (live match, corners and "
+                        "cards)",
         "faq": [
             ("Is Probalis a bookmaker?",
              "No. Probalis takes no bets and never touches your money. You play wherever you like; we just help you choose with "
@@ -388,10 +409,16 @@ SITE = {
              "(shots and shots on target), recent form, home advantage, then the average market odds when they exist. Its "
              "settings are learnt on the 2024/25 season, then checked on 2025/26, a season it had never seen. Data comes from "
              "{data_src}."),
-            ("What is the “most reliable” verdict?",
-             "In every match, the question where the engine is surest of its answer (YES or NO). Over the 2025/26 season, tested "
-             "without the engine having seen it, this verdict came true about 8 times in 10. It's never a certainty: 2 times in "
-             "10 it fails. Every day, the history shows which ones came true."),
+            ("What are the match picks?",
+             "In every match, up to 3 bets of different kinds (result, goals, both teams to score, corners or cards…), chosen "
+             "among those with at least a 60% chance and odds of at least 1.30 at the bookmaker: no 1.10 bet that pays almost "
+             "nothing. The first one is the most reliable. Over the 2025/26 season, tested without the engine having seen it, "
+             "these picks came true 68% of the time for 68% announced, at odds of 1.41 on average: about 2 times in 3, never a "
+             "certainty. Every day, the history shows which ones came true."),
+            ("Can I follow the match live?",
+             "Yes, for free: on the match page, the “Match” tab shows the minute and score, key events (goals, cards, "
+             "substitutions), both teams' stats and the line-ups, updated every minute. The match list also shows the minute "
+             "and score of matches in play. Corners and cards bets are judged about 2 hours after the match."),
             ("Why never 100%?",
              "Because nothing is certain in football. Even a 90% bet loses 1 time in 10: we'd rather remind you."),
             ("What are fair odds?",
