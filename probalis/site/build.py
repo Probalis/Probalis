@@ -19,6 +19,7 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup, escape
 
+from ..core import mot
 from ..core import verdicts as vd
 from ..football import espn
 from ..football.engine import load_params
@@ -273,6 +274,45 @@ def _verdicts_view(m: dict, lang: str, live: tuple | None = None) -> dict:
             "no_counts": not counts, "none_txt": none_txt, "picks_proof": _picks_proof(lang)}
 
 
+def _mot_view(m: dict, lang: str) -> dict | None:
+    """« Le mot de Probalis » (core/mot.py) : meilleur angle, risque principal, à éviter, en phrases."""
+    t = i18n.UI[lang]
+    home, away = m["home"]["name"], m["away"]["name"]
+    w = mot.mot(m["markets"])
+    team = {"1": home, "2": away}
+    out = {}
+    a = w["angle"]
+    if a:
+        ans, _ = verdict_answer(a, lang)
+        out["angle"] = t["mot_angle_txt"].format(q=verdict_question(a, lang, home, away), ans=ans,
+                                                 pct=i18n.pct(a["p"], lang), o=i18n.odds(vd.book_odds(a["p"]), lang))
+    else:
+        out["angle"] = t["mot_angle_none"]
+    r = w["risk"]
+    if r:
+        k = "goals_max1" if r["k"] == "goals_max" and r["n"] == 1 else r["k"]
+        what = t[f"mot_r_{k}"].format(team=team.get(r.get("side"), ""), n=r.get("n"))
+        out["risk"] = t["mot_risk_txt"].format(what=what[:1].upper() + what[1:], pct=i18n.pct(r["p"], lang),
+                                               times=_times(r["p"], lang))
+    x = w["avoid"]
+    if x and x["k"] == "fav":
+        out["avoid"] = t["mot_a_fav_coin" if x["p"] >= mot.COIN[0] else "mot_a_fav_low"].format(
+            sel=t["home_win"].format(team=team[x["side"]]), pct=i18n.pct(x["p"], lang))
+    elif x and x["k"] == "coin":
+        q = verdict_question({"fam": x["fam"], "key": x["key"], "line": x["line"], "sel": x["sel"]}, lang, home, away)
+        out["avoid"] = t["mot_a_coin"].format(q=q, pct=i18n.pct(x["p"], lang))
+    elif x and x["k"] == "score":
+        out["avoid"] = t["mot_a_score"].format(score=x["score"], pct=i18n.pct(x["p"], lang))
+    params = load_params()
+    mt = (params.reliability or {}).get("_mot") or {}
+    rk, av = mt.get("risk"), mt.get("avoid")
+    if rk and av and rk[0] and av[0]:
+        out["proof"] = t["mot_proof"].format(season=_season_label((params.meta or {}).get("test")),
+                                             rr=i18n.pct(rk[1] / rk[0], lang), ra=i18n.pct(rk[2] / rk[0], lang),
+                                             ar=i18n.pct(av[1] / av[0], lang))
+    return out
+
+
 def _compare_label(key: str, s: str, line, lang: str, home: str, away: str) -> str:
     """Libellé sans ambiguïté dans la liste déroulante (« Victoire Arsenal », « Plus de 2,5 buts »…)."""
     t = i18n.UI[lang]
@@ -361,6 +401,7 @@ def _match_view(m: dict, lang: str, info: dict, sections: dict, live: dict | Non
         "odds_note": t["odds_note_api" if m.get("odds_src") == "oddsapi" else "odds_note"],
         "key_markets": _key_markets(m, lang), "compare": _compare(m, lang, best),
         "vd": _verdicts_view(m, lang, (live or {}).get(m["id"])),
+        "mot": _mot_view(m, lang),
         "why": explain.render(m.get("factors"), lang, m["home"]["name"], m["away"]["name"]),
         "form": _form_view(m, lang),
     }
@@ -537,6 +578,14 @@ def _paris_days(hist: dict, today: str, lang: str, slugs: set, horizon: int = 7,
     last = (date.fromisoformat(today) + timedelta(days=horizon)).isoformat()
     return [_day_view(day, e, lang, slugs, why) for day, e in sorted(hist.get("days", {}).items())
             if today <= day <= last and (any(e.get("tiers", {}).values()) or e.get("coupons"))]
+
+
+def _tops_today(days: list[dict], today: str) -> list[tuple[str, dict]]:
+    """Colonne de droite de la page Matchs (ordinateur) : le n° 1 de chaque niveau du jour (offert à tout compte connecté)."""
+    d = next((d for d in days if d.get("key") == today), None)
+    if not d or d.get("empty"):
+        return []
+    return [(k, d["tiers"][k][0]) for k in picks.TIERS if d.get("tiers", {}).get(k)]
 
 
 def _why_map(matches: list[dict], lang: str) -> dict:
@@ -1152,15 +1201,17 @@ def build(data: dict) -> Path:
                     groups.append({**lv, "matches": [v for v in views if v["league"] == lv["code"]]})
 
         featured, lead = _featured(views)
+        pdays = _paris_days(hist, today, lang, slugs, why=_why_map(data["matches"], lang))
+        yday = _yesterday(hist, today, lang)
         lk.start(f"{lang}/index")
         (out / "index.html").write_text(env.get_template("matches.html").render(
             **common, page="matches", root="", path="index.html", groups=groups, chips=chips, sheet=sheet,
-            featured=featured, lead=lead, n_matches=len(views)), encoding="utf-8")
+            featured=featured, lead=lead, n_matches=len(views), tops=_tops_today(pdays, today), yday=yday),
+            encoding="utf-8")
         lk.start(f"{lang}/paris")
         (out / "paris.html").write_text(env.get_template("bets.html").render(
-            **common, page="bets", root="", path="paris.html",
-            days=_paris_days(hist, today, lang, slugs, why=_why_map(data["matches"], lang)),
-            today=today, tiers=list(picks.TIERS), yday=_yesterday(hist, today, lang), rel=_reliability(lang)),
+            **common, page="bets", root="", path="paris.html", days=pdays,
+            today=today, tiers=list(picks.TIERS), yday=yday, rel=_reliability(lang)),
             encoding="utf-8")
         lk.start(f"{lang}/ticket")
         (out / "ticket.html").write_text(env.get_template("ticket.html").render(

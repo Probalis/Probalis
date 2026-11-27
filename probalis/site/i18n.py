@@ -959,6 +959,22 @@ _V2 = {
         "vd_q_co": "Plus de {line} corners ?", "vd_q_ca": "Plus de {line} cartons ?",
         "vd_partial": "Corners et cartons estimés à partir du championnat de chaque club (un des deux sans données : estimation moins sûre).",
         "why_title": "Pourquoi", "why_lead": "Les raisons de cette analyse, en buts attendus.",
+        "mot_title": "Le mot de Probalis", "mot_lead": "Le match en trois phrases, tirées des chiffres de l'analyse.",
+        "mot_angle": "Meilleur angle", "mot_risk": "Risque principal", "mot_avoid": "À éviter",
+        "mot_angle_txt": "« {q} » {ans} à {pct}, cote ≈ {o}.",
+        "mot_angle_none": "Aucun pari assez sûr à une cote de 1,30 ou plus sur ce match.",
+        "mot_risk_txt": "{what} : {pct}, {times}.",
+        "mot_r_draw": "un match nul", "mot_r_win": "victoire {team}", "mot_r_goals_max1": "1 but au plus",
+        "mot_r_goals_max": "{n} buts au plus", "mot_r_goals_min": "{n} buts ou plus",
+        "mot_r_btts": "les deux équipes marquent", "mot_r_btts_no": "une des deux équipes ne marque pas",
+        "mot_r_blank": "{team} ne marque pas", "mot_r_scores": "{team} marque",
+        "mot_r_corners_max": "{n} corners au plus", "mot_r_corners_min": "{n} corners ou plus",
+        "mot_r_cards_max": "{n} cartons au plus", "mot_r_cards_min": "{n} cartons ou plus",
+        "mot_a_fav_coin": "{sel} : seulement {pct}, presque pile ou face.",
+        "mot_a_fav_low": "{sel} : seulement {pct}, moins d'une chance sur deux.",
+        "mot_a_coin": "« {q} » : presque pile ou face ({pct} pour le OUI).",
+        "mot_a_score": "Le score exact : même le plus probable ({score}) n'arrive que {pct} du temps.",
+        "mot_proof": "Rien d'inventé : chaque phrase reprend un chiffre de l'analyse. Sur la saison {season}, testée sans que le moteur l'ait vue, le risque principal est arrivé {rr} du temps pour {ra} annoncés, et les paris « à éviter » n'ont réussi que {ar} du temps.",
         "counts_none": "Pas de chiffres de corners ni de cartons gratuits pour cette compétition.",
         "counts_none_cup": "Pas de corners ni de cartons pour ce match : aucun des deux clubs n'a de chiffres gratuits dans son championnat.",
         "counts_title": "Corners et cartons attendus",
@@ -1030,6 +1046,22 @@ _V2 = {
         "vd_q_co": "Over {line} corners?", "vd_q_ca": "Over {line} cards?",
         "vd_partial": "Corners and cards estimated from each club's league (one of them has no data: less reliable estimate).",
         "why_title": "Why", "why_lead": "The reasons behind this analysis, in expected goals.",
+        "mot_title": "Probalis's take", "mot_lead": "The match in three lines, taken from the analysis figures.",
+        "mot_angle": "Best angle", "mot_risk": "Main risk", "mot_avoid": "Avoid",
+        "mot_angle_txt": "“{q}” {ans} at {pct}, odds ≈ {o}.",
+        "mot_angle_none": "No bet safe enough at odds of 1.30 or more in this match.",
+        "mot_risk_txt": "{what}: {pct}, {times}.",
+        "mot_r_draw": "a draw", "mot_r_win": "{team} win", "mot_r_goals_max1": "1 goal at most",
+        "mot_r_goals_max": "{n} goals at most", "mot_r_goals_min": "{n} goals or more",
+        "mot_r_btts": "both teams score", "mot_r_btts_no": "one of the teams fails to score",
+        "mot_r_blank": "{team} fail to score", "mot_r_scores": "{team} score",
+        "mot_r_corners_max": "{n} corners at most", "mot_r_corners_min": "{n} corners or more",
+        "mot_r_cards_max": "{n} cards at most", "mot_r_cards_min": "{n} cards or more",
+        "mot_a_fav_coin": "{sel}: only {pct}, close to a coin flip.",
+        "mot_a_fav_low": "{sel}: only {pct}, less than a one-in-two chance.",
+        "mot_a_coin": "“{q}”: close to a coin flip ({pct} for YES).",
+        "mot_a_score": "The exact score: even the likeliest one ({score}) only comes up {pct} of the time.",
+        "mot_proof": "Nothing made up: each line uses a figure from the analysis. Over the {season} season, tested without the engine having seen it, the main risk happened {rr} of the time for {ra} announced, and the bets to avoid only won {ar} of the time.",
         "counts_none": "No free corner or card figures for this competition.",
         "counts_none_cup": "No corners or cards for this match: neither club has free figures in its league.",
         "counts_title": "Expected corners and cards",
@@ -1135,7 +1167,40 @@ _LIVE_JS = {
     },
 }
 
+# Interface tablette et ordinateur (refonte du 27/11/2026) : barre latérale, colonne de droite, recherche
+_DESK = {
+    "fr": {
+        "tb_prem_title": "Passe Premium", "tb_prem_text": "Tous les matchs, tous les paris, sans pub.",
+        "tb_prem_on": "Premium actif", "tb_prem_on_text": "Merci : tout est ouvert.",
+        "q_placeholder": "Chercher une équipe", "q_label": "Chercher une équipe dans les matchs de la semaine",
+        "side_label": "En bref", "side_tk_title": "Mon ticket", "side_open": "Ouvrir",
+        "side_tk_empty": "Ton ticket est vide. Ajoute des paris avec le bouton + des onglets Paris et Matchs.",
+        "side_tk_chance": "Chance de passer", "side_tk_odds": "Cote estimée",
+        "side_tops_title": "Le n° 1 de chaque niveau", "side_tops_lead": "Aujourd'hui, le pari le plus sûr de chaque niveau.",
+        "side_tops_anon": "Connecte-toi (gratuit) pour voir le n° 1 de chaque niveau.",
+        "side_yday": "Hier",
+        "q_none": "Aucun match à venir pour « {q} » cette semaine. Vérifie l'orthographe du nom de l'équipe.",
+        "q_clear": "Effacer la recherche",
+    },
+    "en": {
+        "tb_prem_title": "Go Premium", "tb_prem_text": "Every match, every bet, no ads.",
+        "tb_prem_on": "Premium active", "tb_prem_on_text": "Thank you: everything is open.",
+        "q_placeholder": "Search a team", "q_label": "Search a team in this week's matches",
+        "side_label": "At a glance", "side_tk_title": "My ticket", "side_open": "Open",
+        "side_tk_empty": "Your ticket is empty. Add bets with the + button in the Bets and Matches tabs.",
+        "side_tk_chance": "Chance to win", "side_tk_odds": "Estimated odds",
+        "side_tops_title": "Number 1 of each level", "side_tops_lead": "Today, the safest bet of each level.",
+        "side_tops_anon": "Sign in (free) to see the number 1 of each level.",
+        "side_yday": "Yesterday",
+        "q_none": "No upcoming match for “{q}” this week. Check the spelling of the team's name.",
+        "q_clear": "Clear the search",
+    },
+}
+_DESK_JS = ("side_tk_empty", "side_tk_chance", "side_tk_odds", "q_placeholder", "q_none", "q_clear")
+
 for _lang in LANGS:
+    UI[_lang].update(_DESK[_lang])
+    _JS[_lang].update({k: _DESK[_lang][k] for k in _DESK_JS})
     UI[_lang].update(_EXTRA[_lang])
     UI[_lang].update(_BETS[_lang])
     UI[_lang].update(_V2[_lang])

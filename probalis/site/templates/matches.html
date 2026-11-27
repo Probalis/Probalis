@@ -5,16 +5,20 @@
   <div class="kicker" id="day-label">{{ t.this_week }}</div>
   <h1 class="h1">{{ t.matches_title }}</h1>
 </div>
+<div class="home">
+<div class="home-main">
 <p class="list-lock js-only">{{ icon('lock', 16, 2.4) }}<span>{{ t.list_lock }}</span><a href="{{ root }}premium.html">{{ t.lock_cta }}</a></p>
 
 {% if not groups %}
 <p class="empty">{{ t.no_matches }}</p>
+</div></div>
 {% else %}
 <div class="days scroll-x js-only" id="days" role="group" aria-label="{{ t.choose_day }}">
   <button class="day week" type="button" data-day="all" aria-pressed="false" aria-label="{{ t.all_week }}" title="{{ t.all_week }}">{{ icon('calendar') }}</button>
 </div>
 
 <div class="lgbar js-only">
+  <label class="q-search">{{ icon('search', 18, 2.2) }}<input type="search" id="q" placeholder="{{ t.q_placeholder }}" aria-label="{{ t.q_label }}" autocomplete="off" enterkeyhint="search"></label>
   <div class="chips scroll-x" id="chips" role="group" aria-label="{{ t.leagues_title }}">
     <button class="chip all on" type="button" data-league="" aria-pressed="true"><span class="chip-ic">{{ icon('grid', 16, 2.2) }}</span>{{ t.all_leagues }}</button>
     {% for lg in chips %}
@@ -63,6 +67,32 @@
 <div class="empty-filter" id="empty" hidden>
   <p>{{ t.empty_filter }}</p>
   <button class="btn ghost" type="button" id="reset-filter">{{ t.show_all_leagues }}</button>
+</div>
+</div>
+
+<aside class="home-side" aria-label="{{ t.side_label }}">
+  <section class="sbox tk-mini js-only" id="tk-mini" aria-labelledby="tkm-title">
+    <div class="sb-head"><h2 id="tkm-title">{{ icon('ticket', 18, 2.2) }}{{ t.side_tk_title }}</h2><a class="sb-more" href="{{ root }}ticket.html">{{ t.side_open }}{{ icon('chev-right', 14, 2.6) }}</a></div>
+    <div class="tkm-body" aria-live="polite"></div>
+  </section>
+  {% if tops %}<section class="sbox" aria-labelledby="tops-title">
+    <div class="sb-head"><h2 id="tops-title">{{ icon('trend', 18, 2.2) }}{{ t.side_tops_title }}</h2><a class="sb-more" href="{{ root }}paris.html">{{ t.see_all }}{{ icon('chev-right', 14, 2.6) }}</a></div>
+    <p class="sb-lead">{{ t.side_tops_lead }}</p>
+    <p class="sb-lead sb-anon js-only">{{ icon('lock', 13, 2.4) }}<a href="{{ root }}compte.html">{{ t.side_tops_anon }}</a></p>
+    <ul class="sb-tops">
+    {% for k, e in tops %}<li>{% if e.match.slug %}<a class="sbt" href="{{ root }}match/{{ e.match.slug }}.html">{% else %}<span class="sbt">{% endif %}
+      <i class="tdot {{ k }}" aria-hidden="true"></i>
+      <span class="sbt-l"><small>{{ t['tier_' ~ k] }}</small>{% call lk(m=e.match.slug, free=true, on=not e.res, own=true) %}{% if lk.pub %}<b class="lkd" aria-hidden="true">{{ t.lk_label }}</b>{% else %}<b>{{ e.label }}</b>{% endif %}{% endcall %}<small class="sbt-m">{{ e.match.home }} – {{ e.match.away }} · <time data-ko="{{ e.match.kickoff }}">{{ e.match.kickoff[11:16] }}</time></small></span>
+      {% call lk(m=e.match.slug, free=true, on=not e.res, own=true) %}{% if lk.pub %}<b class="sbt-p lkd" aria-hidden="true">00 %</b>{% else %}<b class="sbt-p">{{ e.pct }}</b>{% endif %}{% endcall %}
+    {% if e.match.slug %}</a>{% else %}</span>{% endif %}</li>
+    {% endfor %}</ul>
+  </section>{% endif %}
+  {% if yday %}<a class="sbox yd-mini" href="{{ root }}historique.html">
+    <span class="yd-ic">{{ icon('history', 18, 2.2) }}</span>
+    <span class="yd-t"><small>{{ t.side_yday }} · {{ yday.label }}</small><b>{{ yday.txt }}</b></span>
+    {{ icon('chev-right', 18, 2.4) }}
+  </a>{% endif %}
+</aside>
 </div>
 
 <dialog class="sheet" id="sheet" aria-labelledby="sheet-title">

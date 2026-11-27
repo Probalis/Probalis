@@ -29,7 +29,7 @@ SITE = {
         "chip_chance": "Chance calculée", "chip_chance_v": "≈ 8 fois sur 10",
         "chip_weak": "Ticket scanné", "chip_weak_v": "Maillon faible repéré",
         "shot_alt_bets": "L'onglet Paris de Probalis : les paris les plus sûrs du jour, avec leur chance et leur cote juste",
-        "shot_alt_match": "L'analyse d'un match dans Probalis : chances de victoire, buts attendus, scores les plus probables",
+        "shot_alt_match": "L'analyse d'un match dans Probalis : chances de victoire et le mot de Probalis (meilleur angle, risque principal, à éviter)",
         "shot_alt_ticket": "Le constructeur de coupons de Probalis : chance du ticket et maillon faible",
         "shot_alt_matches": "L'onglet Matchs de Probalis : les matchs du jour et leurs probabilités",
         "shot_alt_history": "L'historique public de Probalis : les listes enregistrées avant les matchs",
@@ -66,7 +66,8 @@ SITE = {
         "tour": [
             {"tab": "Onglet Matchs", "shot": "match",
              "h3": "Chaque match, décortiqué",
-             "p": "Au plus 3 paris par match, de types différents et à une cote d'au moins 1,30 (« Plus de 2,5 buts ? OUI, "
+             "p": "« Le mot de Probalis » résume le match en trois phrases : le meilleur angle, le risque principal et ce qu'il "
+                  "vaut mieux éviter. Puis au plus 3 paris par match, de types différents et à une cote d'au moins 1,30 (« Plus de 2,5 buts ? OUI, "
                   "64 % »), le plus sûr mis en avant, et les raisons chiffrées du calcul. Plus de 90 paris par match, corners et cartons compris quand les chiffres existent, chacun avec "
                   "sa chance en mots simples et sa cote juste. Et pour tout le monde : la forme des deux équipes et leurs "
                   "derniers face-à-face."},
@@ -138,7 +139,7 @@ SITE = {
         "pass_names": {"week": "7 jours", "month": "30 jours", "quarter": "3 mois", "half": "6 mois", "year": "1 an"},
         "pass_best": "Le plus avantageux",
         "save_note": "Remises calculées par jour, par rapport au pass 30 jours.",
-        "prem_items": ["Tous les matchs, avec leurs paris du match (OUI / NON)", "Les 5 paris de chaque niveau et les coupons du jour",
+        "prem_items": ["Tous les matchs, avec le mot de Probalis et leurs paris du match (OUI / NON)", "Les 5 paris de chaque niveau et les coupons du jour",
                        "Ton coupon analysé jusqu'à 10 matchs", "Sans pub"],
         "prem_note": "Pass sans abonnement : tu paies une fois, rien ne se renouvelle tout seul. "
                      "Le paiement par mobile money et carte ouvre très bientôt.",
@@ -197,6 +198,12 @@ SITE = {
              "de pari à 1,10 qui ne rapporte presque rien. Le premier est le plus sûr. Sur la saison 2025/26, testée sans que le "
              "moteur l'ait vue, ces paris ont réussi 68 % du temps pour 68 % annoncés, à une cote de 1,41 en moyenne : environ "
              "2 fois sur 3, jamais une certitude. Chaque jour, l'historique montre lesquels sont passés."),
+            ("C'est quoi, le mot de Probalis ?",
+             "Trois phrases en haut de chaque fiche, tirées des chiffres de l'analyse : le meilleur angle (le plus sûr des paris "
+             "du match), le risque principal (la façon la plus probable dont il peut perdre, avec sa chance) et ce qu'il vaut "
+             "mieux éviter (le pari tentant qui est presque pile ou face, comme la victoire d'un favori à 48 %). Rien d'inventé : "
+             "sur la saison 2025/26, testée sans que le moteur l'ait vue, le risque annoncé est arrivé 29 % du temps pour 29 % "
+             "annoncés, et les paris « à éviter » n'ont réussi que 43 % du temps."),
             ("Je peux suivre le match en direct ?",
              "Oui, gratuitement : dans la fiche du match, l'onglet « Match » donne la minute et le score, les temps forts (buts, "
              "cartons, remplacements), les statistiques des deux équipes et les compositions, mis à jour chaque minute. La liste "
@@ -207,6 +214,11 @@ SITE = {
             ("C'est quoi, la cote juste ?",
              "C'est la cote qu'un pari mériterait sans marge : 1 divisé par sa chance. Un pari à 80 % a une cote juste de 1,25. "
              "Si ton bookmaker paie moins, c'est sa marge."),
+            ("Et sur ordinateur ou tablette ?",
+             "Oui, la même appli s'adapte à ton écran. Sur tablette, les onglets passent dans un rail à gauche. Sur ordinateur, "
+             "une barre latérale, une recherche d'équipe (« / » pour y aller tout de suite), les matchs en tableau et, à côté, "
+             "ton ticket en cours, le pari le plus sûr de chaque niveau et le bilan d'hier. Tu peux aussi l'installer sur ton "
+             "ordinateur, comme sur ton téléphone."),
             ("Ça marche avec une petite connexion ?",
              "Oui. L'appli est légère et charge l'essentiel d'abord. Il faut quand même Internet : sans connexion, elle te demande "
              "de te reconnecter, pour ne jamais te montrer une analyse dépassée."),
@@ -251,7 +263,7 @@ SITE = {
         "chip_chance": "Calculated chance", "chip_chance_v": "≈ 8 in 10",
         "chip_weak": "Slip scanned", "chip_weak_v": "Weakest link found",
         "shot_alt_bets": "The Probalis Bets tab: today's safest bets, with their chance and fair odds",
-        "shot_alt_match": "A match analysis in Probalis: win chances, expected goals, most likely scores",
+        "shot_alt_match": "A match analysis in Probalis: win chances and Probalis's take (best angle, main risk, what to avoid)",
         "shot_alt_ticket": "The Probalis slip builder: the slip's chance and its weakest link",
         "shot_alt_matches": "The Probalis Matches tab: today's matches and their probabilities",
         "shot_alt_history": "The Probalis public history: lists saved before kick-off",
@@ -288,7 +300,8 @@ SITE = {
         "tour": [
             {"tab": "Matches tab", "shot": "match",
              "h3": "Every match, broken down",
-             "p": "Up to 3 picks per match, of different kinds and at odds of at least 1.30 (“Over 2.5 goals? YES, 64%”), "
+             "p": "“Probalis's take” sums up the match in three lines: the best angle, the main risk and what to avoid. "
+                  "Then up to 3 picks per match, of different kinds and at odds of at least 1.30 (“Over 2.5 goals? YES, 64%”), "
                   "the most reliable one up front, and the reasons behind the numbers. More than 90 bets per match, corners and cards included when the figures exist, each with its "
                   "chance in plain words and its fair odds. And for everyone: both teams' form and their latest "
                   "head-to-heads."},
@@ -357,7 +370,7 @@ SITE = {
         "pass_names": {"week": "7 days", "month": "30 days", "quarter": "3 months", "half": "6 months", "year": "1 year"},
         "pass_best": "Best value",
         "save_note": "Discounts worked out per day, compared with the 30-day pass.",
-        "prem_items": ["Every match, with its match picks (YES / NO)", "All 5 bets of each level and today's accumulators",
+        "prem_items": ["Every match, with Probalis's take and its match picks (YES / NO)", "All 5 bets of each level and today's accumulators",
                        "Your slip analysed up to 10 matches", "No ads"],
         "prem_note": "A pass, not a subscription: you pay once and nothing renews by itself. "
                      "Mobile money and card payments open very soon.",
@@ -415,6 +428,12 @@ SITE = {
              "nothing. The first one is the most reliable. Over the 2025/26 season, tested without the engine having seen it, "
              "these picks came true 68% of the time for 68% announced, at odds of 1.41 on average: about 2 times in 3, never a "
              "certainty. Every day, the history shows which ones came true."),
+            ("What is Probalis's take?",
+             "Three lines at the top of every match page, taken from the analysis figures: the best angle (the most reliable "
+             "of the match picks), the main risk (the likeliest way it can lose, with its chance) and what to avoid (the "
+             "tempting bet that is close to a coin flip, like a favourite's win at 48%). Nothing made up: over the 2025/26 "
+             "season, tested without the engine having seen it, the announced risk happened 29% of the time for 29% "
+             "announced, and the bets to avoid only won 43% of the time."),
             ("Can I follow the match live?",
              "Yes, for free: on the match page, the “Match” tab shows the minute and score, key events (goals, cards, "
              "substitutions), both teams' stats and the line-ups, updated every minute. The match list also shows the minute "
@@ -424,6 +443,10 @@ SITE = {
             ("What are fair odds?",
              "The odds a bet would deserve with no margin: 1 divided by its chance. An 80% bet has fair odds of 1.25. If your "
              "bookmaker pays less, that's its margin."),
+            ("What about a computer or tablet?",
+             "Yes, the same app fits your screen. On a tablet, the tabs move into a rail on the left. On a computer, you get a "
+             "sidebar, a team search (press “/” to jump to it), matches in a table and, alongside, your current ticket, the "
+             "safest bet of each level and yesterday's results. You can also install it on your computer, just like on your phone."),
             ("Does it work on a slow connection?",
              "Yes. The app is light and loads the essentials first. It still needs the internet: with no connection it asks you to "
              "reconnect, so it never shows you an outdated analysis."),

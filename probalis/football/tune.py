@@ -28,6 +28,7 @@ from scipy.optimize import minimize, minimize_scalar
 from scipy.special import gammaln
 from scipy.stats import poisson
 
+from ..core import mot
 from ..core import verdicts as vd
 from ..core.implied import implied_rates
 from ..core.value import DEVIG, devig_by
@@ -342,6 +343,9 @@ def reliability(d: Data, p: EngineParams) -> dict:
     table: dict = defaultdict(lambda: defaultdict(lambda: [0, 0, 0.0]))
     best = [0, 0, 0.0]
     pk = [0, 0, 0.0, 0.0]  # paris du match (vd.picks) : nombre, réussis, chance annoncée, cote estimée (sommes)
+    # « Le mot de Probalis » (core/mot.py) : le risque annoncé et le pari « à éviter » arrivent-ils aussi souvent
+    # que dit ? Par sorte : [nombre, arrivés, chance annoncée (somme)]
+    mt: dict = defaultdict(lambda: [0, 0, 0.0])
     for r, markets in predictions(d, p, market=True):
         stats = {"corners": r.get("coA"), "cards": r.get("caA")}
         vs = vd.verdicts(markets)
@@ -360,6 +364,17 @@ def reliability(d: Data, p: EngineParams) -> dict:
                 pk[1] += res == "won"
                 pk[2] += vs[i]["p"]
                 pk[3] += vd.book_odds(vs[i]["p"])
+        w = mot.mot(markets)
+        for part in ("risk", "avoid"):
+            x = w[part]
+            if x:
+                hap = mot.happened(x, r["s"][0], r["s"][1], stats)
+                if hap is not None:
+                    for name in (part, f"{part}:{x['k']}"):
+                        c = mt[name]
+                        c[0] += 1
+                        c[1] += bool(hap)
+                        c[2] += x["p"]
         b = vd.best(vs, {})
         if b:
             res = vd.settle(b, r["s"][0], r["s"][1], stats)
@@ -371,6 +386,7 @@ def reliability(d: Data, p: EngineParams) -> dict:
            for fam, cells in sorted(table.items())}
     out["_best"] = [best[0], best[1], round(best[2], 3)]
     out["_picks"] = [pk[0], pk[1], round(pk[2], 3), round(pk[3], 3)]
+    out["_mot"] = {k: [c[0], c[1], round(c[2], 3)] for k, c in sorted(mt.items())}
     return out
 
 
@@ -466,6 +482,9 @@ def main() -> None:
     if pk[0]:
         print(f"Paris du match (au plus {vd.PICK_MAX}, cote {vd.PICK_MIN_ODDS} ou plus) sur {args.test} : {pk[1]}/{pk[0]} "
               f"réussis ({pk[1] / pk[0]:.1%}) pour {pk[2] / pk[0]:.1%} annoncés, cote estimée moyenne {pk[3] / pk[0]:.2f}")
+    for k, c in (rel.get("_mot") or {}).items():
+        if c[0]:
+            print(f"  Le mot, {k:<16} {c[0]:>5} | arrivé {c[1] / c[0]:.1%} | annoncé {c[2] / c[0]:.1%}")
     for fam, cells in rel.items():
         if fam.startswith("_"):
             continue

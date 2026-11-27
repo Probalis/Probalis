@@ -552,6 +552,10 @@
     var daysEl = scope.querySelector('#days');
     var weekBtn = daysEl.querySelector('.week');
     var empty = scope.querySelector('#empty');
+    var emptyP = empty.querySelector('p');
+    var emptyB = empty.querySelector('#reset-filter');
+    var emptyTxt = [emptyP.textContent, emptyB.textContent];
+    var home = scope.querySelector('.home');
     var label = scope.querySelector('#day-label');
     var dot = scope.querySelector('#open-sheet .dot');
     var sheet = scope.querySelector('#sheet');
@@ -561,8 +565,13 @@
     var search = scope.querySelector('#sheet-search');
     var known = rows.map(function (r) { return r.dataset.league; });
     var today = dayKey(new Date());
+    var qIn = scope.querySelector('#q');  // recherche d'équipe (tablette et ordinateur)
+    var fold = function (s) { return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim(); };
 
-    cards.forEach(function (c) { c._d = dayKey(new Date(c.dataset.ko)); });
+    cards.forEach(function (c) {
+      c._d = dayKey(new Date(c.dataset.ko));
+      c._n = fold($$('.team .nm', c).map(function (n) { return n.textContent; }).join(' '));
+    });
     feats.forEach(function (f) { f._d = dayKey(new Date(f.dataset.ko)); });
     var days = cards.map(function (c) { return c._d; })
       .filter(function (d, i, a) { return d >= today && a.indexOf(d) === i; }).sort();
@@ -570,7 +579,9 @@
     var sel = [];
     try { sel = JSON.parse(local.get('leagues') || '[]').filter(function (c) { return known.indexOf(c) >= 0; }); } catch (e) {}
     var saved = session.get('day');
-    var state = { day: saved === 'all' || days.indexOf(saved) >= 0 ? saved : (days[0] || 'all'), sel: sel };
+    var state = { day: saved === 'all' || days.indexOf(saved) >= 0 ? saved : (days[0] || 'all'), sel: sel, q: '' };
+    // Choisir un jour ou un championnat met fin à la recherche d'équipe
+    var clearQ = function () { state.q = ''; if (qIn) qIn.value = ''; };
 
     var pills = days.map(function (d) {
       var b = doc.createElement('button');
@@ -615,11 +626,13 @@
         ch.setAttribute('aria-pressed', on);
       });
       var shown = 0;
+      // Recherche : toute la semaine et tous les championnats, seulement les matchs de l'équipe cherchée
       cards.forEach(function (c) {
-        var v = onDay(c._d) && inSel(c.dataset.league);
+        var v = state.q ? c._d >= today && c._n.indexOf(state.q) >= 0 : onDay(c._d) && inSel(c.dataset.league);
         c.hidden = !v;
         if (v) shown++;
       });
+      list.classList.toggle('searching', !!state.q);
       groups.forEach(function (g) {
         g.hidden = !g.querySelector('.mcard:not([hidden])');
         var sa = g.querySelector('.see-all');
@@ -631,7 +644,7 @@
         ad.hidden = vis.length < 3;
         if (!ad.hidden && vis[1].nextElementSibling !== ad) vis[1].parentNode.insertBefore(ad, vis[1].nextElementSibling);
       }
-      list.classList.toggle('week', state.day === 'all');
+      list.classList.toggle('week', state.day === 'all' || !!state.q);
       // À la une : la plus belle affiche parmi les matchs affichés, grands championnats d'abord
       var pool = feats.filter(function (f) { f.hidden = true; return onDay(f._d) && inSel(f.dataset.league); });
       var prime = pool.filter(function (f) { return f.dataset.prime === '1'; });
@@ -639,8 +652,13 @@
       (prime.length ? prime : pool).forEach(function (f) {
         if (!best || +f.dataset.stature > +best.dataset.stature) best = f;
       });
-      if (best) best.hidden = false;
+      if (best && !state.q) best.hidden = false;
+      if (ad && state.q) ad.hidden = true;
       empty.hidden = shown > 0;
+      // Pendant une recherche : jours et championnats en retrait, message propre à la recherche
+      if (home) home.classList.toggle('q-on', !!state.q);
+      emptyP.textContent = state.q ? T.q_none.replace('{q}', qIn.value.trim()) : emptyTxt[0];
+      emptyB.textContent = state.q ? T.q_clear : emptyTxt[1];
       label.textContent = state.day === 'all' ? T.all_week : cap(F.long.format(fromKey(state.day)));
       dot.hidden = !state.sel.length;
       rows.forEach(function (r) {
@@ -654,12 +672,14 @@
       var b = e.target.closest('.day');
       if (!b) return;
       state.day = b.dataset.day;
+      clearQ();
       save();
       render();
     });
     scope.querySelector('#chips').addEventListener('click', function (e) {
       var ch = e.target.closest('.chip');
       if (!ch) return;
+      clearQ();
       var code = ch.dataset.league;
       state.sel = !code || (state.sel.length === 1 && state.sel[0] === code) ? [] : [code];
       save();
@@ -676,9 +696,22 @@
     });
     scope.querySelector('#reset-filter').addEventListener('click', function () {
       state.sel = [];
+      state.q = '';
+      if (qIn) qIn.value = '';
       save();
       render();
     });
+    if (qIn) {
+      qIn.value = '';
+      qIn.addEventListener('input', function () { state.q = fold(qIn.value); render(); });
+      // « / » : aller tout de suite à la recherche (ordinateur) ; Échap : effacer
+      var onKey = function (e) {
+        if (!doc.body.contains(qIn)) { doc.removeEventListener('keydown', onKey); return; }
+        if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || '') && qIn.offsetParent) { e.preventDefault(); qIn.focus(); }
+        if (e.key === 'Escape' && e.target === qIn && qIn.value) { qIn.value = ''; state.q = ''; render(); }
+      };
+      doc.addEventListener('keydown', onKey);
+    }
 
     // Feuille « Championnats » : cases à cocher, recherche, nombre de matchs
     var checked = function () { return boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.value; }); };
@@ -687,7 +720,6 @@
       var n = cards.filter(function (c) { return onDay(c._d) && inSel(c.dataset.league, s); }).length;
       applyBtn.textContent = n === 1 ? T.show_one : n ? fmt(T.show_n, { n: n }) : T.show_none;
     };
-    var fold = function (s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(); };
     var filterRows = function () {
       var q = fold(search.value);
       var any = false;
@@ -2640,8 +2672,28 @@
     };
   })();
 
+  // Colonne de droite de la page Matchs (ordinateur) : résumé du ticket en cours
+  var initTkMini = function (scope) {
+    var box = scope.querySelector('#tk-mini');
+    if (!box) return;
+    var body = box.querySelector('.tkm-body');
+    var draw = function () {
+      var legs = Coupon.get();
+      if (!legs.length) { body.innerHTML = '<p class="sb-empty">' + esc(T.side_tk_empty) + '</p>'; return; }
+      var st = Coupon.stats(legs);
+      body.innerHTML = '<ul class="tkm-legs">' + legs.slice(0, 5).map(function (l) {
+        return '<li><span><b>' + esc(l.l) + '</b><small>' + esc(l.h + ' – ' + l.a) + '</small></span><span class="tkm-p">' + pctTxt(l.p) + '</span></li>';
+      }).join('') + '</ul>' + (legs.length > 5 ? '<p class="tkm-more">+ ' + (legs.length - 5) + '</p>' : '') +
+        '<div class="tkm-sum"><span><small>' + esc(T.side_tk_chance) + '</small><b>' + pctTxt(st.p) + '</b></span>' +
+        '<span><small>' + esc(T.side_tk_odds) + '</small><b>≈ ' + oddsTxt(st.book) + '</b></span></div>';
+    };
+    draw();
+    Coupon.on(draw, function () { return doc.body.contains(box); });
+  };
+
   var init = function (scope) {
     initHistAn(scope);
+    initTkMini(scope);
     initDates(scope);
     initImages(scope);
     initPrices(scope);

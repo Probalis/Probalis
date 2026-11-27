@@ -72,6 +72,15 @@
 </nav>
 
 <section class="panel" id="p-resume" aria-label="{{ t.summary }}">
+  {% if m.mot %}<section class="card locked mot-card" aria-labelledby="mot-title">
+    <div class="card-head"><h2 id="mot-title">{{ t.mot_title }}</h2>{{ lock_pill(t, root) }}</div>
+    <p class="vd-lead">{{ t.mot_lead }}</p>
+    {% call lk(m=m.slug, own=true) %}<ul class="mot">
+    {% for k, ic in (('angle', 'target'), ('risk', 'zap'), ('avoid', 'x')) %}{% if m.mot[k] %}<li class="mot-i mot-{{ k }}"><span class="mot-ic">{{ icon(ic, 16, 2.4) }}</span><span class="mot-b"><b class="mot-l">{{ t['mot_' ~ k] }}</b>{% if lk.pub %}<span class="mot-t lkd" aria-hidden="true">——— ——— ——— ———</span>{% else %}<span class="mot-t">{{ m.mot[k] }}</span>{% endif %}</span></li>{% endif %}
+    {% endfor %}</ul>{% endcall %}
+    {% if m.mot.proof %}<p class="note">{{ m.mot.proof }}</p>{% endif %}
+  </section>{% endif %}
+
   <section class="card locked vcard" aria-labelledby="vd-title">
     <div class="card-head"><h2 id="vd-title">{{ t.vd_title }}</h2>{{ lock_pill(t, root) }}</div>
     <p class="vd-lead">{{ t.vd_lead }}</p>
@@ -91,6 +100,8 @@
     <p class="note">{{ t.vd_note }}{% if m.vd.picks_proof %} {{ m.vd.picks_proof }}{% endif %}{% if m.vd.no_counts %} {{ m.vd.none_txt }}{% elif m.vd.partial %} {{ t.vd_partial }}{% endif %}</p>
   </section>
 
+  {# Ordinateur : la lecture à gauche (pourquoi, forme), les chiffres à droite ; téléphone : même ordre qu'avant #}
+  <div class="rs-main">
   {% if m.why %}<section class="card locked">
     <div class="card-head"><h2>{{ t.why_title }}</h2></div>
     <p class="vd-lead">{{ t.why_lead }}</p>
@@ -124,7 +135,9 @@
     {% else %}<p class="fm-none">{{ t.h2h_none }}</p>{% endif %}
     <p class="note">{{ t.form_note }}</p>
   </section>{% endif %}
+  </div>
 
+  <div class="rs-side">
   <section class="card locked">
     <h2>{{ t.xg }}</h2>
     {% call lk(m=m.slug) %}<div class="xg"><b>{{ m.xg_home }}</b><span>{{ t.xg_total.format(x=m.xg_total) }}</span><b>{{ m.xg_away }}</b></div>
@@ -191,6 +204,7 @@
     <p class="note">{{ t.src_model_help }} {{ t.fair_help }}</p>
     {% endif %}
   </section>
+  </div>
 </section>
 
 {% if m.espn %}<section class="panel js-only" id="p-match" aria-label="{{ t.tab_match }}">

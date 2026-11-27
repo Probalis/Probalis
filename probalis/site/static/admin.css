@@ -212,12 +212,17 @@ button.ai-main { cursor: pointer; }
   .adm-quick { display: flex; }
   .adm-quick .btn { padding: 0 16px; }
 }
-@media (min-width: 1024px) {
+/* Pas de barre latérale ici : l'en-tête de l'appli des membres (boutons du coin droit) reprend sa place normale */
+@media (min-width: 768px) {
   body.page-office { padding-left: 0; }
-  .page-office .top { justify-content: space-between; }
+  .page-office .app { max-width: 1120px; }
+  .page-office .top { position: static; padding: 22px 0 6px; justify-content: space-between; }
   .page-office .top .brand { display: flex; }
+  .page-office .intro { min-height: 0; padding: 8px 0 0; }
   .page-office .toast { left: 50%; }
   .page-office .sheet { inset: 0; }
+}
+@media (min-width: 1024px) {
   .office-gate { max-width: 460px; margin: 40px auto 0; }
   .adm-pane#pane-dash { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 0 12px; align-items: start; }
   .adm-pane#pane-dash[hidden] { display: none; }

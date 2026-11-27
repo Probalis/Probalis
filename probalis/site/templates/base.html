@@ -45,6 +45,7 @@
   <div class="actions">
     {% if not no_lang %}<a class="round lang" href="/{{ other_lang }}/{{ path }}" hreflang="{{ other_lang }}" data-lang="{{ other_lang }}" aria-label="{{ t.lang_version }}" title="{{ t.lang_version }}">{{ other_lang|upper }}</a>{% endif %}
     <button class="round theme" type="button" aria-label="{{ t.theme }}" title="{{ t.theme }}">{{ icon('moon') }}{{ icon('sun') }}</button>
+    <a class="acct-chip" href="{{ root }}compte.html">{{ icon('user', 18, 2.2) }}<span class="ac-out">{{ t.signin_cta }}</span><span class="ac-in">{{ t.tab_account_short }}</span><span class="ac-prem">{{ icon('crown', 12, 2.6) }}Premium</span></a>
   </div>
 </header>
 {% endblock %}
@@ -65,7 +66,8 @@
 {% for key, href, ic, label in [('matches', 'index.html', 'ball', t.tab_matches), ('bets', 'paris.html', 'trend', t.tab_bets), ('ticket', 'ticket.html', 'ticket', t.tab_ticket), ('historique', 'historique.html', 'history', t.tab_history), ('compte', 'compte.html', 'user', t.tab_account)] %}
   <a href="{{ root }}{{ href }}" data-tab="{{ key }}" title="{{ label }}"{% if page == key %} aria-current="page"{% endif %}>{{ icon(ic, 24) }}<span class="tl">{{ label }}</span></a>
 {% endfor %}
-  <a class="tb-site" href="{{ '/' if lang == 'fr' else '/welcome/' }}">{{ icon('info', 20, 2.2) }}<span>{{ t.site_link }}</span></a>
+  <a class="tb-prem" href="{{ root }}premium.html"><span class="tbp-ic">{{ icon('crown', 18, 2.2) }}</span><span class="tbp-off"><b>{{ t.tb_prem_title }}</b><small>{{ t.tb_prem_text }}</small></span><span class="tbp-on"><b>{{ t.tb_prem_on }}</b><small>{{ t.tb_prem_on_text }}</small></span></a>
+  <a class="tb-site" href="{{ '/' if lang == 'fr' else '/welcome/' }}" title="{{ t.site_link }}">{{ icon('info', 20, 2.2) }}<span>{{ t.site_link }}</span></a>
 </nav>
 {% endblock %}
 <script id="pb-i18n" type="application/json">{{ js|tojson }}</script>
