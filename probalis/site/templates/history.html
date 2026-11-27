@@ -11,10 +11,17 @@
 {{ analyses(an) }}
 
 <h2 class="sec-title">{{ t.hist_bets_title }}</h2>
-{% if h.since %}<p class="tier-help">{{ icon('calendar', 14, 2.4) }} {{ t.hist_since.format(d=h.since) }}</p>{% endif %}
-
+{# Réussite par période (mise à niveau 3) : sans JavaScript, seulement « Depuis le début » #}
+<div class="seg hper-seg js-only" id="hper" role="group" aria-label="{{ t.per_label }}">
+{% for p in h.periods %}
+  <button type="button" data-per="{{ p.key }}" aria-pressed="{{ 'true' if p.key == 'all' else 'false' }}">{{ p.label }}</button>
+{% endfor %}
+</div>
+{% for p in h.periods %}
+<div class="hper{% if p.key == 'all' %} on{% else %} js-only{% endif %}" data-per="{{ p.key }}">
+{% if p.range %}<p class="tier-help">{{ icon('calendar', 14, 2.4) }} {{ p.range }}</p>{% endif %}
 <section class="hstats" aria-label="{{ t.tiers_label }}">
-{% for r in h.tiers %}
+{% for r in p.tiers %}
   <div class="hstat">
     <span class="hs-name"><i class="tdot {{ r.key }}" aria-hidden="true"></i>{{ r.name }}</span>
     <b>{{ r.rate_txt }}</b>
@@ -23,16 +30,31 @@
   </div>
 {% endfor %}
 </section>
-{% if h.settled < 90 %}<p class="note">{{ t.hist_too_few }}</p>{% endif %}
+{% if p.short %}<p class="note">{{ t.per_short }}</p>{% elif p.settled < 90 %}<p class="note">{{ t.hist_too_few }}</p>{% endif %}
 
-<section class="card hcoupons" aria-labelledby="hc-title">
-  <h2 id="hc-title">{{ t.hist_coupons }}</h2>
+<div class="hcards">
+<section class="card hcoupons" aria-labelledby="hc-title-{{ p.key }}">
+  <h2 id="hc-title-{{ p.key }}">{{ t.hist_coupons }}</h2>
   <div class="rows">
-  {% for r in h.coupons %}
+  {% for r in p.coupons %}
     <div class="r"><div class="r-l"><span>{{ r.title }}</span><small>{% if r.n %}{{ t.hist_n.format(won=r.won, n=r.n) }} · {{ t.hist_announced.format(p=r.announced_txt) }}{% else %}{{ t.hist_pending }}{% endif %}</small></div><b class="r-p">{{ r.rate_txt }}</b></div>
   {% endfor %}
   </div>
 </section>
+{% if h.has_fam %}
+<section class="card hcoupons hfams" aria-labelledby="hf-title-{{ p.key }}">
+  <h2 id="hf-title-{{ p.key }}">{{ t.hist_fams }}</h2>
+  <p class="hf-lead">{{ t.hist_fams_lead }}</p>
+  <div class="rows">
+  {% for r in p.fams %}
+    <div class="r"><div class="r-l"><span>{{ r.name }}</span><small>{% if r.n %}{{ t.hist_n.format(won=r.won, n=r.n) }} · {{ t.hist_announced.format(p=r.announced_txt) }}{% else %}{{ t.hist_pending }}{% endif %}</small></div><b class="r-p">{{ r.rate_txt }}</b></div>
+  {% endfor %}
+  </div>
+</section>
+{% endif %}
+</div>
+</div>
+{% endfor %}
 
 <h2 class="sec-title">{{ t.hist_days }}</h2>
 {% for d in h.days %}

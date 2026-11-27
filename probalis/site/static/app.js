@@ -555,7 +555,7 @@
     var emptyP = empty.querySelector('p');
     var emptyB = empty.querySelector('#reset-filter');
     var emptyTxt = [emptyP.textContent, emptyB.textContent];
-    var home = scope.querySelector('.home');
+    var home = scope.querySelector('.home-wrap');
     var label = scope.querySelector('#day-label');
     var dot = scope.querySelector('#open-sheet .dot');
     var sheet = scope.querySelector('#sheet');
@@ -1665,6 +1665,9 @@
     var secs = $$('.pday', scope);
     var tiersEl = scope.querySelector('#ptiers');
     var tierBtns = $$('button', tiersEl);
+    var famsEl = scope.querySelector('#pfams');
+    var famBtns = famsEl ? $$('button[data-fam]', famsEl) : [];
+    var FAMS = famBtns.map(function (b) { return b.dataset.fam; });
     var today = dayKey(new Date());
     var now = Date.now();
     $$('.pick[data-ko], .dc-legs li[data-ko]', scope).forEach(function (el) {
@@ -1687,7 +1690,8 @@
     var saved = session.get('pday');
     var state = {
       day: keys.indexOf(saved) >= 0 ? saved : (keys.filter(open)[0] || keys[0]),
-      tier: TIER_RANGE[session.get('ptier')] ? session.get('ptier') : 'safe'
+      tier: TIER_RANGE[session.get('ptier')] ? session.get('ptier') : 'safe',
+      fam: FAMS.indexOf(session.get('pfam')) >= 0 ? session.get('pfam') : 'all'
     };
     var render = function () {
       pills.forEach(function (p) {
@@ -1698,8 +1702,17 @@
       secs.forEach(function (s) { s.classList.toggle('on', s.dataset.day === state.day); });
       tierBtns.forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.tier === state.tier); });
       $$('.plist', scope).forEach(function (l) { l.classList.toggle('on', l.dataset.tier === state.tier); });
+      famBtns.forEach(function (b) {
+        var on = b.dataset.fam === state.fam;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', on);
+      });
+      $$('.pfam', scope).forEach(function (l) { l.classList.toggle('on', l.dataset.fam === state.fam); });
+      // « Le n° 1 de chaque liste » ne concerne que « Tous » (les listes par type sont Premium)
+      $$('.list-lock', scope).forEach(function (l) { l.classList.toggle('fam-hide', state.fam !== 'all'); });
       session.set('pday', state.day);
       session.set('ptier', state.tier);
+      session.set('pfam', state.fam);
     };
     daysEl.addEventListener('click', function (e) {
       var p = e.target.closest('.day');
@@ -1713,7 +1726,17 @@
       state.tier = b.dataset.tier;
       render();
     });
+    if (famsEl) famsEl.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-fam]');
+      if (!b) return;
+      state.fam = b.dataset.fam;
+      render();
+    });
     render();
+    var fon = famBtns.filter(function (b) { return b.dataset.fam === state.fam; })[0];
+    if (fon && famsEl) {
+      famsEl.scrollLeft = Math.max(0, fon.getBoundingClientRect().left - famsEl.getBoundingClientRect().left - 20);
+    }
     var on = pills.filter(function (p) { return p.classList.contains('on'); })[0];
     if (on) daysEl.scrollLeft = Math.max(0, on.offsetLeft - 20);
     markAdded(scope);
@@ -2309,6 +2332,25 @@
   };
 
   // --- Historique des analyses : onglets Aujourd'hui / Hier / Avant-hier / 7 jours ---
+  // ---------- Historique : réussite par période (hier, 7 jours, 30 jours, depuis le début) ----------
+  var initHistPer = function (scope) {
+    var seg = (scope || doc).querySelector('#hper');
+    if (!seg) return;
+    var btns = $$('button[data-per]', seg);
+    var blocks = $$('.hper', seg.parentNode);
+    var keys = btns.map(function (b) { return b.dataset.per; });
+    var show = function (key) {
+      btns.forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.per === key); });
+      blocks.forEach(function (p) { p.classList.toggle('on', p.dataset.per === key); });
+      session.set('hper', key);
+    };
+    show(keys.indexOf(session.get('hper')) >= 0 ? session.get('hper') : 'all');
+    seg.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-per]');
+      if (b) show(b.dataset.per);
+    });
+  };
+
   var initHistAn = function (scope) {
     var seg = (scope || doc).querySelector('#ha-seg');
     if (!seg) return;
@@ -2693,6 +2735,7 @@
 
   var init = function (scope) {
     initHistAn(scope);
+    initHistPer(scope);
     initTkMini(scope);
     initDates(scope);
     initImages(scope);

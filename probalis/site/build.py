@@ -427,6 +427,30 @@ def _plural(n: int, word: str, lang: str) -> str:
     return f"{n} {word}{'s' if many else ''}"
 
 
+# Les deux équipes comparées en barres sur leurs derniers matchs (mise à niveau 2) :
+# (clé, taux par match ou compte « 3/5 », mieux = plus grand 1, plus petit -1, ni l'un ni l'autre 0)
+DUEL = (("pts", "rate", 1), ("gf", "rate", 1), ("ga", "rate", -1), ("cs", "count", 1), ("btts", "count", 0), ("o25", "count", 0))
+
+
+def _duel_view(raw: dict, m: dict, lang: str) -> dict:
+    t = i18n.UI[lang]
+    rows = []
+    for k, kind, better in DUEL:
+        rate = {s: raw[s][k] / raw[s]["n"] for s in ("home", "away")}
+        val = {s: i18n.dec(rate[s], lang, 1) if kind == "rate" else f"{raw[s][k]}/{raw[s]['n']}" for s in ("home", "away")}
+        tot = rate["home"] + rate["away"]
+        w = 50.0 if tot <= 0 else round(100 * rate["home"] / tot, 1)
+        lead = None
+        if better and abs(rate["home"] - rate["away"]) > 1e-9:
+            lead = "home" if (rate["home"] > rate["away"]) == (better > 0) else "away"
+        rows.append({"label": t["duel_" + k], "h": val["home"], "a": val["away"], "w": w, "wa": round(100 - w, 1),
+                     "lead": lead, "neutral": not better})
+    nh, na = raw["home"]["n"], raw["away"]["n"]
+    lead_txt = t["duel_lead"].format(n=nh) if nh == na else \
+        t["duel_lead_mixed"].format(nh=nh, na=na, h=m["home"]["name"], a=m["away"]["name"])
+    return {"rows": rows, "lead": lead_txt}
+
+
 def _form_view(m: dict, lang: str) -> dict | None:
     """Forme récente des deux équipes et leurs dernières rencontres (rappel des résultats, gratuit)."""
     f = m.get("form")
@@ -435,13 +459,22 @@ def _form_view(m: dict, lang: str) -> dict | None:
     t = i18n.UI[lang]
     year = int(m["kickoff"][:4])
     teams = []
+    raw = {}
     for side in ("home", "away"):
         rows = []
         gf = ga = 0
+        st = raw[side] = {"n": 0, "pts": 0, "gf": 0, "ga": 0, "cs": 0, "btts": 0, "o25": 0}
         for r in f.get(side) or []:
             home = bool(r["h"])
             a, b = (r["s"][0], r["s"][1]) if home else (r["s"][1], r["s"][0])
             gf, ga = gf + a, ga + b
+            st["n"] += 1
+            st["pts"] += {"W": 3, "D": 1}.get(r["r"], 0)
+            st["gf"] += a
+            st["ga"] += b
+            st["cs"] += b == 0
+            st["btts"] += a > 0 and b > 0
+            st["o25"] += a + b > 2
             sub = " · ".join(x for x in (_date_short(r["d"], lang, year), _comp_name(r.get("c", ""), lang),
                                          t["form_home" if home else "form_away"]) if x)
             rows.append({"r": r["r"], "l": t["form_r_" + r["r"]], "rl": t["form_rl_" + r["r"]], "o": r["o"],
@@ -470,7 +503,8 @@ def _form_view(m: dict, lang: str) -> dict | None:
                    "home": _plural(wins["home"], win_word, lang), "draw": _plural(wins["draw"], t["h2h_draws"], lang),
                    "away": _plural(wins["away"], win_word, lang),
                    "w": [round(100 * wins[k] / n, 1) for k in ("home", "draw", "away")]}
-    return {"teams": teams, "h2h": meetings, "sum": summary}
+    duel = _duel_view(raw, m, lang) if raw["home"]["n"] and raw["away"]["n"] else None
+    return {"teams": teams, "h2h": meetings, "sum": summary, "duel": duel}
 
 
 def _money(amount: float, cur: str, decimals: int, lang: str) -> str:
@@ -563,20 +597,25 @@ def _coupon_view(cp: dict, ms: dict, lang: str, slugs: set) -> dict:
             "add": [leg["add"] for leg in legs]}
 
 
-def _day_view(day: str, e: dict, lang: str, slugs: set, why: dict | None = None) -> dict:
+def _day_view(day: str, e: dict, lang: str, slugs: set, why: dict | None = None, fams: bool = False) -> dict:
+    """fams : avec les listes des filtres par type (onglet Paris) ; None pour un jour d'avant les filtres."""
     ms = e.get("matches", {})
     tiers = {tier: [_pick_view(c, ms[c["mid"]], lang, slugs, why) for c in e.get("tiers", {}).get(tier, [])]
              for tier in picks.TIERS}
     coupons = [_coupon_view(cp, ms, lang, slugs) for cp in e.get("coupons", [])]
+    fam = None
+    if fams and "fam" in e:  # listes par type (Premium) : filtre -> niveau -> cartes
+        fam = {f: {tier: [_pick_view(c, ms[c["mid"]], lang, slugs, why) for c in (e["fam"].get(f) or {}).get(tier, [])]
+                   for tier in picks.TIERS} for f in picks.FILTERS}
     d = date.fromisoformat(day)
     return {"key": day, "label": i18n.day_med(d, lang), "wd": i18n.weekday_short(d, lang), "dnum": d.day,
-            "tiers": tiers, "coupons": coupons, "empty": not any(tiers.values())}
+            "tiers": tiers, "coupons": coupons, "fam": fam, "empty": not any(tiers.values())}
 
 
 def _paris_days(hist: dict, today: str, lang: str, slugs: set, horizon: int = 7, why: dict | None = None) -> list[dict]:
     """Jours affichés dans l'onglet Paris : aujourd'hui (liste figée) et les jours suivants."""
     last = (date.fromisoformat(today) + timedelta(days=horizon)).isoformat()
-    return [_day_view(day, e, lang, slugs, why) for day, e in sorted(hist.get("days", {}).items())
+    return [_day_view(day, e, lang, slugs, why, fams=True) for day, e in sorted(hist.get("days", {}).items())
             if today <= day <= last and (any(e.get("tiers", {}).values()) or e.get("coupons"))]
 
 
@@ -634,6 +673,32 @@ def _rate_view(r: dict, lang: str) -> dict:
             "announced_txt": i18n.pct(r["announced"], lang) if r["announced"] is not None else "—"}
 
 
+# Réussite de l'Historique par période (mise à niveau 3) : hier, les 7 et 30 derniers jours (aujourd'hui compris),
+# depuis le début. Seuls les paris réglés comptent.
+PERIODS = (("yday", 1), ("d7", 7), ("d30", 30), ("all", None))
+
+
+def _period(days: dict, today: str, key: str, n: int | None, lang: str, since: str | None) -> dict:
+    t = i18n.UI[lang]
+    td = date.fromisoformat(today)
+    if n is None:
+        sub, rng = days, (t["hist_since"].format(d=since) if since else None)
+    elif key == "yday":
+        y = td - timedelta(days=1)
+        sub, rng = {d: e for d, e in days.items() if d == y.isoformat()}, i18n.day_med(y, lang)
+    else:
+        a = td - timedelta(days=n - 1)
+        sub = {d: e for d, e in days.items() if a.isoformat() <= d <= today}
+        rng = t["per_range"].format(a=i18n.day_med(a, lang), b=i18n.day_med(td, lang))
+    s = history.summary(sub)
+    return {"key": key, "label": t["per_" + key], "range": rng, "short": n is not None and n <= 7,
+            "tiers": [{"key": k, "name": t["tier_" + k], **_rate_view(r, lang)} for k, r in s["tiers"].items()],
+            "coupons": [{"target": k, "title": t["coupon_target"].format(n=k), **_rate_view(r, lang)}
+                        for k, r in s["coupons"].items()],
+            "fams": [{"key": f, "name": t["fam_" + f], **_rate_view(r, lang)} for f, r in s["fams"].items()],
+            "settled": sum(r["n"] for r in s["tiers"].values())}
+
+
 def _history_view(hist: dict, today: str, lang: str, slugs: set, n_days: int = 30) -> dict:
     t = i18n.UI[lang]
     s = history.summary(hist.get("days", {}))
@@ -649,10 +714,12 @@ def _history_view(hist: dict, today: str, lang: str, slugs: set, n_days: int = 3
         v["is_today"] = day == today
         v["old_engine"] = "eng" not in hist["days"][day] and bool(items)
         days.append(v)
+    since = i18n.day_med(date.fromisoformat(frozen[-1]), lang) if frozen else None
     return {"tiers": [{"key": k, "name": t["tier_" + k], **_rate_view(r, lang)} for k, r in s["tiers"].items()],
             "coupons": [{"target": k, "title": t["coupon_target"].format(n=k), **_rate_view(r, lang)}
                         for k, r in s["coupons"].items()],
-            "days": days, "since": i18n.day_med(date.fromisoformat(frozen[-1]), lang) if frozen else None,
+            "periods": [_period(hist.get("days", {}), today, k, n, lang, since) for k, n in PERIODS],
+            "has_fam": s["has_fam"], "days": days, "since": since,
             "settled": sum(r["n"] for r in s["tiers"].values())}
 
 
@@ -1209,7 +1276,7 @@ def build(data: dict) -> Path:
             featured=featured, lead=lead, n_matches=len(views), tops=_tops_today(pdays, today), yday=yday),
             encoding="utf-8")
         lk.start(f"{lang}/paris")
-        (out / "paris.html").write_text(env.get_template("bets.html").render(
+        (out / "paris.html").write_text(env.get_template("bets.html").render(fams=list(picks.FILTERS),
             **common, page="bets", root="", path="paris.html", days=pdays,
             today=today, tiers=list(picks.TIERS), yday=yday, rel=_reliability(lang)),
             encoding="utf-8")

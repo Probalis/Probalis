@@ -69,8 +69,8 @@ SITE = {
              "p": "« Le mot de Probalis » résume le match en trois phrases : le meilleur angle, le risque principal et ce qu'il "
                   "vaut mieux éviter. Puis au plus 3 paris par match, de types différents et à une cote d'au moins 1,30 (« Plus de 2,5 buts ? OUI, "
                   "64 % »), le plus sûr mis en avant, et les raisons chiffrées du calcul. Plus de 90 paris par match, corners et cartons compris quand les chiffres existent, chacun avec "
-                  "sa chance en mots simples et sa cote juste. Et pour tout le monde : la forme des deux équipes et leurs "
-                  "derniers face-à-face."},
+                  "sa chance en mots simples et sa cote juste, un onglet « Cotes » pour savoir si la cote de ton bookmaker est un "
+                  "bon prix. Et pour tout le monde : la forme des deux équipes, comparées en barres, et leurs derniers face-à-face."},
             {"tab": "Onglet Matchs · Match", "shot": "live",
              "h3": "Le match en direct",
              "p": "Minute et score sur la liste des matchs. Dans la fiche, l'onglet « Match » : les temps forts (buts, cartons, "
@@ -79,7 +79,8 @@ SITE = {
             {"tab": "Onglet Paris", "shot": "bets",
              "h3": "Les plus sûrs du jour, en trois niveaux",
              "p": "Prudent, Équilibré ou Audacieux : chaque jour, les 5 paris les plus probables de chaque niveau, sur des marchés "
-                  "que tous les bookmakers proposent. Plus trois coupons tout prêts, à cote 2, 3 et 5."},
+                  "que tous les bookmakers proposent. Tu ne joues que les buts, ou le résultat ? Un filtre te donne les plus sûrs "
+                  "de ce type. Plus trois coupons tout prêts, à cote 2, 3 et 5."},
             {"tab": "Onglet Ticket", "shot": "ticket",
              "h3": "Ton coupon, passé au scanner",
              "p": "Ajoute tes matchs : Probalis calcule la vraie chance que ton ticket passe, repère le maillon faible et te propose "
@@ -88,7 +89,8 @@ SITE = {
              "h3": "Nos résultats, sans maquillage",
              "p": "Les analyses et les listes sont enregistrées avant les matchs, puis jugées pendant le match dès que c'est joué, "
                   "sinon avec le score final. Hier, avant-hier, "
-                  "la semaine : tu vois chaque verdict juste ou faux, les jours gagnés comme les jours perdus."},
+                  "la semaine : tu vois chaque verdict juste ou faux, les jours gagnés comme les jours perdus. Et la réussite "
+                  "des paris du jour sur hier, 7 jours, 30 jours ou depuis le début."},
         ],
 
         "odds_h2": "Ta cote cache une chance. Tape-la.",
@@ -303,8 +305,8 @@ SITE = {
              "p": "“Probalis's take” sums up the match in three lines: the best angle, the main risk and what to avoid. "
                   "Then up to 3 picks per match, of different kinds and at odds of at least 1.30 (“Over 2.5 goals? YES, 64%”), "
                   "the most reliable one up front, and the reasons behind the numbers. More than 90 bets per match, corners and cards included when the figures exist, each with its "
-                  "chance in plain words and its fair odds. And for everyone: both teams' form and their latest "
-                  "head-to-heads."},
+                  "chance in plain words and its fair odds, plus an “Odds” tab to see if your bookmaker's price is a good one. "
+                  "And for everyone: both teams' form, compared in bars, and their latest head-to-heads."},
             {"tab": "Matches tab · Match", "shot": "live",
              "h3": "The match, live",
              "p": "Minute and score on the match list. On the match page, the “Match” tab: key events (goals, cards, "
@@ -313,6 +315,7 @@ SITE = {
             {"tab": "Bets tab", "shot": "bets",
              "h3": "Today's safest bets, in three levels",
              "p": "Safe, Balanced or Bold: every day, the 5 most likely bets of each level, on markets every bookmaker offers. "
+                  "Only bet on goals, or on the result? A filter gives you the safest of that type. "
                   "Plus three ready-made accumulators, at odds 2, 3 and 5."},
             {"tab": "Slip tab", "shot": "ticket",
              "h3": "Your slip, scanned",
@@ -322,7 +325,8 @@ SITE = {
              "h3": "Our results, unvarnished",
              "p": "Analyses and lists are saved before kick-off, then judged during the match once it's decided, otherwise "
                   "with the final score. Yesterday, the day before, "
-                  "the week: you see every verdict right or wrong, the winning days and the losing days."},
+                  "the week: you see every verdict right or wrong, the winning days and the losing days. And the daily bets' "
+                  "record over yesterday, 7 days, 30 days or all time."},
         ],
 
         "odds_h2": "Your odds hide a chance. Type them in.",

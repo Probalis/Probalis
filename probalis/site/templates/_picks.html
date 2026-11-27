@@ -2,25 +2,26 @@
 {% from "_card.html" import crest %}
 {% macro res_badge(res, score=none, live=false) %}<span class="pk-res {{ res or 'wait' }}">{{ icon({'won': 'check', 'lost': 'x', 'void': 'equal'}.get(res, 'clock'), 12, 3) }}{{ t['res_' ~ (res or 'wait')] }}{% if score %} · {{ score[0] }}-{{ score[1] }}{% elif live and res %} · {{ t.res_live }}{% endif %}</span>{% endmacro %}
 
-{% macro pick_card(e, first=false, hist=false) %}
+{# open : carte déjà rangée dans un bloc protégé (listes par type de l'onglet Paris) : rien à protéger à l'intérieur #}
+{% macro pick_card(e, first=false, hist=false, open=false) %}
 <div class="pick{% if first %} free1{% endif %}{% if e.res %} done res-{{ e.res }}{% endif %}{% if hist %} hist{% endif %}" data-ko="{{ e.match.kickoff }}">
   {% if e.match.slug and not e.res %}<a class="pk-main" href="{{ root }}match/{{ e.match.slug }}.html">{% else %}<span class="pk-main">{% endif %}
-    {% call lk(m=e.match.slug, free=first, on=not e.res) %}<span class="ring">
+    {% call lk(m=e.match.slug, free=first, on=not e.res and not open) %}<span class="ring">
       <svg width="54" height="54" viewBox="0 0 54 54" aria-hidden="true"><circle class="trk" cx="27" cy="27" r="23" fill="none" stroke-width="6"/><circle class="val" cx="27" cy="27" r="23" fill="none" stroke-width="6" stroke-linecap="round" stroke-dasharray="{{ e.dash }}" transform="rotate(-90 27 27)"/></svg>
       <b>{{ e.pct }}</b>
     </span>{% endcall %}
     <span class="pk-txt">
-      {% call lk(m=e.match.slug, free=first, on=not e.res, own=true) %}{% if lk.pub %}<b class="lkd" aria-hidden="true">{{ t.lk_label }}</b>
+      {% call lk(m=e.match.slug, free=first, on=not e.res and not open, own=true) %}{% if lk.pub %}<b class="lkd" aria-hidden="true">{{ t.lk_label }}</b>
       <small class="lkd" aria-hidden="true">{{ t.lk_times }}</small>{% else %}<b>{{ e.label }}</b>
       <small>{{ e.times }} · {{ e.market }}</small>{% if e.why %}
       <small class="pk-why">{{ icon('info', 12, 2.4) }}{{ e.why }}</small>{% endif %}{% endif %}{% endcall %}
       <span class="pk-match">{{ crest(e.match.home_crest, 's16') }}{{ crest(e.match.away_crest, 's16') }}<span>{{ e.match.home }} – {{ e.match.away }} · <span data-dshort="{{ e.match.kickoff }}">{{ e.match.day_short }}</span> <time data-ko="{{ e.match.kickoff }}">{{ e.match.kickoff[11:16] }}</time></span></span>
     </span>
-    {% call lk(m=e.match.slug, free=first, on=not e.res, own=true) %}{% if lk.pub %}<span class="pk-fair lkd" aria-hidden="true"><small>{{ t.fair_odds }}</small><span class="pill">0,00</span></span>{% else %}<span class="pk-fair"><small>{{ t.fair_odds }}</small><span class="pill">{{ e.fair }}</span></span>{% endif %}{% endcall %}
+    {% call lk(m=e.match.slug, free=first, on=not e.res and not open, own=true) %}{% if lk.pub %}<span class="pk-fair lkd" aria-hidden="true"><small>{{ t.fair_odds }}</small><span class="pill">0,00</span></span>{% else %}<span class="pk-fair"><small>{{ t.fair_odds }}</small><span class="pill">{{ e.fair }}</span></span>{% endif %}{% endcall %}
   {% if e.match.slug and not e.res %}</a>{% else %}</span>{% endif %}
   {% if e.res or hist %}{{ res_badge(e.res, e.match.score, e.match.live) }}{% else %}
   <span class="pk-started">{{ icon('clock', 12, 2.6) }}{{ t.started }}</span>
-  {% call lk(m=e.match.slug, free=first, hide=true) %}<button class="pk-add js-only" type="button" data-add='{{ e.add|tojson }}' aria-pressed="false" aria-label="{{ t.add_coupon }} : {{ e.label }}" title="{{ t.add_coupon }}">{{ icon('plus', 20, 2.6) }}{{ icon('check', 20, 2.6) }}</button>{% endcall %}
+  {% call lk(m=e.match.slug, free=first, hide=true, on=not open) %}<button class="pk-add js-only" type="button" data-add='{{ e.add|tojson }}' aria-pressed="false" aria-label="{{ t.add_coupon }} : {{ e.label }}" title="{{ t.add_coupon }}">{{ icon('plus', 20, 2.6) }}{{ icon('check', 20, 2.6) }}</button>{% endcall %}
   {% endif %}
 </div>
 {% endmacro %}

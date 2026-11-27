@@ -66,6 +66,7 @@
 <nav class="ptabs scroll-x" aria-label="{{ t.market_tabs }}">
   <a href="#p-resume" id="tab-resume" class="on">{{ t.summary }}</a>
   {% if m.espn %}<a href="#p-match" id="tab-match" class="js-only">{{ t.tab_match }}<span class="tab-live" hidden></span></a>{% endif %}
+  <a href="#p-cotes" id="tab-cotes">{{ t.tab_odds }}<span class="tab-lock">{{ icon('lock', 12, 2.6) }}</span></a>
   {% for g in m.groups %}
   <a href="#p-{{ g.key }}" id="tab-{{ g.key }}">{{ g.title }}{% if g.locked %}<span class="tab-lock">{{ icon('lock', 12, 2.6) }}</span>{% endif %}</a>
   {% endfor %}
@@ -122,6 +123,12 @@
       </details>{% else %}<p class="fm-none">{{ t.form_none }}</p>{% endif %}
     </div>
     {% endfor %}</div>
+    {% if m.form.duel %}<h3 class="h2h-title">{{ t.duel_title }}</h3>
+    <p class="h2h-lead">{{ m.form.duel.lead }}</p>
+    <div class="duel">
+      <div class="duel-head"><span>{{ crest(m.form.teams[0].crest, 's16') }}<b>{{ m.home.name }}</b></span><span><b>{{ m.away.name }}</b>{{ crest(m.form.teams[1].crest, 's16') }}</span></div>
+    {% for r in m.form.duel.rows %}<div class="lv-st{% if r.neutral %} duel-n{% endif %}"><div class="lv-st-top"><b{% if r.lead == 'home' %} class="lv-lead"{% endif %}>{{ r.h }}</b><span>{{ r.label }}</span><b{% if r.lead == 'away' %} class="lv-lead"{% endif %}>{{ r.a }}</b></div><div class="lv-bar" aria-hidden="true"><i{% if r.lead == 'home' %} class="lv-lead"{% endif %} style="width: {{ r.w }}%"></i><i{% if r.lead == 'away' %} class="lv-lead"{% endif %} style="width: {{ r.wa }}%"></i></div></div>
+    {% endfor %}</div>{% endif %}
     <h3 class="h2h-title">{{ t.h2h_title }}</h3>
     {% if m.form.sum %}<p class="h2h-lead">{{ m.form.sum.lead }}</p>
     <div class="h2h-sum">
@@ -163,7 +170,17 @@
   </section>
 
   {{ ad(t, root, 'match') }}
+  </div>
+</section>
 
+{% if m.espn %}<section class="panel js-only" id="p-match" aria-label="{{ t.tab_match }}">
+  {{ live_box(m, t) }}
+</section>{% endif %}
+
+{# Onglet « Cotes » (mise à niveau 2) : compare ta cote et les cotes du marché, sortis du « Résumé » #}
+<section class="panel" id="p-cotes" aria-label="{{ t.tab_odds }}">
+  <div class="panel-head"><h2>{{ t.tab_odds }}</h2></div>
+  <p class="vd-lead odds-lead">{{ t.odds_lead }}</p>
   <section class="card locked compare js-only" id="compare" aria-labelledby="cmp-title">
     <h2 id="cmp-title">{{ t.compare_title }}</h2>
     <p>{{ t.compare_text }}</p>
@@ -204,12 +221,7 @@
     <p class="note">{{ t.src_model_help }} {{ t.fair_help }}</p>
     {% endif %}
   </section>
-  </div>
 </section>
-
-{% if m.espn %}<section class="panel js-only" id="p-match" aria-label="{{ t.tab_match }}">
-  {{ live_box(m, t) }}
-</section>{% endif %}
 
 {% for g in m.groups %}
 <section class="panel" id="p-{{ g.key }}" aria-label="{{ g.title }}">

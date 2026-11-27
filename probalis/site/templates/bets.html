@@ -25,6 +25,13 @@
   <button type="button" data-tier="{{ k }}" aria-pressed="false"><i class="tdot {{ k }}" aria-hidden="true"></i>{{ t['tier_' ~ k] }}</button>
 {% endfor %}
 </div>
+{# Filtres par type de pari (mise à niveau 3) : chaque filtre a ses propres listes, enregistrées dans l'historique #}
+<div class="pfams scroll-x js-only" id="pfams" role="group" aria-label="{{ t.fam_label }}">
+  <button class="chip" type="button" data-fam="all" aria-pressed="true">{{ t.fam_all }}</button>
+{% for f in fams %}
+  <button class="chip" type="button" data-fam="{{ f }}" aria-pressed="false">{{ t['fam_' ~ f] }}</button>
+{% endfor %}
+</div>
 
 <p class="list-lock js-only lock-anon">{{ icon('lock', 16, 2.4) }}<span>{{ t.lock_anon }}</span><a href="{{ root }}compte.html">{{ t.signin_cta }}</a></p>
 <p class="list-lock js-only lock-signed">{{ icon('lock', 16, 2.4) }}<span>{{ t.lock_signed }}</span><a href="{{ root }}premium.html">{{ t.lock_cta }}</a></p>
@@ -39,6 +46,7 @@
   <div class="plist" data-tier="{{ k }}">
     <h3 class="plist-h"><i class="tdot {{ k }}" aria-hidden="true"></i>{{ t['tier_' ~ k] }}</h3>
     <p class="tier-help">{{ t['tier_' ~ k ~ '_help'] }}</p>
+    <div class="pfam on" data-fam="all">
     {% if d.tiers[k] %}
     <div class="picks">
     {% for e in d.tiers[k] %}{{ pick_card(e, loop.first) }}{% endfor %}
@@ -46,6 +54,19 @@
     {% else %}
     <p class="empty">{{ t.no_picks_day }}</p>
     {% endif %}
+    </div>
+    {# Listes par type : réservées au Premium, une liste = un seul bloc protégé (la page publique reste légère) #}
+    {% for f in fams %}{% set lst = d.fam[f][k] if d.fam else [] %}
+    <div class="pfam js-only" data-fam="{{ f }}">
+    {% if lst %}
+    {% call lk(own=true) %}{% if lk.pub %}<p class="fam-lock">{{ icon('lock', 16, 2.4) }}<span>{{ t.fam_lock }}</span><a href="{{ root }}premium.html">{{ t.lock_cta }}</a></p>{% else %}<div class="picks">
+    {% for e in lst %}{{ pick_card(e, open=true) }}{% endfor %}
+    </div>{% endif %}{% endcall %}
+    {% else %}
+    <p class="empty">{{ t.fam_empty if d.fam else t.fam_none_day }}</p>
+    {% endif %}
+    </div>
+    {% endfor %}
   </div>
   {% endfor %}
   {% endif %}

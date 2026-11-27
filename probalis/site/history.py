@@ -15,6 +15,11 @@ Règle d'honnêteté : la liste d'un jour est figée dès le premier calcul fait
 ensuite elle ne change plus, même si le modèle change d'avis. Les listes des jours suivants restent
 provisoires jusque-là. Tout pari enregistré a donc été publié avant le coup d'envoi de son match.
 
+Listes par type (« fam », depuis le 27/11/2026) : les filtres de l'onglet Paris (Résultat, Buts, Les deux marquent,
+Une équipe marque) ont aussi leurs listes, figées et réglées comme les autres : leur réussite se prouve de la même façon.
+Le jour de leur mise en ligne, la liste d'aujourd'hui (déjà figée) les reçoit une seule fois, pour les matchs pas encore
+commencés.
+
 Analyses des matchs (« an ») : chaque jour garde aussi les verdicts OUI / NON de chaque match analysé, enregistrés
 avant le coup d'envoi (un jour figé reçoit encore les matchs qui n'ont pas commencé, jamais de changement sur
 ceux déjà enregistrés). Ils sont réglés avec le score final ; les corners et cartons avec les chiffres publiés par
@@ -132,7 +137,7 @@ def _settled(entry: dict) -> int:
 def _rank(e: dict) -> tuple:
     """Ordre de préférence d'une version d'un jour : figée, complète (pas « sealed »), la plus réglée, puis celle
     qui a le plus d'analyses de matchs enregistrées."""
-    return (bool(e.get("frozen")), not e.get("sealed"), _settled(e), len(e.get("an") or {}))
+    return (bool(e.get("frozen")), not e.get("sealed"), _settled(e), len(e.get("an") or {}), "fam" in e)
 
 
 def merge(*versions: dict | None) -> dict:
@@ -161,15 +166,18 @@ def public_copy(hist: dict, now: datetime | None = None) -> dict:
     out["days"] = {}
     for day, e in (hist.get("days") or {}).items():
         tiers = {t: [c for c in lst if c.get("res")] for t, lst in (e.get("tiers") or {}).items()}
+        fam = {f: {t: [c for c in lst if c.get("res")] for t, lst in by.items()} for f, by in (e.get("fam") or {}).items()}
         coupons = [cp for cp in e.get("coupons") or [] if coupon_shown(cp)]
         ms = e.get("matches") or {}
         an = {mid: rec for mid, rec in (e.get("an") or {}).items() if match_over(ms.get(mid) or {}, now)}
         hidden = sum(len(lst) for lst in (e.get("tiers") or {}).values()) + len(e.get("coupons") or []) \
-            - sum(len(lst) for lst in tiers.values()) - len(coupons) + len(e.get("an") or {}) - len(an)
-        used = {c["mid"] for lst in tiers.values() for c in lst} | {c["mid"] for cp in coupons for c in cp["legs"]} \
-            | set(an)
-        d = {k: v for k, v in e.items() if k not in ("tiers", "coupons", "matches", "an")}
+            - sum(len(lst) for lst in tiers.values()) - len(coupons) + len(e.get("an") or {}) - len(an) \
+            + _n_fam(e.get("fam")) - _n_fam(fam)
+        used = _used({"tiers": tiers, "fam": fam, "coupons": coupons}) | set(an)
+        d = {k: v for k, v in e.items() if k not in ("tiers", "fam", "coupons", "matches", "an")}
         d.update(tiers=tiers, coupons=coupons, matches={mid: mt for mid, mt in ms.items() if mid in used})
+        if "fam" in e:
+            d["fam"] = fam
         if an:
             d["an"] = an
         if hidden:
@@ -277,14 +285,45 @@ def _slim(c: dict) -> dict:
     return {k: c[k] for k in ("id", "mid", "key", "line", "sel", "p", "fair")}
 
 
+def _fam_picks(e: dict) -> list[dict]:
+    """Tous les paris des listes par type d'un jour (filtre -> niveau -> liste)."""
+    return [c for by in (e.get("fam") or {}).values() for lst in by.values() for c in lst]
+
+
+def _n_fam(fam: dict | None) -> int:
+    return len(_fam_picks({"fam": fam}))
+
+
+def _used(e: dict) -> set:
+    """Matchs des paris d'un jour : listes des niveaux, listes par type, coupons."""
+    return ({c["mid"] for lst in (e.get("tiers") or {}).values() for c in lst} | {c["mid"] for c in _fam_picks(e)}
+            | {c["mid"] for cp in e.get("coupons") or [] for c in cp["legs"]})
+
+
+def fam_lists(matches: list[dict], after: datetime | None) -> dict:
+    """Listes des filtres de l'onglet Paris : filtre -> niveau -> les 5 plus sûrs de ce type."""
+    return {f: {t: [_slim(c) for c in picks.tier_picks(matches, t, after=after, fams=fs)] for t in picks.TIERS}
+            for f, fs in picks.FILTERS.items()}
+
+
 def day_lists(matches: list[dict], after: datetime | None) -> dict:
-    """Les trois listes et les coupons d'un jour, avec ce qu'il faut pour les afficher plus tard."""
-    tiers = {t: [_slim(c) for c in picks.tier_picks(matches, t, after=after)] for t in picks.TIERS}
-    coupons = [{"target": cp["target"], "p": cp["p"], "fair": cp["fair"], "book": cp["book"],
-                "legs": [_slim(c) for c in cp["legs"]]} for cp in picks.day_coupons(matches, after=after)]
-    used = {c["mid"] for lst in tiers.values() for c in lst} | {c["mid"] for cp in coupons for c in cp["legs"]}
+    """Les trois listes, les listes par type et les coupons d'un jour, avec ce qu'il faut pour les afficher plus tard."""
+    out = {"tiers": {t: [_slim(c) for c in picks.tier_picks(matches, t, after=after)] for t in picks.TIERS},
+           "fam": fam_lists(matches, after),
+           "coupons": [{"target": cp["target"], "p": cp["p"], "fair": cp["fair"], "book": cp["book"],
+                        "legs": [_slim(c) for c in cp["legs"]]} for cp in picks.day_coupons(matches, after=after)]}
     by_id = {m["id"]: m for m in matches}
-    return {"tiers": tiers, "coupons": coupons, "matches": {mid: _match_info(by_id[mid]) for mid in sorted(used)}}
+    out["matches"] = {mid: _match_info(by_id[mid]) for mid in sorted(_used(out))}
+    return out
+
+
+def _add_fam(e: dict, ms: list[dict], now: datetime) -> None:
+    """Listes par type ajoutées une seule fois à un jour déjà figé qui n'en a pas (jour de la mise en ligne des filtres) :
+    seulement les matchs pas encore commencés ; rien de ce qui est déjà enregistré ne change."""
+    e["fam"] = fam_lists(ms, after=now)
+    by_id = {m["id"]: m for m in ms}
+    for c in _fam_picks(e):
+        e.setdefault("matches", {}).setdefault(c["mid"], _match_info(by_id[c["mid"]]))
 
 
 def update(hist: dict, matches: list[dict], now: datetime, rel: dict | None = None) -> dict:
@@ -306,6 +345,8 @@ def update(hist: dict, matches: list[dict], now: datetime, rel: dict | None = No
             continue
         cur = days.get(day)
         if cur and cur.get("frozen"):
+            if "fam" not in cur:
+                _add_fam(cur, ms, now)
             _analyses(cur, ms, now, rel, keep=True)
             continue
         lists = day_lists(ms, after=now)
@@ -329,8 +370,7 @@ def compact(hist: dict, today: str) -> None:
         if day >= limit or "an" not in e:
             continue
         e["an_sum"] = an_stats(e)
-        used = {c["mid"] for lst in (e.get("tiers") or {}).values() for c in lst} \
-            | {c["mid"] for cp in e.get("coupons") or [] for c in cp["legs"]}
+        used = _used(e)
         e["matches"] = {mid: mt for mid, mt in (e.get("matches") or {}).items() if mid in used}
         del e["an"]
 
@@ -630,6 +670,8 @@ def _apply_results(e: dict) -> None:
     for lst in e.get("tiers", {}).values():
         for c in lst:
             c["res"] = _leg_result(e, c)
+    for c in _fam_picks(e):
+        c["res"] = _leg_result(e, c)
     for cp in e.get("coupons", []):
         for c in cp["legs"]:
             c["res"] = _leg_result(e, c)
@@ -662,12 +704,15 @@ def _rate(items: list[tuple[float, str]]) -> dict:
 
 
 def summary(days: dict) -> dict:
-    """Taux de réussite par niveau et par coupon, comparé à la chance annoncée."""
+    """Taux de réussite par niveau, par coupon et par type de pari (listes des filtres), comparé à la chance annoncée."""
     tiers = {t: _rate([(c["p"], c.get("res")) for e in days.values() if e.get("frozen")
                        for c in e.get("tiers", {}).get(t, [])]) for t in picks.TIERS}
+    fams = {f: _rate([(c["p"], c.get("res")) for e in days.values() if e.get("frozen")
+                      for lst in ((e.get("fam") or {}).get(f) or {}).values() for c in lst]) for f in picks.FILTERS}
     coupons = {}
     for target in picks.COUPON_TARGETS:
         coupons[target] = _rate([(cp["p"], cp.get("res")) for e in days.values() if e.get("frozen")
                                  for cp in e.get("coupons", []) if cp["target"] == target])
-    return {"tiers": tiers, "coupons": coupons,
+    return {"tiers": tiers, "coupons": coupons, "fams": fams,
+            "has_fam": any("fam" in e for e in days.values() if e.get("frozen")),
             "days": sum(1 for e in days.values() if e.get("frozen"))}

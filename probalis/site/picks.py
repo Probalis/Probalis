@@ -6,6 +6,8 @@ Règles (les mêmes pour les matchs à venir, l'historique et la simulation sur 
 - jamais de match à faible confiance ni de football féminin (trop peu de données ; règle gardée même quand
   The Odds API donne les cotes de la Ligue des champions féminine ou de la Frauen-Bundesliga) ;
 - un seul pari par match dans chaque liste, et pas plus de deux paris du même type parmi les cinq ;
+- listes par type (filtres de l'onglet Paris, depuis le 27/11/2026) : les cinq plus sûrs d'un seul type de pari, mêmes
+  niveaux et mêmes règles, sans la limite de deux par type ;
 - cote « bookmaker » estimée = cote juste moins une marge de 5 % (marge moyenne d'un marché classique).
 """
 from __future__ import annotations
@@ -29,6 +31,9 @@ COUNTS = (("co", 8.5, ("over", "under")), ("co", 9.5, ("over", "under")), ("co",
           ("ca", 3.5, ("over", "under")), ("ca", 4.5, ("over", "under")))
 FAMILY = {"1x2": "result", "dc": "dc", "ou": "goals", "btts": "btts", "tt1": "team", "tt2": "team",
           "co": "corners", "ca": "cards"}
+
+# Filtres de l'onglet Paris : clé du filtre -> types de pari (FAMILY) qu'il garde. Pas de corners ni de cartons.
+FILTERS = {"result": ("result", "dc"), "goals": ("goals",), "btts": ("btts",), "team": ("team",)}
 
 # Niveaux : fourchette de probabilité (cote juste ≈ 1,25–1,47 / 1,47–1,82 / 2–2,8)
 TIERS = {"safe": (0.68, 0.80), "balanced": (0.55, 0.68), "bold": (0.36, 0.50)}
@@ -80,21 +85,23 @@ def _score(c: dict, m: dict) -> float:
     return c["p"] + (0.015 if m.get("confidence") == "high" else 0.0) - (0.01 if c["sel"] == "12" else 0.0)
 
 
-def tier_picks(matches: list[dict], tier: str, n: int = N_PICKS, after: datetime | None = None) -> list[dict]:
-    """Les n paris les plus sûrs d'un niveau (un par match, au plus deux du même type)."""
+def tier_picks(matches: list[dict], tier: str, n: int = N_PICKS, after: datetime | None = None,
+               fams: tuple | None = None) -> list[dict]:
+    """Les n paris les plus sûrs d'un niveau (un par match, au plus deux du même type).
+    fams : seulement ces types de pari (un filtre de FILTERS) ; la limite de deux par type ne compte plus."""
     lo, hi = TIERS[tier]
     pool = []
     for m in matches:
         if not eligible(m) or (after and datetime.fromisoformat(m["kickoff"]) <= after):
             continue
         for c in candidates(m):
-            if lo <= c["p"] <= hi:
+            if lo <= c["p"] <= hi and (fams is None or FAMILY[c["key"]] in fams):
                 pool.append((_score(c, m), c))
     pool.sort(key=lambda x: -x[0])
     used, fam, out = set(), {}, []
     for _, c in pool:
         f = FAMILY[c["key"]]
-        if c["mid"] in used or fam.get(f, 0) >= 2:
+        if c["mid"] in used or (fams is None and fam.get(f, 0) >= 2):
             continue
         used.add(c["mid"])
         fam[f] = fam.get(f, 0) + 1

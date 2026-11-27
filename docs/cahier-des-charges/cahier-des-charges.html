@@ -92,7 +92,7 @@ tr:nth-child(even) td { background: #FAFBFC; }
     décrit tout le projet : ce qu'il fait, comment il fonctionne, ce qui a été décidé et ce qui reste à faire, pour
     que n'importe qui (une personne ou une autre intelligence artificielle) puisse reprendre le travail sans rien perdre.</p>
   <div class="meta">
-    <div><b>Version</b>1.13 · 27 novembre 2026</div>
+    <div><b>Version</b>1.15 · 27 novembre 2026</div>
     <div><b>Application</b>probalis.pages.dev</div>
     <div><b>Dossier de travail</b>D:\Projets\Probalis</div>
   </div>
@@ -130,21 +130,30 @@ tr:nth-child(even) td { background: #FAFBFC; }
     <tr><td>Mise à jour automatique (6 fois par jour en semaine, toutes les heures le week-end)</td><td><span class="tag ok">En marche</span></td><td>Depuis le 21/11/2026 : GitHub Actions dans l'organisation <code>Probalis</code> calcule et met le site en ligne (historique intact). Depuis le 22/11/2026, c'est le minuteur Cloudflare <code>probalis-horloge</code> qui le lance aux bonnes heures (l'horloge de GitHub ne lançait presque rien : 1 calcul sur 9) ; premier lancement vérifié à 7 h 05 pile (calcul réussi, site mis à jour à 7 h 07). Rythme et réglages en 7.5</td></tr>
     <tr><td>Paris réglés pendant le match</td><td><span class="tag ok">Fait</span></td><td>Depuis le 22/11/2026 : un pari ou un verdict déjà gagné ou perdu d'avance (score en direct de TheSportsDB) est réglé tout de suite, dans l'historique et sur la fiche du match (voir 5.6)</td></tr>
     <tr><td>Cotes des coupes d'Europe (The Odds API)</td><td><span class="tag ok">En ligne</span></td><td>Depuis le 22/11/2026 (commit e243838, calcul lancé à la main à 2 h 40) : Ligue des champions, Ligue Europa, Ligue Conférence, Ligue des champions féminine, Frauen-Bundesliga et Ligue saoudienne calées sur les vraies cotes quand leur match est à moins de 3 jours. Vérifié sur le site : fiche Arsenal – Borussia Dortmund « Calé sur les cotes », bas des pages et FAQ de la vitrine qui citent The Odds API</td></tr>
-    <tr><td>Paris du match : au plus 3 par match, cote de 1,30 ou plus</td><td><span class="tag todo">Prêt</span></td><td>Le 27/11/2026, demandé par le
+    <tr><td>Paris du match : au plus 3 par match, cote de 1,30 ou plus</td><td><span class="tag ok">En ligne</span></td><td>Le 27/11/2026, demandé par le
       porteur du projet : la fiche ne montre plus que 3 paris au plus, de types différents, à une cote estimée d'au moins 1,30 (voir 3.1 et 5.4).
-      Testé sur 2025/26 ; vérifié dans le navigateur ; envoyé sur GitHub le 27/11/2026 (commit dfe9eba, tests GitHub réussis), en ligne au calcul
-      automatique suivant (pas encore vérifié en ligne)</td></tr>
-    <tr><td>« Le mot de Probalis » (mise à niveau 2, 1re partie)</td><td><span class="tag todo">Prêt</span></td><td>Le 27/11/2026 : en haut de la fiche,
+      Testé sur 2025/26 ; vérifié dans le navigateur ; envoyé sur GitHub le 27/11/2026 (commit dfe9eba, tests GitHub réussis), calcul automatique de
+      6 h 05 le 27/11/2026 réussi avec ce commit ; en ligne, vérifié sur le site par le porteur du projet le 27/11/2026</td></tr>
+    <tr><td>« Le mot de Probalis » (mise à niveau 2, 1re partie)</td><td><span class="tag ok">En ligne</span></td><td>Le 27/11/2026 : en haut de la fiche,
       trois phrases tirées des chiffres (meilleur angle, risque principal, à éviter), voir 3.1 et 5.4. Testé sur 2025/26, vérifié dans le
-      navigateur ; pas encore envoyé sur GitHub</td></tr>
-    <tr><td>Nouvelle interface tablette et ordinateur</td><td><span class="tag todo">Prêt</span></td><td>Le 27/11/2026, demandée par le porteur
+      navigateur ; envoyé sur GitHub le 27/11/2026 avec la nouvelle interface (commit dffb7a9, tests GitHub réussis), 
+      en ligne, vérifié sur le site par le porteur du projet le 27/11/2026</td></tr>
+    <tr><td>Fiche : onglet « Cotes » et face-à-face en barres (fin de la mise à niveau 2)</td><td><span class="tag todo">Prêt</span></td><td>Le
+      27/11/2026 : « Compare ta cote » et « Cotes du marché » passent du « Résumé » à un onglet « Cotes » ; « Les deux équipes en chiffres » compare
+      en barres leurs derniers matchs (voir 3.1 et 5.7). Corrige aussi le nom de l'équipe à domicile invisible dans le face-à-face sur ordinateur
+      (dès 1 280 px, depuis dffb7a9). Testé, vérifié dans le navigateur ; pas encore envoyé sur GitHub</td></tr>
+    <tr><td>Paris : filtres par type de pari ; Historique : réussite par période (mise à niveau 3)</td><td><span class="tag todo">Prêt</span></td><td>Le
+      27/11/2026 : dans l'onglet Paris, filtres Tous / Résultat / Buts / Les deux marquent / Une équipe marque (listes réservées au Premium,
+      enregistrées et réglées comme les autres) ; dans l'Historique, réussite sur hier, 7 jours, 30 jours ou depuis le début, et bilan par type
+      de pari (voir 3.2, 3.4, 5.5, 5.6). Testé, vérifié dans le navigateur ; pas encore envoyé sur GitHub</td></tr>
+    <tr><td>Nouvelle interface tablette et ordinateur</td><td><span class="tag ok">En ligne</span></td><td>Le 27/11/2026, demandée par le porteur
       du projet : rail d'icônes sur tablette, barre latérale sur ordinateur, recherche d'équipe, colonne de droite sur la page Matchs, fiche en
-      deux colonnes (voir partie 3, « Tablette et ordinateur »). Téléphone inchangé. Vérifié dans le navigateur ; pas encore envoyé sur GitHub
-      (part avec « Le mot de Probalis »)</td></tr>
-    <tr><td>Match en direct (ESPN) : mise à niveau 1</td><td><span class="tag todo">Prêt</span></td><td>Le 26/11/2026 : minute et score sur la liste des matchs,
+      deux colonnes (voir partie 3, « Tablette et ordinateur »). Téléphone inchangé. Vérifié dans le navigateur ; envoyé sur GitHub le 27/11/2026 avec
+      « Le mot de Probalis » (commit dffb7a9, tests GitHub réussis) ; en ligne, vérifié sur le site par le porteur du projet le 27/11/2026</td></tr>
+    <tr><td>Match en direct (ESPN) : mise à niveau 1</td><td><span class="tag ok">En ligne</span></td><td>Le 26/11/2026 : minute et score sur la liste des matchs,
       onglet « Match » de la fiche (temps forts, statistiques face à face, compositions), corners et cartons réglés environ 2 h après le match,
       coupes d'Europe, Arabie saoudite et football féminin compris (voir 3.1, 5.2, 5.6). Tests réussis, vérifié dans le navigateur ; envoyé sur GitHub
-      le 27/11/2026 avec les paris du match (commit dfe9eba), pas encore vérifié en ligne</td></tr>
+      le 27/11/2026 avec les paris du match (commit dfe9eba) ; en ligne, vérifié sur le site par le porteur du projet le 27/11/2026</td></tr>
     <tr><td>Paiement en ligne (Stripe, Flutterwave)</td><td><span class="tag todo">À faire</span></td><td>Prêt en mode démo, pas branché</td></tr>
     <tr><td>Nom de domaine, e-mails professionnels</td><td><span class="tag todo">À faire</span></td><td>E-mails envoyés par Gmail en attendant</td></tr>
   </table>
@@ -269,7 +278,8 @@ tr:nth-child(even) td { background: #FAFBFC; }
       sûr du jour de chaque niveau, sous cadenas comme l'onglet Paris) et le bilan d'hier.</li>
     <li><strong>Fiche d'un match</strong> : en-tête plus bas ; dès 1 100 px, blason et nom côte à côte de part et d'autre de l'heure, « Résumé » en deux
       colonnes (« Le mot de Probalis » et les paris du match sur toute la largeur, puis « Pourquoi » et la forme à gauche, buts attendus, scores,
-      marchés clés, compare ta cote et cotes du marché à droite). Les autres onglets rangent leurs cartes en 2 colonnes (3 dès 1 500 px).</li>
+      marchés clés à droite). Les autres onglets rangent leurs cartes en 2 colonnes (3 dès 1 500 px) ; dans l'onglet « Cotes », « Compare ta cote »
+      et « Cotes du marché » côte à côte.</li>
     <li><strong>Paris</strong> et coupons : cartes côte à côte dès qu'elles gardent la largeur d'un téléphone (360 px). <strong>Ticket</strong> : le
       coupon à gauche, son analyse à droite. <strong>Historique</strong> : les matchs d'un championnat sur deux colonnes. <strong>Compte</strong> :
       cartes sur deux colonnes, sans trous ; onglets « Mon compte / Récompenses » en haut à gauche.</li>
@@ -306,10 +316,17 @@ tr:nth-child(even) td { background: #FAFBFC; }
       onglets de la fiche. Aucun pari ne passe la règle (rare, environ 1 match sur 250) : message « Aucun pari assez sûr à une cote de 1,30 ou
       plus ». Avant le 27/11/2026 : une dizaine de verdicts par match, « serré » sous 55 %, le plus sûr toutes cotes confondues.</td></tr>
     <tr><td>Pourquoi</td><td><span class="tag prem">Premium</span></td><td>3 à 5 raisons chiffrées du calcul (attaque, défense, occasions créées, forme, terrain, avis des cotes)</td></tr>
-    <tr><td>Forme et face-à-face</td><td><span class="tag free">Gratuit</span></td><td>5 derniers matchs de chaque équipe (toutes compétitions suivies, V/N/D, buts marqués et encaissés) et leurs 5 dernières rencontres</td></tr>
+    <tr><td>Forme et face-à-face</td><td><span class="tag free">Gratuit</span></td><td>5 derniers matchs de chaque équipe (toutes compétitions suivies, V/N/D, buts marqués et encaissés) et leurs 5 dernières rencontres.
+      Depuis le 27/11/2026, entre les deux : <strong>« Les deux équipes en chiffres »</strong>, six barres face à face sur leurs derniers matchs
+      (points par match, buts marqués et encaissés par match, matchs sans encaisser, « les deux équipes ont marqué », plus de 2,5 buts), mêmes barres
+      que les statistiques du direct ; en vert, la meilleure des deux (celle qui encaisse le moins pour les buts encaissés ; pas de couleur pour les
+      deux dernières, ni mieux ni moins bien). Si les deux équipes n'ont pas le même nombre de matchs connus, la comparaison se fait par match et
+      la phrase le dit (« 5 pour X, 3 pour Y »).</td></tr>
     <tr><td>Buts attendus, scores probables, marchés clés</td><td><span class="tag prem">Premium</span></td><td>Buts attendus de chaque équipe, 3 scores les plus probables, paris principaux avec cote juste</td></tr>
-    <tr><td>Compare ta cote</td><td><span class="tag prem">Premium</span></td><td>Le parieur tape la cote de son bookmaker : l'appli dit si elle vaut le coup par rapport à la cote juste</td></tr>
-    <tr><td>Cotes du marché</td><td><span class="tag prem">Premium</span></td><td>Notre chance, la cote juste et la meilleure cote moyenne du marché (championnats avec cotes)</td></tr>
+    <tr><td>Compare ta cote</td><td><span class="tag prem">Premium</span></td><td>Le parieur tape la cote de son bookmaker : l'appli dit si elle vaut le coup par rapport à la cote juste.
+      Depuis le 27/11/2026 dans l'onglet <strong>« Cotes »</strong> de la fiche (3e onglet, après « Résumé » et « Match » ; avant, en bas du Résumé)</td></tr>
+    <tr><td>Cotes du marché</td><td><span class="tag prem">Premium</span></td><td>Notre chance, la cote juste et la meilleure cote moyenne du marché (championnats avec cotes).
+      Depuis le 27/11/2026 dans l'onglet « Cotes », sous « Compare ta cote » (à côté sur tablette et ordinateur)</td></tr>
     <tr><td>Onglets de marchés</td><td>Mixte</td><td>Principaux, Buts, Équipes, Corners &amp; cartons, Mi-temps, Handicaps, Score exact, Combinés (plus de 100 marchés)</td></tr>
   </table>
   <p>Un compte gratuit débloque <strong>1 analyse complète par jour</strong>, sur le match de son choix, gardée sur le compte toute la journée.</p>
@@ -322,6 +339,13 @@ tr:nth-child(even) td { background: #FAFBFC; }
     <li><strong>3 coupons tout prêts</strong> à cote ≈ 2, ≈ 3 et ≈ 5.</li>
     <li>En haut : le <strong>bilan d'hier</strong>. En bas : la carte de <strong>fiabilité</strong> (vrais chiffres du test 2025/26 et de l'historique).</li>
     <li>Chaque pari affiche sa raison principale. Un compte gratuit voit le n° 1 de chaque niveau.</li>
+    <li><strong>Filtres par type de pari</strong> (27/11/2026, mise à niveau 3), sous les niveaux : <strong>Tous</strong> (la liste du jour,
+      comme avant), <strong>Résultat</strong> (1X2 et double chance), <strong>Buts</strong> (plus / moins de 1,5, 2,5, 3,5),
+      <strong>Les deux marquent</strong>, <strong>Une équipe marque</strong>. Chaque filtre a ses propres listes : les 5 paris les plus sûrs de ce
+      type, à chaque niveau, mêmes règles (un pari par match) sans la limite de 2 du même type. Pas de filtre corners ni cartons (ils restent
+      au Ticket). Les listes filtrées sont <strong>réservées au Premium</strong> : un compte gratuit ou un visiteur voit à la place « Filtre réservé
+      au Premium » (et le message « n° 1 de chaque liste » disparaît quand un filtre est choisi). Le filtre choisi est retenu pendant la visite,
+      comme le jour et le niveau. Elles sont <strong>enregistrées et réglées</strong> dans l'historique comme les listes du jour (voir 3.4, 5.6).</li>
   </ul>
 
   <h3>3.3 Ticket (constructeur de coupons)</h3>
@@ -337,7 +361,11 @@ tr:nth-child(even) td { background: #FAFBFC; }
   <ul>
     <li><strong>Paris du jour, le bilan :</strong> chaque liste est <em>figée</em> avant les matchs puis réglée toute seule avec le score final,
       ou <strong>dès qu'un pari est joué d'avance pendant le match</strong> (badge « Gagné · en cours » / « Perdu · en cours »).
-      Annoncé contre réel par niveau, coupons, et jour par jour. Rien n'est effacé. Corners et cartons : réglés environ 2 h après le match
+      Annoncé contre réel par niveau, coupons, et jour par jour. Rien n'est effacé. Depuis le 27/11/2026 (mise à niveau 3), un choix de
+      <strong>période</strong> au-dessus des chiffres : <strong>Hier</strong>, <strong>7 jours</strong> et <strong>30 jours</strong> (aujourd'hui
+      compris) ou <strong>Depuis le début</strong> (choix par défaut, le seul sans JavaScript) ; les dates de la période s'affichent dessous, et pour
+      hier et 7 jours une note rappelle que sur si peu de jours le hasard pèse lourd. Nouvelle carte <strong>« Par type de pari »</strong> (à côté
+      des coupons sur ordinateur) : la réussite des listes des filtres de l'onglet Paris, pour la même période. Seuls les paris réglés comptent. Corners et cartons : réglés environ 2 h après le match
       (ESPN, depuis le 26/11/2026), coupes d'Europe comprises.</li>
     <li><strong>Analyses des derniers jours</strong> (Hier / Avant-hier / 7 derniers jours) : pour chaque match terminé, le score final et
       chacun de ses verdicts juste ✓ ou faux ✗, le bilan du jour (« 41 verdicts justes sur 56 pour 72 % annoncés ») et la réussite du
@@ -405,7 +433,9 @@ tr:nth-child(even) td { background: #FAFBFC; }
     Pour les refaire : mode d'emploi en tête de <code>probalis/site/shots.py</code> (construire d'abord le site, préparer la copie dans un dossier
     temporaire, la servir en local, photographier, puis reconstruire). Règle : à chaque changement de l'appli, la vitrine est mise à jour dans le même envoi.
     FAQ : « C'est quoi, les paris du match ? » (remplace « le verdict le plus sûr », le 27/11/2026, avec les chiffres de la règle sur 2025/26) et
-    « C'est quoi, le mot de Probalis ? » (27/11/2026) et « Et sur ordinateur ou tablette ? » (27/11/2026, la nouvelle interface ; les captures de
+    « C'est quoi, le mot de Probalis ? » (27/11/2026) et « Et sur ordinateur ou tablette ? » (27/11/2026, la nouvelle interface ; chapitre « Chaque match, décortiqué » : onglet « Cotes » et forme
+    comparée en barres cités le 27/11/2026 ; chapitres de l'onglet Paris (filtre par type de pari) et de l'Historique (réussite sur hier, 7 jours,
+    30 jours ou depuis le début) le 27/11/2026 ; les captures de
     la vitrine restent des écrans de téléphone, 390 px, inchangés par la refonte). Chapitre « Chaque match, décortiqué » et ligne Premium : le mot de Probalis cité ; capture de
     la fiche (Arsenal – Manchester City) reprise le 27/11/2026 avec la carte « Le mot de Probalis ».
     Les icônes des chapitres de la visite sont choisies par nom de capture (<code>site.html</code>) : un chapitre de plus ne casse plus la
@@ -531,7 +561,13 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
 
   <h3>5.5 Paris du jour et coupons (<code>probalis/site/picks.py</code>)</h3>
   <p>Sélection par niveau (bornes de chance), un pari par match, au plus 2 du même type, confiance suffisante, pas de féminin.
-    Coupons : combinaisons dont la cote juste approche 2, 3 ou 5.</p>
+    Coupons : combinaisons dont la cote juste approche 2, 3 ou 5.
+    Listes par type (27/11/2026) : <code>picks.FILTERS</code> (filtre → types de <code>FAMILY</code> : <code>result</code> = 1X2 + double chance,
+    <code>goals</code>, <code>btts</code>, <code>team</code>) et <code>tier_picks(…, fams=…)</code>, qui ne garde que ces types et lève la limite de
+    2 par type. Dans la page, chaque liste filtrée est <strong>un seul bloc protégé</strong> Premium (<code>{% call lk(own=true) %}</code> dans
+    <code>bets.html</code>, cartes écrites avec <code>pick_card(e, open=true)</code> : pas de petits cadenas à l'intérieur) : la page Paris publique
+    reste légère (368 Ko au lieu de 315 Ko ; avec les cartes dans la page, elle aurait pesé 1,15 Mo) et le bloc Premium
+    (<code>lk/…/paris.json</code>) passe d'environ 0,3 à 1,5 Mo (70 Ko compressé). Tests : <code>tests/test_filters.py</code>.</p>
 
   <h3>5.6 Historique (<code>probalis/site/history.py</code>)</h3>
   <ul>
@@ -557,6 +593,13 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
       21/11/2026) est retrouvé par sa date et les noms TheSportsDB, les deux équipes devant tomber sur le même match (<code>find_named</code> dans
       <code>history.py</code>). Sur la page d'un match fini, une note explique que les corners et cartons attendent leurs chiffres.</li>
     <li>30 jours en détail, puis seulement le bilan. La version publique ne montre que ce qui est terminé (le reste est Premium).</li>
+    <li><strong>Listes par type</strong> (« <code>fam</code> », 27/11/2026) : <code>day_lists</code> enregistre aussi, pour chaque filtre et chaque
+      niveau, sa liste (<code>fam[filtre][niveau]</code>), figée avec le reste du jour ; elles sont réglées (<code>_apply_results</code>), gardées
+      au-delà de 30 jours avec leurs matchs (<code>compact</code>, via <code>_used</code>) et publiées seulement une fois réglées
+      (<code>public_copy</code>, les autres comptent dans « sealed »). Le jour de la mise en ligne, la liste d'aujourd'hui, déjà figée, les reçoit
+      <strong>une seule fois</strong> (<code>_add_fam</code>), pour les seuls matchs pas encore commencés ; rien de ce qui était enregistré ne change.
+      À égalité entre deux versions d'un jour, celle qui a ces listes l'emporte (<code>_rank</code>). <code>summary</code> donne leur réussite par
+      type (<code>fams</code>) ; l'Historique l'applique à chaque période (<code>build._period</code>, <code>PERIODS</code>).</li>
     <li><strong>Règlement pendant le match</strong> (22/11/2026) : chaque lancement relève le score en direct de TheSportsDB
       (<code>fixtures.live_score</code> : statuts 1H, HT, 2H, LIVE ; pas les prolongations, les paris portent sur 90 minutes) et le garde dans
       <code>matches[id].live</code>. Un pari ou un verdict est réglé tout de suite s'il a le <strong>même résultat quel que soit le nombre de buts
@@ -575,7 +618,10 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
   <h3>5.7 Forme et face-à-face (<code>probalis/football/form.py</code>)</h3>
   <p>Pendant le calcul, tous les matchs joués connus (championnats, coupes d'Europe, féminin, saoudienne) sont rangés par équipe avec une clé
     unique (« pays|nom » ou « t&lt;numéro TheSportsDB&gt; »), sans doublon. Chaque match reçoit les 5 derniers matchs de chaque équipe et leurs
-    5 dernières rencontres, joués <em>avant</em> le jour du match. Simple rappel : sans effet sur les probabilités.</p>
+    5 dernières rencontres, joués <em>avant</em> le jour du match. Simple rappel : sans effet sur les probabilités.
+    « Les deux équipes en chiffres » (<code>build._duel_view</code>, liste <code>DUEL</code>) se calcule à la construction à partir de ces
+    mêmes matchs : taux par match (points, buts marqués, buts encaissés) ou compte « 3/5 » (sans encaisser, les deux marquent, plus de 2,5 buts) ;
+    la barre de chaque équipe est sa part du total des deux taux. Test : <code>tests/test_duel.py</code>.</p>
 
   <h3>5.8 Protection des chiffres Premium</h3>
   <ul>
@@ -618,7 +664,7 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
     <tr><td><code>probalis/site/shots.py</code>, <code>probalis/deploy.py</code></td><td>Captures de la vitrine ; mise en ligne par petits paquets</td></tr>
     <tr><td><code>.github/workflows/</code></td><td>Calcul automatique (rythme en 7.5) et e-mails du jour (bloqués, voir 10), lancés par le minuteur Cloudflare</td></tr>
     <tr><td><code>cloudflare/horloge/</code></td><td>Minuteur Cloudflare <code>probalis-horloge</code> : appuie sur « Run workflow » aux heures du calcul et des e-mails du jour (<code>worker.mjs</code>, tests dans <code>test.mjs</code>, mode d'emploi dans <code>README.md</code>)</td></tr>
-    <tr><td><code>tests/</code></td><td>Tests automatiques (98 tests, tous réussis le 27/11/2026, dont <code>test_match_picks.py</code> pour les paris du match et <code>test_mot.py</code> pour le mot de Probalis, dont ceux du minuteur et du relais du direct en JavaScript ;
+    <tr><td><code>tests/</code></td><td>Tests automatiques (106 tests, tous réussis le 27/11/2026, dont <code>test_match_picks.py</code> pour les paris du match, <code>test_mot.py</code> pour le mot de Probalis, <code>test_duel.py</code> pour les deux équipes en chiffres et <code>test_filters.py</code> pour les filtres par type et les périodes, dont ceux du minuteur et du relais du direct en JavaScript ;
       <code>conftest.py</code> empêche tout appel à ESPN pendant les tests), lancés aussi par GitHub Actions</td></tr>
   </table>
 </section>
@@ -867,13 +913,31 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       direct (ESPN), commencée le même jour (ligne suivante). <strong>TheSportsDB payant</strong> vérifié : direct,
       compositions, statistiques et déroulé, mais seulement pour les grandes compétitions (rien pour l'Arabie saoudite, le football féminin, la Ligue 2,
       la National League), ni cotes ni absents : il ne remplace pas ESPN.</td></tr>
+    <tr><td>27/11/2026</td><td><strong>Mise à niveau 3 : Paris et Historique</strong> (« Oui, commence ») : filtres par type de pari dans l'onglet
+      Paris (Tous, Résultat, Buts, Les deux marquent, Une équipe marque), réussite par période dans l'Historique (hier, 7 jours, 30 jours, depuis le
+      début) et carte « Par type de pari ». Deux écarts avec ce qui avait été annoncé au porteur du projet : pas de filtre « Corners et cartons »
+      (règle du projet : ils restent au Ticket tant que l'historique n'a pas prouvé leur fiabilité), remplacé par « Une équipe marque » ; et les
+      listes filtrées sont <strong>enregistrées et réglées</strong> dans l'historique (et non seulement affichées), pour pouvoir prouver leur réussite.
+      Elles sont réservées au Premium, chacune dans un seul bloc protégé, pour garder la page Paris légère. Les badges Gagné / Perdu / en cours
+      existaient déjà. Vitrine (chapitres Paris et Historique) et cahier mis à jour. Vérifié dans le navigateur (copie de démonstration, Premium et
+      sans compte) : téléphone, tablette 820 px, ordinateur 1 366 px, français et anglais ; page publique sans aucun pari des listes filtrées.
+      Tests : 106 réussis. Pas encore envoyé sur GitHub.</td></tr>
+    <tr><td>27/11/2026</td><td><strong>Fin de la mise à niveau 2 : onglet « Cotes » et face-à-face en barres</strong> (« Oui, commence ») :
+      « Compare ta cote » et « Cotes du marché » regroupés dans un onglet « Cotes » (3e onglet de la fiche) ; dans « Forme et face-à-face », six
+      barres qui comparent les deux équipes sur leurs derniers matchs, mêmes barres que le direct (voir 3.1, 5.7). Au passage, corrigé : sur
+      ordinateur (dès 1 280 px), le nom de l'équipe à domicile n'apparaissait plus au-dessus du bilan du face-à-face (conflit de la classe
+      <code>.home</code> de la nouvelle page Matchs, renommée <code>.home-wrap</code>). Vitrine (chapitre de la fiche) et cahier mis à jour.
+      Vérifié dans le navigateur (copie de démonstration Premium) : téléphone, tablette, ordinateur, « Compare ta cote » essayé. Le même jour, le
+      porteur du projet a lancé une analyse à la main et vérifié en ligne le direct, les paris du match, le mot de Probalis et la nouvelle
+      interface. Tests : 100 réussis. Pas encore envoyé sur GitHub.</td></tr>
     <tr><td>27/11/2026</td><td><strong>Nouvelle interface tablette et ordinateur</strong>, demandée par le porteur du projet (« soit très créatif […]
       responsive et épuré sur tous les écrans »), après une maquette acceptée : rail d'icônes sur tablette (768 à 1 279 px), barre latérale avec
       encadré Premium sur ordinateur, langue / thème / compte en haut à droite, recherche d'équipe sur la page Matchs, championnats en tableaux (une
       ligne par match), colonne de droite (Mon ticket, n° 1 de chaque niveau, bilan d'hier), fiche en deux colonnes, Paris / Ticket / Historique /
       Compte sur toute la largeur (voir partie 3). Le téléphone ne change pas. Vitrine : FAQ « Et sur ordinateur ou tablette ? ». Vérifié dans le
       navigateur (copie de démonstration, Premium et sans compte) à 375, 820, 1 024, 1 280, 1 366 et 1 920 px, thème clair et sombre. Tests :
-      98 réussis. Pas encore envoyé sur GitHub.</td></tr>
+      98 réussis. Envoyé sur GitHub le même jour avec « Le mot de Probalis » (commit dffb7a9, tests GitHub réussis) ; le porteur du projet a
+      lancé une analyse à la main et vérifié le site en ligne (direct, paris du match, mot de Probalis, nouvelle interface).</td></tr>
     <tr><td>27/11/2026</td><td><strong>« Le mot de Probalis »</strong> (mise à niveau 2, 1re partie ; « Oui, commence ») : trois phrases en haut de la
       fiche, tirées des chiffres (meilleur angle, risque principal, à éviter). Règles testées sur 2025/26 avant d'être branchées (voir 5.4).
       Fiche (FR et EN, sous cadenas comme le reste), vitrine (chapitre, FAQ, ligne Premium, capture de la fiche) et cahier mis à jour. Vérifié
@@ -996,13 +1060,15 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       compositions ; corners et cartons réglés environ 2 h après le match (coupes d'Europe, Arabie saoudite, football féminin compris)</td>
       <td>Liste des matchs et fiche. Les onglets de la fiche restent ; « Match » s'ajoute à côté de « Résumé ». Fait (voir 3.1, 5.2, 5.6, 5.8) ;
       reste à l'envoyer sur GitHub (accord du porteur du projet)</td></tr>
-    <tr><td>2. Fiche plus claire</td><td>« Le mot de Probalis » (meilleur angle, risque principal, ce qu'il vaut mieux éviter) ; grille des verdicts avec
+    <tr><td>2. Fiche plus claire <span class="tag todo">Prête le 27/11/2026</span></td><td>« Le mot de Probalis » (meilleur angle, risque principal, ce qu'il vaut mieux éviter) ; grille des verdicts avec
       « le plus sûr » et « le 2e plus sûr » (en partie faite le 27/11/2026 : « Les paris du match », 3 au plus, cote de 1,30 ou plus) ;
-      onglet « Cotes » (cotes du marché + compare ta cote : ces deux cartes existent déjà dans le « Résumé », il s'agirait de les regrouper) ;
-      face-à-face en barres. « Le mot de Probalis » fait le 27/11/2026</td>
+      onglet « Cotes » (cotes du marché + compare ta cote) ; face-à-face en barres. <strong>Faite le 27/11/2026</strong> : « Le mot de Probalis »,
+      « Les paris du match », onglet « Cotes », « Les deux équipes en chiffres »</td>
       <td>Fiche. Les blocs actuels restent, rangés plus clairement</td></tr>
-    <tr><td>3. Paris et Historique</td><td>Filtres par marché (Victoire, Buts, Les deux marquent, Corners…) en plus des 3 niveaux ; badges Gagné / Perdu /
-      En direct ; réussite sur hier, 7 jours et 30 jours</td><td>Onglets Paris et Historique</td></tr>
+    <tr><td>3. Paris et Historique <span class="tag todo">Prête le 27/11/2026</span></td><td>Filtres par marché (Victoire, Buts, Les deux marquent, Corners…) en plus des 3 niveaux ; badges Gagné / Perdu /
+      En direct ; réussite sur hier, 7 jours et 30 jours. <strong>Faite le 27/11/2026</strong> : filtres Résultat, Buts, Les deux marquent, Une équipe
+      marque (pas de corners ni cartons, règle du projet), réservés au Premium, enregistrés et réglés ; réussite sur hier, 7 jours, 30 jours, depuis
+      le début, et par type de pari ; badges déjà là</td><td>Onglets Paris et Historique</td></tr>
     <tr><td>4. Ticket et favoris</td><td>Générateur réglable (nombre de matchs, niveau de risque, compétitions, marchés, cote mini) ; étoile pour suivre
       ses équipes et compétitions, en haut de la liste des matchs</td><td>Onglets Ticket et Matchs. Les 3 modes du Ticket restent</td></tr>
     <tr><td>5. Plus tard</td><td>Verdicts en direct (chance recalculée selon le score et la minute), alertes, tendances testées, vrais xG (Understat, si
@@ -1082,8 +1148,12 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
   </ol>
   <h3>Pièges connus</h3>
   <ul>
+    <li>Listes par type de l'onglet Paris : ne pas les écrire carte par carte sous cadenas (la page publique passerait de 0,3 à 1,15 Mo) ; une
+      liste = un bloc <code>lk(own=true)</code>, et ses cartes <code>pick_card(e, open=true)</code>. Un <code>lk</code> normal à l'intérieur d'un
+      autre ne marche pas (le bloc intérieur serait rangé deux fois et jamais remis à sa place).</li>
     <li>Interface tablette et ordinateur : la classe <code>.side</code> sert déjà aux côtés des équipes (affiche, en-tête de match) ; la colonne de
-      droite de la page Matchs s'appelle <code>.home-side</code>. Pendant une vérification sur la copie de démonstration, le navigateur garde
+      droite de la page Matchs s'appelle <code>.home-side</code>, et son cadre <code>.home-wrap</code> (pas <code>.home</code> : cette classe
+      sert au nom de l'équipe à domicile dans le face-à-face, que la grille de la page Matchs rendait invisible sur ordinateur jusqu'au 27/11/2026). Pendant une vérification sur la copie de démonstration, le navigateur garde
       l'ancien <code>style.css</code> en mémoire (même <code>?v=</code>) : recharger la feuille de style avant de juger un changement de CSS.</li>
     <li>Ne pas remettre l'horloge de GitHub (<code>schedule</code>) dans les programmes : elle ne lance presque rien sur ce dépôt, et en plus du minuteur
       elle doublerait des lancements (plus de 500 mises en ligne par mois chez Cloudflare Pages). Si le site ne se met plus à jour : regarder d'abord
@@ -1127,7 +1197,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <tr><td>PWA</td><td>Site web qui s'installe comme une application, sans passer par un store.</td></tr>
     <tr><td>Mode démo</td><td>Site construit sans Supabase : connexion et Premium simulés sur le téléphone, pour essayer sans compte.</td></tr>
   </table>
-  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 27 novembre 2026 (version 1.13), nouvelle interface tablette et ordinateur (rail, barre latérale, recherche d'équipe, colonne de droite, fiche en deux colonnes), « Le mot de Probalis » (meilleur angle, risque principal, à éviter), paris du match (au plus 3 par match, cote de 1,30 ou plus, autres verdicts retirés de la fiche), mise à niveau 1 : le match en direct (ESPN : minute et score, onglet « Match », corners et cartons réglés en 2 h), mises à niveau inspirées de Scouter (juste milieu), TheSportsDB payant vérifié, recherche d'API de sport sur GitHub, équipes nationales repoussées au printemps 2027, version 2 proposée (étude de Scouter, sources du direct), corners et cartons réglés même pour les matchs enregistrés sans noms football-data, nouveau rythme du calcul automatique lancé par un minuteur Cloudflare (l'horloge de GitHub ne lançait presque rien), paris réglés pendant le match, vraies cotes des coupes d'Europe (The Odds API : en ligne et vérifiées sur le site).</p>
+  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 27 novembre 2026 (version 1.15), mise à niveau 3 (filtres par type de pari, réussite par période et par type), fin de la mise à niveau 2 (onglet « Cotes », les deux équipes en chiffres), nouvelle interface tablette et ordinateur (rail, barre latérale, recherche d'équipe, colonne de droite, fiche en deux colonnes), « Le mot de Probalis » (meilleur angle, risque principal, à éviter), paris du match (au plus 3 par match, cote de 1,30 ou plus, autres verdicts retirés de la fiche), mise à niveau 1 : le match en direct (ESPN : minute et score, onglet « Match », corners et cartons réglés en 2 h), mises à niveau inspirées de Scouter (juste milieu), TheSportsDB payant vérifié, recherche d'API de sport sur GitHub, équipes nationales repoussées au printemps 2027, version 2 proposée (étude de Scouter, sources du direct), corners et cartons réglés même pour les matchs enregistrés sans noms football-data, nouveau rythme du calcul automatique lancé par un minuteur Cloudflare (l'horloge de GitHub ne lançait presque rien), paris réglés pendant le match, vraies cotes des coupes d'Europe (The Odds API : en ligne et vérifiées sur le site).</p>
 </section>
 
 </body>
