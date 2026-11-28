@@ -246,7 +246,7 @@ def _verdicts_view(m: dict, lang: str, live: tuple | None = None) -> dict:
         rows.append({"q": verdict_question(v, lang, home, away), "ans": ans, "cls": cls,
                      "pct": i18n.pct(v["p"], lang), "w": round(min(max(v["p"], 0), 1) * 100, 1),
                      "odds": i18n.odds(vd.book_odds(v["p"]), lang),
-                     "level": _level(v["p"]), "live": _live_verdict(v, live)})
+                     "level": _level(v["p"]), "live": _live_verdict(v, live), "ip": _ip_code(v)})
     top = None
     if chosen:
         best = chosen[0]
@@ -260,7 +260,7 @@ def _verdicts_view(m: dict, lang: str, live: tuple | None = None) -> dict:
             proof = t["vd_proof_none"].format(pct=i18n.pct(best["p"], lang), miss=max(1, round((1 - best["p"]) * 10)))
         top = {"q": verdict_question(best, lang, home, away), "ans": ans, "cls": cls,
                "pct": i18n.pct(best["p"], lang), "odds": i18n.odds(vd.book_odds(best["p"]), lang),
-               "proof": proof, "live": _live_verdict(best, live)}
+               "proof": proof, "live": _live_verdict(best, live), "ip": _ip_code(best)}
     counts = m.get("counts") or {}
     counts_txt = None
     if counts.get("corners") and counts.get("cards"):
@@ -270,8 +270,13 @@ def _verdicts_view(m: dict, lang: str, live: tuple | None = None) -> dict:
                                              ca=i18n.num(counts["cards"][1], lang, 1))
     lg = BY_CODE.get(m["league"])
     none_txt = t["counts_none_cup" if lg and lg.category == "europe" else "counts_none"]
+    xg = m.get("xg")
     return {"rows": rows, "top": top, "counts_txt": counts_txt, "partial": bool(counts.get("partial")),
-            "no_counts": not counts, "none_txt": none_txt, "picks_proof": _picks_proof(lang)}
+            "no_counts": not counts, "none_txt": none_txt, "picks_proof": _picks_proof(lang),
+            # Chance en direct (dans le bloc Premium seulement : la page publique n'a pas ces chiffres)
+            "xg": f"{xg[0]},{xg[1]}" if xg and len(xg) == 2 else None, "rho": RHO.get(m["league"], 0.0),
+            "ip_proof": _ip_proof(lang) if chosen else None,
+            "ip_counts": any(v["key"] in ("co", "ca") for v in chosen)}
 
 
 def _mot_view(m: dict, lang: str) -> dict | None:
@@ -960,6 +965,43 @@ def _write_live() -> None:
 
 
 SIMULATION = HERE / "simulation.json"
+INPLAY = HERE / "inplay.json"   # chance en direct : profil des buts minute par minute (football/endirect.py)
+RHO: dict[str, float] = {}      # correction des petits scores de chaque championnat (rapport du calcul)
+
+
+def _inplay() -> dict | None:
+    """Réglages de la chance en direct et leur test (football/endirect.py), si le fichier existe."""
+    if not INPLAY.exists():
+        return None
+    try:
+        return json.loads(INPLAY.read_text(encoding="utf-8"))
+    except ValueError:
+        return None
+
+
+def _inplay_cfg(ip: dict | None) -> dict | None:
+    """Pour l'appli (pb-config) : part des buts qui reste à marquer après 0, 1, … 90 minutes, poids des buts déjà
+    marqués (kappa) et effet d'un rouge."""
+    if not ip or not ip.get("profile"):
+        return None
+    prof = ip["profile"]
+    rest = [round(sum(prof[k:]) / sum(prof), 5) for k in range(91)]
+    return {"r": rest, "red": ip.get("reds"), "kap": ip.get("kappa"), "km": ip.get("kmode") or "total"}
+
+
+def _ip_code(v: dict) -> str:
+    """Pari du match pour le calcul en direct (app.js, InPlay) : marché|ligne|sélection|réponse OUI (1) ou NON (0)|chance."""
+    line = "" if v.get("line") is None else v["line"]
+    return f"{v['key']}|{line}|{v['sel']}|{1 if v['yes'] else 0}|{v['p']}"
+
+
+def _ip_proof(lang: str) -> str | None:
+    ip = _inplay()
+    tested = (ip or {}).get("tested")
+    if not tested or not tested.get("bets"):
+        return None
+    return i18n.UI[lang]["ip_proof"].format(n=i18n.count(tested.get("picks") or tested["bets"], lang), season=tested["season"],
+                                           ann=i18n.pct(tested["announced"], lang), rate=i18n.pct(tested["rate"], lang))
 
 
 def _simulation() -> dict | None:
@@ -1216,6 +1258,10 @@ def build(data: dict) -> Path:
     info = data.get("leagues") or {}
     sections = _section_of()
     cfg, site = config.public_config(), config.site()
+    cfg["ip"] = _inplay_cfg(_inplay())
+    RHO.clear()
+    RHO.update({k: float(v.get("rho") or 0.0) for k, v in ((data.get("report") or {}).get("leagues") or {}).items()
+                if isinstance(v, dict)})
     now = datetime.now(timezone.utc)
     today = picks.day_key(now)
     hist = history.load(site["site_url"])

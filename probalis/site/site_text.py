@@ -76,7 +76,9 @@ SITE = {
              "h3": "Le match en direct",
              "p": "Minute et score sur la liste des matchs. Dans la fiche, l'onglet « Match » : les temps forts (buts, cartons, "
                   "remplacements), les statistiques des deux équipes face à face et les compositions, mis à jour chaque minute. "
-                  "Gratuit pour tout le monde. Et les paris sur les corners et les cartons sont jugés environ 2 h après le match."},
+                  "Gratuit pour tout le monde. En Premium, la chance de chaque pari du match est recalculée chaque minute selon "
+                  "le score et la minute. Exemple réel, Arsenal – Manchester City : « Plus de 1,5 buts » à 72 % avant le match, "
+                  "86 % si un but tombe à la 20e, « Déjà validé » au deuxième. Et les paris sur les corners et les cartons sont jugés environ 2 h après le match."},
             {"tab": "Onglet Paris", "shot": "bets",
              "h3": "Les plus sûrs du jour, en trois niveaux",
              "p": "Prudent, Équilibré ou Audacieux : chaque jour, les 5 paris les plus probables de chaque niveau, sur des marchés "
@@ -144,7 +146,8 @@ SITE = {
         "pass_names": {"week": "7 jours", "month": "30 jours", "quarter": "3 mois", "half": "6 mois", "year": "1 an"},
         "pass_best": "Le plus avantageux",
         "save_note": "Remises calculées par jour, par rapport au pass 30 jours.",
-        "prem_items": ["Tous les matchs, avec le mot de Probalis et leurs paris du match (OUI / NON)", "Les 5 paris de chaque niveau et les coupons du jour",
+        "prem_items": ["Tous les matchs, avec le mot de Probalis et leurs paris du match (OUI / NON), recalculés en direct",
+                       "Les 5 paris de chaque niveau et les coupons du jour",
                        "Ton coupon analysé jusqu'à 10 matchs", "Le générateur de coupons, sur un ou plusieurs jours", "Sans pub"],
         "prem_note": "Pass sans abonnement : tu paies une fois, rien ne se renouvelle tout seul. "
                      "Le paiement par mobile money et carte ouvre très bientôt.",
@@ -212,8 +215,9 @@ SITE = {
             ("Je peux suivre le match en direct ?",
              "Oui, gratuitement : dans la fiche du match, l'onglet « Match » donne la minute et le score, les temps forts (buts, "
              "cartons, remplacements), les statistiques des deux équipes et les compositions, mis à jour chaque minute. La liste "
-             "des matchs montre aussi la minute et le score des matchs en cours. Les paris sur les corners et les cartons sont "
-             "jugés environ 2 h après le match."),
+             "des matchs montre aussi la minute et le score des matchs en cours. En Premium, la chance de chaque pari du match "
+             "est recalculée pendant le match selon le score et la minute (testée minute par minute sur 1 525 matchs de 2026/27). "
+             "Les paris sur les corners et les cartons sont jugés environ 2 h après le match."),
             ("Pourquoi jamais 100 % ?",
              "Parce que rien n'est certain dans le foot. Même un pari à 90 % perd 1 fois sur 10 : on préfère te le rappeler."),
             ("C'est quoi, la cote juste ?",
@@ -315,6 +319,9 @@ SITE = {
              "h3": "The match, live",
              "p": "Minute and score on the match list. On the match page, the “Match” tab: key events (goals, cards, "
                   "substitutions), both teams' stats side by side and the line-ups, updated every minute. Free for everyone. "
+                  "With Premium, the chance of each match pick is recalculated every minute from the score and the minute: "
+                  "real example, Arsenal – Manchester City: “Over 1.5 goals” at 72% before the match, 86% if a goal comes in the "
+                  "20th minute, “Already won” at the second. "
                   "And corners and cards bets are judged about 2 hours after the match."},
             {"tab": "Bets tab", "shot": "bets",
              "h3": "Today's safest bets, in three levels",
@@ -380,7 +387,8 @@ SITE = {
         "pass_names": {"week": "7 days", "month": "30 days", "quarter": "3 months", "half": "6 months", "year": "1 year"},
         "pass_best": "Best value",
         "save_note": "Discounts worked out per day, compared with the 30-day pass.",
-        "prem_items": ["Every match, with Probalis's take and its match picks (YES / NO)", "All 5 bets of each level and today's accumulators",
+        "prem_items": ["Every match, with Probalis's take and its match picks (YES / NO), recalculated live",
+                       "All 5 bets of each level and today's accumulators",
                        "Your slip analysed up to 10 matches", "The accumulator generator, over one or more days", "No ads"],
         "prem_note": "A pass, not a subscription: you pay once and nothing renews by itself. "
                      "Mobile money and card payments open very soon.",
@@ -447,7 +455,9 @@ SITE = {
             ("Can I follow the match live?",
              "Yes, for free: on the match page, the “Match” tab shows the minute and score, key events (goals, cards, "
              "substitutions), both teams' stats and the line-ups, updated every minute. The match list also shows the minute "
-             "and score of matches in play. Corners and cards bets are judged about 2 hours after the match."),
+             "and score of matches in play. With Premium, the chance of each match pick is recalculated during the match from "
+             "the score and the minute (tested minute by minute on 1,525 matches from 2026/27). Corners and cards bets are judged about "
+             "2 hours after the match."),
             ("Why never 100%?",
              "Because nothing is certain in football. Even a 90% bet loses 1 time in 10: we'd rather remind you."),
             ("What are fair odds?",

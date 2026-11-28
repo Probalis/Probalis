@@ -486,6 +486,7 @@ _EXTRA = {
                      ["Aucune publicité", 0, 1],
                      ["Les 5 paris les plus sûrs du jour (3 niveaux), coupons du jour, constructeur de coupons complet", "N°1 de chaque liste", "Tout"],
                      ["Générateur de coupons : un ou plusieurs jours, nombre de matchs ou cote visée, filtres", 0, 1],
+                     ["Chance des paris du match recalculée en direct (score et minute)", 0, 1],
                      ["Équipes suivies et championnats favoris, sur tous tes appareils (avec un compte)", 1, 1],
                      ["Alertes personnalisées (bientôt)", 0, 1]],
         "plans_title": "Choisis ton pass",
@@ -617,6 +618,7 @@ _EXTRA = {
                      ["No ads", 0, 1],
                      ["The 5 safest bets of the day (3 levels), daily accumulators, full accumulator builder", "#1 of each list", "Everything"],
                      ["Accumulator generator: one or more days, number of matches or target odds, filters", 0, 1],
+                     ["Match picks' chance recalculated live (score and minute)", 0, 1],
                      ["Followed teams and favourite competitions, on all your devices (with an account)", 1, 1],
                      ["Personal alerts (coming soon)", 0, 1]],
         "plans_title": "Pick your pass",
@@ -1309,6 +1311,50 @@ _MN4_JS = {
 }
 _MN4_UI_JS = ("follow", "gen_favs_help")
 
+# Mise à niveau 5 (27/11/2026) : chance des paris du match recalculée pendant le match (score et minute)
+_MN5 = {
+    "fr": {
+        "ip_proof": "Pendant le match, la chance est recalculée chaque minute selon le score et la minute. Testé sur "
+                    "{n} paris de la saison {season} à 7 moments du match : {ann} annoncé, {rate} réel.",
+        "ip_proof_counts": "Corners et cartons : le compte en direct, sans nouvelle chance.",
+    },
+    "en": {
+        "ip_proof": "During the match, the chance is recalculated every minute from the score and the minute. Tested on "
+                    "{n} bets from the {season} season at 7 moments of the match: {ann} announced, {rate} actual.",
+        "ip_proof_counts": "Corners and cards: the live count, without a new chance.",
+    },
+}
+_MN5_JS = {
+    "fr": {
+        "ip_live": "En direct : {p}",
+        "ip_up": "en hausse",
+        "ip_down": "en baisse",
+        "ip_now_won": "Déjà validé",
+        "ip_now_lost": "Déjà perdu",
+        "ip_won": "Gagné",
+        "ip_lost": "Perdu",
+        "ip_count_co": "{n} corner(s) pour l'instant",
+        "ip_count_ca": "{n} carton(s) pour l'instant",
+        "ip_hero": "Chances en direct · {m}",
+        "ip_ht": "mi-temps",
+        "ip_et": "Prolongation : les paris se règlent sur le score à 90 minutes.",
+    },
+    "en": {
+        "ip_live": "Live: {p}",
+        "ip_up": "going up",
+        "ip_down": "going down",
+        "ip_now_won": "Already won",
+        "ip_now_lost": "Already lost",
+        "ip_won": "Won",
+        "ip_lost": "Lost",
+        "ip_count_co": "{n} corner(s) so far",
+        "ip_count_ca": "{n} card(s) so far",
+        "ip_hero": "Live chances · {m}",
+        "ip_ht": "half-time",
+        "ip_et": "Extra time: bets are settled on the 90-minute score.",
+    },
+}
+
 for _lang in LANGS:
     UI[_lang].update(_DESK[_lang])
     _JS[_lang].update({k: _DESK[_lang][k] for k in _DESK_JS})
@@ -1322,6 +1368,8 @@ for _lang in LANGS:
     UI[_lang].update(_MN4[_lang])
     _JS[_lang].update({k: _MN4[_lang][k] for k in _MN4_UI_JS})
     _JS[_lang].update(_MN4_JS[_lang])
+    UI[_lang].update(_MN5[_lang])
+    _JS[_lang].update(_MN5_JS[_lang])
 
 
 def pick_label(key: str, sel: str, line: float | None, lang: str, home: str, away: str) -> str:

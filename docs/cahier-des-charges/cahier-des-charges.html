@@ -92,7 +92,7 @@ tr:nth-child(even) td { background: #FAFBFC; }
     décrit tout le projet : ce qu'il fait, comment il fonctionne, ce qui a été décidé et ce qui reste à faire, pour
     que n'importe qui (une personne ou une autre intelligence artificielle) puisse reprendre le travail sans rien perdre.</p>
   <div class="meta">
-    <div><b>Version</b>1.16 · 27 novembre 2026</div>
+    <div><b>Version</b>1.17 · 28 novembre 2026</div>
     <div><b>Application</b>probalis.pages.dev</div>
     <div><b>Dossier de travail</b>D:\Projets\Probalis</div>
   </div>
@@ -142,13 +142,19 @@ tr:nth-child(even) td { background: #FAFBFC; }
       27/11/2026 : « Compare ta cote » et « Cotes du marché » passent du « Résumé » à un onglet « Cotes » ; « Les deux équipes en chiffres » compare
       en barres leurs derniers matchs (voir 3.1 et 5.7). Corrige aussi le nom de l'équipe à domicile invisible dans le face-à-face sur ordinateur
       (dès 1 280 px, depuis dffb7a9). Testé, vérifié dans le navigateur ; envoyé sur GitHub le 27/11/2026 avec la mise à niveau 3 (commit 45845a8, tests GitHub réussis) ; en ligne au prochain calcul automatique</td></tr>
+    <tr><td>Chance en direct des paris du match (mise à niveau 5)</td><td><span class="tag todo">Prêt</span></td><td>Le
+      28/11/2026 : pendant le match, la fiche recalcule chaque minute la chance de chaque pari du match selon le score et la minute
+      (« En direct : 58 % », flèche vers le haut ou le bas), puis « Déjà validé » / « Déjà perdu » dès que c'est joué, « Gagné » / « Perdu »
+      à la fin ; les trois chances de l'en-tête suivent aussi le direct. Corners et cartons : le compte en direct. Réglages testé sur 1 525 matchs de 2026/27 (appris sur 2025/26) : 3 337 paris du match suivis à 7 moments (15e, 30e, mi-temps, 60e, 70e, 80e, 85e), soit 23 359 chances recalculées, 67,5 % annoncés en moyenne, 67,7 % réels.
+      Corrige aussi « Manchester City » coupé en deux dans la carte « À la une » sur ordinateur. Voir 3.1 et 5.4. Testé, vérifié dans le
+      navigateur ; pas encore envoyé sur GitHub</td></tr>
     <tr><td>Ticket : générateur de coupons sur plusieurs jours ; équipes suivies et favoris (mise à niveau 4)</td><td><span class="tag todo">Prêt</span></td><td>Le
       27/11/2026 : dans le Ticket, « Mon coupon » et un <strong>Générateur</strong> (Premium) qui remplace « Cote cible » et « Nb de matchs » :
       aujourd'hui, demain, 3 jours, 7 jours ou dates au choix, nombre de matchs (avec niveau) ou cote visée, compétitions, types de pari, cote
       minimale, seulement mes favoris. Bouton « Suivre » sous chaque équipe (fiche du match), étoile sur chaque championnat (page Matchs),
       rubrique « Mes équipes », pastille « Mes favoris », équipes suivies dans le compte. Colonne <code>profiles.favorite_teams</code> ajoutée
-      dans Supabase en ligne le 27/11/2026 (accord du porteur du projet). Voir 3.1, 3.3, 3.5, 5.5. Testé, vérifié dans le navigateur ; pas encore
-      envoyé sur GitHub</td></tr>
+      dans Supabase en ligne le 27/11/2026 (accord du porteur du projet). Voir 3.1, 3.3, 3.5, 5.5. Testé, vérifié dans le navigateur ; envoyé sur
+      GitHub le 27/11/2026 (commit 88a6613, tests GitHub réussis) ; en ligne au prochain calcul automatique</td></tr>
     <tr><td>Paris : filtres par type de pari ; Historique : réussite par période (mise à niveau 3)</td><td><span class="tag todo">Prêt</span></td><td>Le
       27/11/2026 : dans l'onglet Paris, filtres Tous / Résultat / Buts / Les deux marquent / Une équipe marque (listes réservées au Premium,
       enregistrées et réglées comme les autres) ; dans l'Historique, réussite sur hier, 7 jours, 30 jours ou depuis le début, et bilan par type
@@ -318,7 +324,14 @@ tr:nth-child(even) td { background: #FAFBFC; }
     <tr><td>Les paris du match (verdicts OUI / NON)</td><td><span class="tag prem">Premium</span></td><td>Depuis le 27/11/2026 : <strong>au plus 3 paris</strong>
       par match, de types différents (résultat, buts, les deux équipes marquent, une équipe marque, corners ou cartons : au plus un des deux),
       chacun avec au moins 60 % de chance et une <strong>cote estimée d'au moins 1,30</strong> chez le bookmaker (cote juste divisée par 1,05).
-      Exemple : « Plus de 3,5 buts ? NON · 68 % · cote ≈ 1,41 ». Le premier, le plus sûr, est mis en avant avec sa preuve (« ce type de verdict
+      Exemple : « Plus de 3,5 buts ? NON · 68 % · cote ≈ 1,41 ». <strong>En direct</strong> (depuis le 28/11/2026, matchs reliés à ESPN) :
+      sous chaque pari, « En direct : N % » recalculé chaque minute selon le score et la minute, avec une flèche quand la chance monte ou
+      baisse ; « Déjà validé » ou « Déjà perdu » dès que le pari est joué d'avance ; « Gagné » ou « Perdu » au coup de sifflet final
+      (fin normale ; en prolongation, un message rappelle que les paris se règlent sur le score à 90 minutes). Corners et cartons : « N
+      corners pour l'instant » (statistiques ESPN), réglés dès que la ligne est dépassée, sans nouvelle chance. Les trois chances de
+      l'en-tête (victoire, nul, victoire) suivent aussi le direct (« Chances en direct · 64' »), puis reviennent à l'analyse à la fin.
+      Exemple réel (Arsenal – Manchester City, 29/11/2026) : « Plus de 1,5 buts » à 72 % avant le match, 86 % si un but tombe
+      à la 20e, 26 % à 0-0 à la 60e, « Déjà validé » au deuxième but. Le premier, le plus sûr, est mis en avant avec sa preuve (« ce type de verdict
       s'est vérifié X fois sur Y en 2025/26 ») ; la note donne le bilan de la règle sur 2025/26. Les autres verdicts (souvent à 1,05–1,20) ne sont
       plus montrés, sur décision du porteur du projet (ils embrouillaient le choix) ; les chances de tous les marchés restent dans les autres
       onglets de la fiche. Aucun pari ne passe la règle (rare, environ 1 match sur 250) : message « Aucun pari assez sûr à une cote de 1,30 ou
@@ -580,6 +593,20 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
     (38 % des paris auraient été des corners ou cartons), sans corners ni cartons (25 % des matchs n'auraient eu que 2 paris), 55 % de chance au
     lieu de 60 % (presque tous les matchs à 3 paris, mais plus faibles). Sur les 266 matchs à venir le 27/11/2026 : 209 à 3 paris, 51 à 2, 5 à 1,
     1 sans pari.</p>
+  <p><strong>Chance en direct</strong> (<code>probalis/core/inplay.py</code>, <code>InPlay</code> dans <code>app.js</code>, depuis le
+    28/11/2026) : les buts déjà marqués sont acquis ; ceux qui restent suivent la loi de Poisson de l'analyse (buts attendus <code>xg</code>
+    du match), réduite à la part du match qui reste à jouer d'après un <strong>profil des buts minute par minute</strong> (on marque plus en
+    fin de match : 44 % des buts en 1re mi-temps, 9 % dans le temps additionnel de la 2e). Carton rouge : l'équipe à 10 marque 35 % de moins, son adversaire 60 % de plus (appris sur les matchs avec rouge de 2025/26 ; 60 % est le haut de la grille essayée). La correction de Dixon-Coles (rho) des
+    petits scores s'efface à mesure que le match avance ; au coup d'envoi, la chance est exactement celle de l'analyse. Réglages appris par
+    <code>python -m probalis.football.endirect</code> sur 2025/26 et gardés seulement s'ils font mieux sur 2026/27 (saison jamais
+    vue), l'un après l'autre : Temps régulier : gardé (perte 0,36613); Profil appris (on marque plus en fin de match) : gardé (perte 0,35994); Buts déjà marqués : écarté; Cartons rouges (équipe à 10 x0.65, adversaire x1.6) : gardé (perte 0,35896). Gardé : profil appris, rouges (équipe à 10 ×0,65, adversaire ×1,6). Données : les minutes des buts et des cartons publiées par ESPN pour chaque
+    journée (<code>--fetch</code>, environ 2 200 demandes compressées, cache <code>data/cache/espn_hist/</code>), reliées aux matchs
+    football-data par le jour, les noms et le score. Bilan : testé sur 1 525 matchs de 2026/27 (appris sur 2025/26) : 3 337 paris du match suivis à 7 moments (15e, 30e, mi-temps, 60e, 70e, 80e, 85e), soit 23 359 chances recalculées, 67,5 % annoncés en moyenne, 67,7 % réels. Résultat dans <code>probalis/site/inplay.json</code>, transmis à
+    l'appli par <code>pb-config</code> (<code>ip.r</code> : part des buts qui reste après 0 à 90 minutes ; <code>ip.kap</code>,
+    <code>ip.km</code>, <code>ip.red</code>). Les buts attendus et le rho du championnat sont dans le bloc Premium des paris du match
+    (<code>data-xg</code>, <code>data-rho</code> sur <code>.vd-wrap</code>) et chaque pari porte <code>data-ip</code>
+    (marché|ligne|sélection|OUI ou NON|chance) : la page publique n'a aucun de ces chiffres. Écarté après essai : l'idée qu'un 0-0 à la 60e annonce un match fermé (le rythme qui reste multiplié par (kappa + buts marqués) / (kappa + buts attendus jusque-là), essayé pour les deux équipes ensemble ou chacune à part) : il ne fait pas mieux sur la saison d'apprentissage, les buts attendus, calés sur les cotes, en tiennent déjà compte. Tests : <code>tests/test_inplay.py</code> (même chance qu'avant-match au coup
+    d'envoi, buts acquis, app.js et Python identiques sur les mêmes exemples).</p>
   <p><strong>« Le mot de Probalis »</strong> (<code>probalis/core/mot.py</code>, depuis le 27/11/2026) : <code>mot.mot(markets)</code> renvoie
     le meilleur angle (premier de <code>vd.picks</code>), le risque principal (<code>mot.risk</code> : pour un résultat, le nul ou la victoire
     adverse, le plus probable des deux ; pour une ligne de buts, de corners ou de cartons, le côté opposé de la ligne ; pour « les deux marquent »
@@ -710,7 +737,7 @@ Supabase : connexion Google, base de données (profils, Premium, récompenses), 
     <tr><td><code>probalis/site/shots.py</code>, <code>probalis/deploy.py</code></td><td>Captures de la vitrine ; mise en ligne par petits paquets</td></tr>
     <tr><td><code>.github/workflows/</code></td><td>Calcul automatique (rythme en 7.5) et e-mails du jour (bloqués, voir 10), lancés par le minuteur Cloudflare</td></tr>
     <tr><td><code>cloudflare/horloge/</code></td><td>Minuteur Cloudflare <code>probalis-horloge</code> : appuie sur « Run workflow » aux heures du calcul et des e-mails du jour (<code>worker.mjs</code>, tests dans <code>test.mjs</code>, mode d'emploi dans <code>README.md</code>)</td></tr>
-    <tr><td><code>tests/</code></td><td>Tests automatiques (110 tests, tous réussis le 27/11/2026, dont <code>test_match_picks.py</code> pour les paris du match, <code>test_mot.py</code> pour le mot de Probalis, <code>test_duel.py</code> pour les deux équipes en chiffres, <code>test_filters.py</code> pour les filtres par type et les périodes et <code>test_favs_gen.py</code> pour le générateur et les équipes suivies, dont ceux du minuteur et du relais du direct en JavaScript ;
+    <tr><td><code>tests/</code></td><td>Tests automatiques (120 tests, tous réussis le 28/11/2026, dont <code>test_match_picks.py</code> pour les paris du match, <code>test_mot.py</code> pour le mot de Probalis, <code>test_duel.py</code> pour les deux équipes en chiffres, <code>test_filters.py</code> pour les filtres par type et les périodes et <code>test_favs_gen.py</code> pour le générateur et les équipes suivies et <code>test_inplay.py</code> pour la chance en direct, dont ceux du minuteur et du relais du direct en JavaScript ;
       <code>conftest.py</code> empêche tout appel à ESPN pendant les tests), lancés aussi par GitHub Actions</td></tr>
   </table>
 </section>
@@ -959,6 +986,12 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       direct (ESPN), commencée le même jour (ligne suivante). <strong>TheSportsDB payant</strong> vérifié : direct,
       compositions, statistiques et déroulé, mais seulement pour les grandes compétitions (rien pour l'Arabie saoudite, le football féminin, la Ligue 2,
       la National League), ni cotes ni absents : il ne remplace pas ESPN.</td></tr>
+    <tr><td>28/11/2026</td><td><strong>Mise à niveau 5 : chance en direct des paris du match</strong> (« Oui, commence ») : pendant le
+      match, chaque pari du match recalculé chaque minute selon le score et la minute, « Déjà validé / perdu », « Gagné / Perdu » à la fin,
+      en-tête en direct, compte des corners et cartons. Réglages testé sur 1 525 matchs de 2026/27 (appris sur 2025/26) : 3 337 paris du match suivis à 7 moments (15e, 30e, mi-temps, 60e, 70e, 80e, 85e), soit 23 359 chances recalculées, 67,5 % annoncés en moyenne, 67,7 % réels ; Temps régulier : gardé (perte 0,36613); Profil appris (on marque plus en fin de match) : gardé (perte 0,35994); Buts déjà marqués : écarté; Cartons rouges (équipe à 10 x0.65, adversaire x1.6) : gardé (perte 0,35896). Corrigé au passage : « Manchester City » coupé dans la
+      carte « À la une » sur ordinateur (colonnes des équipes plus larges, coupure de mot propre). Vitrine (chapitre « Le match en direct »,
+      FAQ, page Premium) et cahier mis à jour. Vérifié dans le navigateur (copie de démonstration, match en direct simulé). Tests : 120
+      réussis. Pas encore envoyé sur GitHub.</td></tr>
     <tr><td>27/11/2026</td><td><strong>Mise à niveau 4 : Ticket et favoris</strong>, demandée par le porteur du projet (« faire les coupons sur
       une semaine… tu choisis le nombre de jours », « tu as le choix » ; équipes favorites « enregistré dans le compte… tu ajoutes une colonne de
       ça à la super base en ligne ») : générateur de coupons sur un ou plusieurs jours (aujourd'hui, demain, 3 jours, 7 jours, dates au choix)
@@ -969,7 +1002,8 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       du projet avant de commencer) ; pas de niveau de risque en « cote visée » (à cote égale, moins de matchs = plus de chance : l'appli prend
       le moins de matchs possible). Corners et cartons permis dans le Générateur (règle : pas dans les paris du jour, permis au Ticket). Vitrine
       (chapitres Ticket et fiche du match, ligne Premium, captures Matchs, fiche et Ticket refaites), page Premium (tableau) et cahier mis à jour. Vérifié dans le navigateur (copie de
-      démonstration) : téléphone, tablette, ordinateur, français et anglais. Tests : 110 réussis. Pas encore envoyé sur GitHub.</td></tr>
+      démonstration) : téléphone, tablette, ordinateur, français et anglais. Tests : 110 réussis. Envoyé sur GitHub le même jour, après accord
+      du porteur du projet (« Oui, envoie ») : commit 88a6613, tests GitHub réussis.</td></tr>
     <tr><td>27/11/2026</td><td><strong>Mise à niveau 3 : Paris et Historique</strong> (« Oui, commence ») : filtres par type de pari dans l'onglet
       Paris (Tous, Résultat, Buts, Les deux marquent, Une équipe marque), réussite par période dans l'Historique (hier, 7 jours, 30 jours, depuis le
       début) et carte « Par type de pari ». Deux écarts avec ce qui avait été annoncé au porteur du projet : pas de filtre « Corners et cartons »
@@ -1127,12 +1161,13 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
       En direct ; réussite sur hier, 7 jours et 30 jours. <strong>Faite le 27/11/2026</strong> : filtres Résultat, Buts, Les deux marquent, Une équipe
       marque (pas de corners ni cartons, règle du projet), réservés au Premium, enregistrés et réglés ; réussite sur hier, 7 jours, 30 jours, depuis
       le début, et par type de pari ; badges déjà là</td><td>Onglets Paris et Historique</td></tr>
-    <tr><td>4. Ticket et favoris <span class="tag todo">Prête le 27/11/2026</span></td><td>Générateur réglable (nombre de matchs, niveau de risque, compétitions, marchés, cote mini) ; étoile pour suivre
+    <tr><td>4. Ticket et favoris <span class="tag todo">Envoyée le 27/11/2026</span></td><td>Générateur réglable (nombre de matchs, niveau de risque, compétitions, marchés, cote mini) ; étoile pour suivre
       ses équipes et compétitions, en haut de la liste des matchs. <strong>Faite le 27/11/2026</strong>, avec en plus la période (un ou plusieurs
       jours) et « seulement mes favoris » ; équipes suivies enregistrées dans le compte (colonne Supabase)</td><td>Onglets Ticket et Matchs.
       Le Ticket a désormais 2 modes : « Mon coupon » et « Générateur » (qui réunit « Cote cible » et « Nb de matchs »)</td></tr>
-    <tr><td>5. Plus tard</td><td>Verdicts en direct (chance recalculée selon le score et la minute), alertes, tendances testées, vrais xG (Understat, si
-      le test du moteur passe)</td><td>—</td></tr>
+    <tr><td>5. Plus tard <span class="tag todo">1re partie prête le 28/11/2026</span></td><td>Verdicts en direct (chance recalculée selon le score et la minute), alertes, tendances testées, vrais xG (Understat, si
+      le test du moteur passe). <strong>Verdicts en direct faits le 28/11/2026</strong> (paris du match et en-tête de la fiche) ; restent les
+      alertes et les vrais xG</td><td>Fiche du match</td></tr>
   </table>
   <p>Chaque mise à niveau est envoyée seule, avec la vitrine à jour (vraies captures) et ce cahier. Plus tard, si le projet rapporte : absents, joueurs
     et xG partout (fournisseur payant).</p>
@@ -1208,6 +1243,9 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
   </ol>
   <h3>Pièges connus</h3>
   <ul>
+    <li>ESPN : sans « Accept-Encoding: gzip », chaque journée pèse environ 80 Ko au lieu de 10 : sur une connexion lente, le relevé de deux
+      saisons passe de 20 minutes à près de 2 heures (<code>endirect._get</code> demande la version compressée). L'adresse
+      <code>scoreboard?dates=AAAAMMJJ-AAAAMMJJ</code> (plusieurs jours) répond « 400 » pour le football : une demande par jour.</li>
     <li>Supabase, table <code>profiles</code> : les membres n'ont le droit de modifier que certaines colonnes, données une par une
       (<code>grant update (…)</code>). Une nouvelle colonne que le membre doit pouvoir changer a besoin de son <code>grant</code>, sinon
       l'enregistrement échoue (message « Erreur »). Vérifier avec <code>has_column_privilege('authenticated', 'public.profiles', 'colonne',
@@ -1263,7 +1301,7 @@ $env:PYTHONIOENCODING = "utf-8"      # accents corrects dans la console</pre>
     <tr><td>PWA</td><td>Site web qui s'installe comme une application, sans passer par un store.</td></tr>
     <tr><td>Mode démo</td><td>Site construit sans Supabase : connexion et Premium simulés sur le téléphone, pour essayer sans compte.</td></tr>
   </table>
-  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 27 novembre 2026 (version 1.16), mise à niveau 4 (générateur de coupons sur plusieurs jours, équipes suivies et favoris, colonne Supabase), mise à niveau 3 (filtres par type de pari, réussite par période et par type), fin de la mise à niveau 2 (onglet « Cotes », les deux équipes en chiffres), nouvelle interface tablette et ordinateur (rail, barre latérale, recherche d'équipe, colonne de droite, fiche en deux colonnes), « Le mot de Probalis » (meilleur angle, risque principal, à éviter), paris du match (au plus 3 par match, cote de 1,30 ou plus, autres verdicts retirés de la fiche), mise à niveau 1 : le match en direct (ESPN : minute et score, onglet « Match », corners et cartons réglés en 2 h), mises à niveau inspirées de Scouter (juste milieu), TheSportsDB payant vérifié, recherche d'API de sport sur GitHub, équipes nationales repoussées au printemps 2027, version 2 proposée (étude de Scouter, sources du direct), corners et cartons réglés même pour les matchs enregistrés sans noms football-data, nouveau rythme du calcul automatique lancé par un minuteur Cloudflare (l'horloge de GitHub ne lançait presque rien), paris réglés pendant le match, vraies cotes des coupes d'Europe (The Odds API : en ligne et vérifiées sur le site).</p>
+  <p class="small muted" style="margin-top:14pt">Fin du document. Dernière mise à jour : 28 novembre 2026 (version 1.17), mise à niveau 5 (chance en direct des paris du match, testée minute par minute), mise à niveau 4 (générateur de coupons sur plusieurs jours, équipes suivies et favoris, colonne Supabase), mise à niveau 3 (filtres par type de pari, réussite par période et par type), fin de la mise à niveau 2 (onglet « Cotes », les deux équipes en chiffres), nouvelle interface tablette et ordinateur (rail, barre latérale, recherche d'équipe, colonne de droite, fiche en deux colonnes), « Le mot de Probalis » (meilleur angle, risque principal, à éviter), paris du match (au plus 3 par match, cote de 1,30 ou plus, autres verdicts retirés de la fiche), mise à niveau 1 : le match en direct (ESPN : minute et score, onglet « Match », corners et cartons réglés en 2 h), mises à niveau inspirées de Scouter (juste milieu), TheSportsDB payant vérifié, recherche d'API de sport sur GitHub, équipes nationales repoussées au printemps 2027, version 2 proposée (étude de Scouter, sources du direct), corners et cartons réglés même pour les matchs enregistrés sans noms football-data, nouveau rythme du calcul automatique lancé par un minuteur Cloudflare (l'horloge de GitHub ne lançait presque rien), paris réglés pendant le match, vraies cotes des coupes d'Europe (The Odds API : en ligne et vérifiées sur le site).</p>
 </section>
 
 </body>

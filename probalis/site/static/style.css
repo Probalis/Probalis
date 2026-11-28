@@ -254,7 +254,7 @@ html:not(.js) .js-only { display: none !important; }
 .f-teams { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center;
   gap: 6px; margin-top: 14px; }
 .side { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; min-width: 0; }
-.side .nm { font-family: var(--font-num); font-size: 15px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.side .nm { font-family: var(--font-num); font-size: 15px; font-weight: 700; line-height: 1.2; overflow-wrap: break-word; hyphens: auto; }
 .f-vs { display: flex; flex-direction: column; align-items: center; gap: 2px; max-width: 96px; text-align: center; }
 .f-vs b { font-family: var(--font-num); font-size: 14px; color: var(--night-2); }
 .f-vs small { font-size: 11px; color: var(--night-4); line-height: 1.25; }
@@ -1476,11 +1476,13 @@ html.signed .sb-anon { display: none; }
   .q-search input::placeholder { color: var(--muted); }
   .q-search:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
 
-  .featured { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-    grid-template-areas: "top top" "teams bar" "teams pcts" "teams foot"; column-gap: 40px; align-items: center;
+  /* Les équipes ont la plus grande part : un nom comme « Manchester » tient sur sa ligne (27/11/2026) */
+  .featured { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    grid-template-areas: "top top" "teams bar" "teams pcts" "teams foot"; column-gap: 32px; align-items: center;
     margin-top: 18px; padding: 20px 26px 18px; }
   .featured .f-top { grid-area: top; }
   .featured .f-teams { grid-area: teams; margin-top: 10px; }
+  .featured .f-vs { max-width: 76px; }
   .featured .bar3 { grid-area: bar; align-self: end; margin-top: 14px; }
   .featured .pcts { grid-area: pcts; align-self: start; }
   .featured .pcts b { font-size: 22px; }
@@ -1779,3 +1781,21 @@ html.signed .sb-anon { display: none; }
   .tk-panel[data-panel="gen"] > #gen-out { grid-column: 2; grid-row: 2 / span 4; position: sticky; top: 20px; }
   .tk-panel[data-panel="gen"] > #gen-out > :first-child { margin-top: 12px; }
 }
+
+/* Chance en direct des paris du match (mise à niveau 5) */
+.ip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 0; font-size: 13px; font-weight: 700; }
+.ip[hidden] { display: none; }
+.vd > .ip { grid-column: 1 / -1; }
+.ip .pk-res { height: 23px; }
+.ip-live { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: var(--green-soft);
+  color: var(--green-ink); font-family: var(--font-num); white-space: nowrap; }
+.vd-top .ip-live { background: rgba(255, 255, 255, .1); color: #FFFFFF; }
+.ip-live.down .ic { color: var(--bad-ink); }
+.vd-top .ip-live.down .ic { color: #FCA5A5; }
+.ip-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: lv-pulse 1.4s ease-in-out infinite; }
+.ip-hero { position: relative; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 10px 0 0;
+  font-size: 12px; font-weight: 700; color: var(--night-ink); }
+.ip-hero[hidden] { display: none; }
+.ip-et { margin: 10px 0 0; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+.ip-et[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) { .ip-dot { animation: none; } }

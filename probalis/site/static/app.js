@@ -2707,6 +2707,212 @@
   };
 
   // =====================================================================================================
+  // Chance en direct des paris du match (mise à niveau 5, 27/11/2026) : même calcul que probalis/core/inplay.py.
+  // Les buts déjà marqués sont acquis ; ceux qui restent suivent la loi de Poisson de l'analyse (buts attendus,
+  // data-xg du bloc Premium des paris du match), réduite à la part du match qui reste à jouer. Cette part suit le
+  // profil des buts minute par minute appris sur 2025/26 et testé sur 2026/27 (CFG.ip, football/endirect.py).
+  // Corners et cartons : le compte en direct (statistiques ESPN), sans nouvelle chance.
+  // =====================================================================================================
+  var InPlay = (function () {
+    // <inplay-calc> (relu par tests/test_inplay.py, qui compare avec probalis/core/inplay.py)
+    var N = 10;
+    var IC_UP = svg('<path d="m6 15 6-6 6 6"/>', 12, 3);
+    var IC_DOWN = svg('<path d="m6 9 6 6 6-6"/>', 12, 3);
+    var IC_OK = svg('<path d="M20 6 9 17l-5-5"/>', 12, 3);
+    var IC_KO = svg('<path d="M6 6l12 12M18 6 6 18"/>', 12, 3);
+    var pois = function (rate) {
+      var out = [];
+      var p = Math.exp(-rate);
+      var sum = 0;
+      for (var k = 0; k <= N; k++) {
+        if (k) p = p * rate / k;
+        out.push(p);
+        sum += p;
+      }
+      out[N] += Math.max(0, 1 - sum);
+      return out;
+    };
+    var wins = function (key, line, sel, x, y) {
+      var d = x - y;
+      var t = x + y;
+      if (key === '1x2') return sel === '1' ? d > 0 : sel === 'X' ? d === 0 : d < 0;
+      if (key === 'dc') return sel === '1X' ? d >= 0 : sel === '12' ? d !== 0 : d <= 0;
+      if (key === 'ou') return sel === 'over' ? t > line : t < line;
+      if (key === 'btts') return sel === 'yes' ? x > 0 && y > 0 : x === 0 || y === 0;
+      if (key === 'tt1') return sel === 'over' ? x > line : x < line;
+      if (key === 'tt2') return sel === 'over' ? y > line : y < line;
+      return null;
+    };
+    // Chance que la sélection gagne, sachant le score h-a après `played` minutes et les rouges (côtés 'h' / 'a')
+    var chance = function (xg, rho, h, a, played, reds, key, line, sel) {
+      var ip = CFG.ip;
+      var r = ip.r[Math.max(0, Math.min(90, played))];
+      var lr = xg[0] * r;
+      var mr = xg[1] * r;
+      if (ip.kap) {
+        // Les buts déjà marqués renseignent sur le match : un 0-0 à la 60e est souvent un match fermé
+        var done = 1 - r;
+        if (ip.km === 'team') {
+          lr *= (ip.kap + h) / (ip.kap + xg[0] * done);
+          mr *= (ip.kap + a) / (ip.kap + xg[1] * done);
+        } else {
+          var f = (ip.kap + h + a) / (ip.kap + (xg[0] + xg[1]) * done);
+          lr *= f;
+          mr *= f;
+        }
+      }
+      if (ip.red) {
+        reds.forEach(function (sd) {
+          if (sd === 'h') { lr *= ip.red[0]; mr *= ip.red[1]; } else if (sd === 'a') { lr *= ip.red[1]; mr *= ip.red[0]; }
+        });
+      }
+      var ph = pois(lr);
+      var pa = pois(mr);
+      var rr = r > 0 ? rho * r : 0;
+      var tot = 0;
+      var yes = 0;
+      for (var i = 0; i <= N; i++) {
+        for (var j = 0; j <= N; j++) {
+          var v = ph[i] * pa[j];
+          if (rr) {
+            if (i === 0 && j === 0) v *= 1 - lr * mr * rr;
+            else if (i === 0 && j === 1) v *= 1 + lr * rr;
+            else if (i === 1 && j === 0) v *= 1 + mr * rr;
+            else if (i === 1 && j === 1) v *= 1 - rr;
+          }
+          if (v < 0) v = 0;
+          tot += v;
+          if (wins(key, line, sel, h + i, a + j)) yes += v;
+        }
+      }
+      return tot ? yes / tot : 0;
+    };
+    // </inplay-calc>
+    var minute = function (d) {
+      if (d.sn === 'STATUS_HALFTIME') return 45;
+      var m = /^(\d+)/.exec(String(d.cl || ''));
+      return m ? +m[1] : null;
+    };
+    // Corners et cartons comptés comme le calcul (football/espn.box) : un rouge sur deuxième jaune vaut 3
+    var counts = function (d) {
+      var by = {};
+      (d.st || []).forEach(function (x) { by[x[0]] = [parseFloat(x[1]), parseFloat(x[2])]; });
+      var out = {};
+      if (by.wonCorners && !isNaN(by.wonCorners[0] + by.wonCorners[1])) out.co = by.wonCorners[0] + by.wonCorners[1];
+      if (by.yellowCards) {
+        var sy = (d.ev || []).filter(function (e) { return e.k === 'jr'; }).length;
+        var rd = by.redCards || [0, 0];
+        var n = by.yellowCards[0] + by.yellowCards[1] + (rd[0] || 0) + (rd[1] || 0) + 2 * sy;
+        if (!isNaN(n)) out.ca = n;
+      }
+      return out;
+    };
+    var badge = function (res, txt) {
+      return '<span class="pk-res ' + res + '">' + (res === 'won' ? IC_OK : IC_KO) + esc(txt) + '</span>';
+    };
+    var slot = function (el) {
+      var x = el.querySelector('.ip');
+      if (!x) {
+        x = doc.createElement('p');
+        x.className = 'ip';
+        x.setAttribute('aria-live', 'polite');
+        var ans = el.querySelector('.vd-ans');
+        if (ans) ans.parentNode.insertBefore(x, ans.nextSibling); else el.appendChild(x);
+      }
+      return x;
+    };
+    // En-tête : les trois chances (victoire, nul, victoire) recalculées pendant le match, remises à la fin
+    var hero = function (scope, xg, rho, st) {
+      var pc = $$('.hero .pcts.big b', scope);
+      var bars = $$('.hero .bar3.big i', scope);
+      var bar = scope.querySelector('.hero .bar3.big');
+      var host = scope.querySelector('.hero .pcts.big');
+      if (pc.length !== 3 || !host) return;
+      var note = scope.querySelector('.hero .ip-hero');
+      if (!host._ip) host._ip = { t: pc.map(function (b) { return b.textContent; }), w: bars.map(function (b) { return b.style.width; }), l: bar && bar.getAttribute('aria-label') };
+      if (!st) {
+        pc.forEach(function (b, i) { b.textContent = host._ip.t[i]; });
+        bars.forEach(function (b, i) { b.style.width = host._ip.w[i]; });
+        if (bar && host._ip.l) bar.setAttribute('aria-label', host._ip.l);
+        if (note) note.hidden = true;
+        return;
+      }
+      var ps = ['1', 'X', '2'].map(function (k) { return chance(xg, rho, st.h, st.a, st.played, st.reds, '1x2', null, k); });
+      pc.forEach(function (b, i) { b.textContent = pctTxt(ps[i]); });
+      if (bars.length === 3) bars.forEach(function (b, i) { b.style.width = (ps[i] * 100).toFixed(1) + '%'; });
+      if (bar) bar.setAttribute('aria-label', '1 ' + pctTxt(ps[0]) + ', X ' + pctTxt(ps[1]) + ', 2 ' + pctTxt(ps[2]));
+      if (!note) {
+        note = doc.createElement('p');
+        note.className = 'ip-hero';
+        host.parentNode.insertBefore(note, host.nextSibling);
+      }
+      note.hidden = false;
+      note.innerHTML = '<i class="ip-dot" aria-hidden="true"></i>' + esc(fmt(T.ip_hero, { m: st.txt }));
+    };
+    var paint = function (scope, d, l) {
+      var wrap = scope.querySelector('.vd-wrap[data-xg]');
+      if (!wrap || !CFG.ip || !CFG.ip.r || !l || l.bad || !l.sc) return;
+      var xg = wrap.dataset.xg.split(',').map(Number);
+      var rho = parseFloat(wrap.dataset.rho) || 0;
+      if (xg.length !== 2 || isNaN(xg[0] + xg[1])) return;
+      var played = minute(d);
+      var ended = l.done && (d.sn === 'STATUS_FULL_TIME' || d.sn === 'STATUS_FINAL');
+      var extra = !ended && (l.done || /EXTRA|OVERTIME|SHOOTOUT/.test(d.sn || '') || (played != null && played > 90));
+      var et = wrap.querySelector('.ip-et');
+      if (extra) {
+        // Prolongation : les paris se règlent sur le score à 90 minutes (réglés ensuite par le calcul)
+        hero(scope);
+        $$('.ip', wrap).forEach(function (x) { x.hidden = true; });
+        if (!et) { et = doc.createElement('p'); et.className = 'ip-et'; wrap.appendChild(et); }
+        et.textContent = T.ip_et;
+        return;
+      }
+      if (et) et.hidden = true;
+      if (!ended && (played == null || !l.live)) return;
+      var reds = (d.ev || []).filter(function (e) { return e.k === 'r' || e.k === 'jr'; }).map(function (e) { return e.e; });
+      var st = ended ? null : { h: l.sc[0], a: l.sc[1], played: played, reds: reds, txt: l.txt };
+      hero(scope, xg, rho, st);
+      var cnt = counts(d);
+      $$('[data-ip]', wrap).forEach(function (el) {
+        var f = el.dataset.ip.split('|');
+        var key = f[0];
+        var line = f[1] === '' ? null : parseFloat(f[1]);
+        var sel = f[2];
+        var yes = f[3] === '1';
+        var p0 = parseFloat(f[4]);
+        var out = slot(el);
+        var html = '';
+        if (key === 'co' || key === 'ca') {
+          var n = cnt[key];
+          if (n == null) { out.hidden = true; return; }
+          var over = n > line;
+          if (ended) html = badge(over === yes ? 'won' : 'lost', over === yes ? T.ip_won : T.ip_lost);
+          else if (over) html = badge(yes ? 'won' : 'lost', yes ? T.ip_now_won : T.ip_now_lost);
+          else html = '<span class="ip-live"><i class="ip-dot" aria-hidden="true"></i>' + esc(fmt(T['ip_count_' + key], { n: n })) + '</span>';
+        } else if (ended) {
+          var ok = wins(key, line, sel, l.sc[0], l.sc[1]) === yes;
+          html = badge(ok ? 'won' : 'lost', ok ? T.ip_won : T.ip_lost);
+        } else {
+          var py = chance(xg, rho, l.sc[0], l.sc[1], played, reds, key, line, sel);
+          var pa = yes ? py : 1 - py;
+          if (pa > 1 - 1e-9) html = badge('won', T.ip_now_won);
+          else if (pa < 1e-9) html = badge('lost', T.ip_now_lost);
+          else {
+            var dir = pa - p0 >= 0.005 ? 'up' : p0 - pa >= 0.005 ? 'down' : '';
+            html = '<span class="ip-live' + (dir ? ' ' + dir : '') + '"><i class="ip-dot" aria-hidden="true"></i>' +
+              esc(fmt(T.ip_live, { p: pctTxt(pa) })) + (dir ? (dir === 'up' ? IC_UP : IC_DOWN) + '<span class="sr-only">' + esc(T['ip_' + dir]) + '</span>' : '') + '</span>';
+          }
+        }
+        // Le badge posé par le calcul (« Déjà validé » d'après le dernier score connu) laisse la place au direct
+        $$('.vd-live', el).forEach(function (x) { x.hidden = true; });
+        out.innerHTML = html;
+        out.hidden = false;
+      });
+    };
+    return { paint: paint, chance: chance };
+  })();
+
+  // =====================================================================================================
   // Match en direct (ESPN, par notre relais /live/ : le téléphone ne parle jamais à ESPN directement).
   // Liste des matchs : minute et score sur les cartes des matchs en cours ou finis depuis peu.
   // Fiche : score et minute en tête, onglet « Match » (temps forts, statistiques, compositions).
@@ -2992,6 +3198,7 @@
       }
       var dot = scope.querySelector('#tab-match .tab-live');
       if (dot) dot.hidden = !(l && l.live);
+      InPlay.paint(scope, d, l);
     };
     var match = function (box, scope, g) {
       var r = ref(box);
